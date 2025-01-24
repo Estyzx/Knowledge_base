@@ -1,5 +1,6 @@
+from django.db.models import Q
 from django.shortcuts import render
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView,ListView
 from .models import Variety, PlantingTech
 # Create your views here.
 
@@ -34,5 +35,24 @@ class HomePage(TemplateView):
 
         return context
 """
+
+class VarietyList(ListView):
+    model = Variety
+    template_name = 'gannan_orange/variety_list.html'
+    paginate_by = 10 # 分页
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        search_key = self.request.GET.get('q')
+        if search_key:
+            queryset = queryset.filter(Q(name__icontains=search_key)|Q(description__icontains=search_key)).order_by('-create_time')
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_key'] = self.request.GET.get('q')
+        return context
 
 
