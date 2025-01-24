@@ -1,5 +1,5 @@
 from django.contrib import admin
-from models import Variety,PlantingTech,Pest
+from .models import Variety,PlantingTech,Pest
 # Register your models here.
 
 
