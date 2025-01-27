@@ -7,6 +7,7 @@ class CustomUser(AbstractUser):
     ROLE_CHOICES = [
         ('farmer', '农民'),
         ('expert', '专家'),
+        ('admin', '管理员'),
     ]
 
     username = models.CharField('用户名', max_length=50, unique=True)

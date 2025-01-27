@@ -3,11 +3,11 @@ from .models import  CustomUser
 # Register your models here.
 
 class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'phone', 'location')
+    list_display = ('username', 'phone', 'location', 'role')
     exclude = ('password','date_joined', 'last_login')
     readonly_fields = ('date_joined', 'last_login')
     fieldsets = (
-        ('个人信息',{'fields': ('username', 'phone', 'location')}),
+        ('个人信息',{'fields': ('username', 'phone', 'location','role')}),
         ('权限',{'fields': ('is_staff', 'is_active', 'is_superuser')}),
         ('其他',{'fields': ('date_joined', 'last_login')})
     )
