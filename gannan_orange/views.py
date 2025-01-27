@@ -1,6 +1,6 @@
 from django.db.models import Q
-from django.shortcuts import render
-from django.views.generic import TemplateView,ListView
+from django.shortcuts import render, get_object_or_404
+from django.views.generic import TemplateView, ListView, DetailView
 from .models import Variety, PlantingTech
 # Create your views here.
 
@@ -54,5 +54,18 @@ class VarietyList(ListView):
         context = super().get_context_data(**kwargs)
         context['search_key'] = self.request.GET.get('q')
         return context
+
+
+class VarietyDetail(DetailView):
+    model = Variety
+    template_name = 'gannan_orange/variety_detail.html'
+    context_object_name = 'variety'
+
+    def get_object(self, queryset = ...):
+        vid = self.kwargs.get('id')
+        return get_object_or_404(Variety, id=vid)
+
+
+
 
 

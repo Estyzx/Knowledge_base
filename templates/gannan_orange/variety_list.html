@@ -14,7 +14,7 @@
                 </form>
                 <ul class="list-group">
                     {% for variety in variety_list %}
-                        <a href="{% url 'orange:home' %}" class="text-decoration-none">
+                        <a href="{% url 'orange:detail' id=variety.id %}" class="text-decoration-none">
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <div>
                                 <h5>{{ variety.name }}</h5>
