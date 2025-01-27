@@ -29,6 +29,9 @@ class PlantingTech(models.Model):
     create_time = models.DateTimeField('创建时间',auto_now_add=True)
     update_time = models.DateTimeField('更新时间',auto_now=True)
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         verbose_name = '种植技术'
         verbose_name_plural = verbose_name
@@ -42,6 +45,9 @@ class Pest(models.Model):
     description = models.TextField('病虫害描述',blank=True)
     create_time = models.DateTimeField('创建时间',auto_now_add=True)
     update_time = models.DateTimeField('更新时间',auto_now=True)
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         verbose_name = '病虫害'
