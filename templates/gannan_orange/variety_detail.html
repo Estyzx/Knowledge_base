@@ -7,7 +7,7 @@
             <div class="col-md-8">
                 <div class="card mb-4">
                     <div class="card-body">
-                        <h2 class="card-title">{{ variety.name }}</h2>
+                        <h2 class="card-title text-center">{{ variety.name }}</h2>
                         <!-- 首行空两格 -->
                         <p class="card-text" style="text-indent: 2em;">{{ variety.description }}</p>
                     </div>
@@ -25,7 +25,9 @@
                         <h4 class="card-title">种植技术</h4>
 
                         {% for tech in variety.planting_tech.all %}
-                        <h3><a href=""><span class="badge bg-success">{{ tech.name }}</span></a></h3>
+                        <a href=""><span class="badge bg-success">{{ tech.name }}</span></a>
+                            {% empty %}
+                            <p class="card-text">暂无种植技术信息。</p>
                         {% endfor %}
 
                     </div>
