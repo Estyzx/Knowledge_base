@@ -5,5 +5,6 @@ app_name = 'orange'
 urlpatterns = [
     path('', views.HomePage.as_view(), name='home'),
     path('list', views.VarietyList.as_view(), name='list'),
-    path('detail/<int:id>', views.VarietyDetail.as_view(), name='detail')
+    path('detail/<int:id>', views.VarietyDetail.as_view(), name='detail'),
+    path('detail/<int:id>/edit', views.VarietyCreate.as_view(), name='edit'),
 ]
