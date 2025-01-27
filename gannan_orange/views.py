@@ -39,10 +39,10 @@ class HomePage(TemplateView):
 class VarietyList(ListView):
     model = Variety
     template_name = 'gannan_orange/variety_list.html'
-    paginate_by = 10 # 分页
+    paginate_by = 4 # 分页
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = Variety.objects.order_by('-create_time')
 
         search_key = self.request.GET.get('q')
         if search_key:

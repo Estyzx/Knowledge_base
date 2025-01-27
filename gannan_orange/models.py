@@ -7,6 +7,7 @@ from django.db import models
 class Variety(models.Model):
     name = models.CharField('品种名称',max_length=50,unique=False,blank=False)
     description = models.TextField('品种描述',blank=True)
+    
     create_time = models.DateTimeField('创建时间',auto_now_add=True)
     update_time = models.DateTimeField('更新时间',auto_now=True)
     planting_tech = models.ManyToManyField('PlantingTech',verbose_name='种植技术',blank=True)
