@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}用户登录{% endblock %}
+
+{% block main %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow-lg border-0 rounded-3">
+            <div class="card-body">
+                <h3 class="text-center mb-4 text-success">用户登录</h3>
+
+                <!-- 显示消息 -->
+                {% if messages %}
+                    <div class="alert alert-danger">
+                        {% for message in messages %}
+                            {{ message }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- 登录表单 -->
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label">用户名</label>
+                        <input type="text" name="username" id="id_username" class="form-control form-control-lg shadow-sm" value="{% if form.username.value %}{{ form.username.value }}{% endif %}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_password" class="form-label">密码</label>
+                        <input type="password" name="password" id="id_password" class="form-control form-control-lg shadow-sm" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100 py-2 mb-3 shadow-sm rounded-pill">登录</button>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="" class="text-muted">忘记密码?</a>
+                        <a href="" class="text-muted">没有账户? 注册</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
