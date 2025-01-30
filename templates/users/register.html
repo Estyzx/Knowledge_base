@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}用户注册{% endblock %}
+
+{% block main %}
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 m-5">
+                <div class="card shadow-lg">
+                    <div class="card-header bg-success text-white text-center">
+                        <h4>注册账户</h4>
+                    </div>
+                    <form method="post" class="row g-3 m-3" novalidate>
+                        {% csrf_token %}
+
+                        <!-- 用户名 -->
+                        <div class="col-md-6 position-relative">
+                            <label for="username" class="form-label">用户名</label>
+                            <input type="text" class="form-control {% if form.username.errors %}is-invalid{% endif %}"
+                                   id="username" name="username" value="{{ form.username.value|default:'' }}" required>
+                            {% if form.username.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.username.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- 手机号 -->
+                        <div class="col-md-6 position-relative">
+                            <label for="phone" class="form-label">手机号</label>
+                            <input type="text" class="form-control {% if form.phone.errors %}is-invalid{% endif %}"
+                                   id="phone" name="phone" value="{{ form.phone.value|default:'' }}" required>
+                            {% if form.phone.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.phone.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- 密码 -->
+                        <div class="col-md-6 position-relative">
+                            <label for="password1" class="form-label">密码</label>
+                            <input type="password" class="form-control {% if form.password1.errors %}is-invalid{% endif %}"
+                                   id="password1" name="password1" required>
+                            {% if form.password1.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.password1.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- 确认密码 -->
+                        <div class="col-md-6 position-relative">
+                            <label for="password2" class="form-label">确认密码</label>
+                            <input type="password" class="form-control {% if form.password2.errors %}is-invalid{% endif %}"
+                                   id="password2" name="password2" required>
+                            {% if form.password2.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.password2.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- 角色 -->
+                        <div class="col-md-12 position-relative">
+                            <label for="role" class="form-label">角色</label>
+                            <select class="form-select {% if form.role.errors %}is-invalid{% endif %}" id="role" name="role" required>
+                                <option value="" {% if not form.role.value %}selected{% endif %}>请选择角色</option>
+                                <option value="farmer" {% if form.role.value == 'farmer' %}selected{% endif %}>农民</option>
+                                <option value="expert" {% if form.role.value == 'expert' %}selected{% endif %}>专家</option>
+                            </select>
+                            {% if form.role.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.role.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- 提交按钮 -->
+                        <div class="col-12">
+                            <button class="btn btn-primary" type="submit">提交注册</button>
+                        </div>
+                    </form>
+
+                    <div class="card-footer text-center">
+                        <p>已有账号？<a href="{% url 'user:login' %}">点击登录</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
