@@ -77,7 +77,6 @@ class Variety(models.Model):
         # 排序方式
         ordering = ['-create_time']
 
-
 # 种植技术库
 class PlantingTech(models.Model):
     name = models.CharField('种植技术名称', max_length=50, unique=False, blank=False)
@@ -126,3 +125,43 @@ class SoilType(models.Model):
         verbose_name = '土壤类型'
         verbose_name_plural = verbose_name
         ordering = ['name']
+
+class FavoriteVariety(models.Model):
+    user = models.ForeignKey('User.CustomUser',verbose_name='用户', on_delete=models.CASCADE)
+    variety = models.ForeignKey('Variety',verbose_name= '品种' ,on_delete=models.CASCADE)
+    favorite_time = models.DateTimeField('收藏时间', auto_now_add=True)
+
+    class Meta:
+        verbose_name = '品种收藏'
+        verbose_name_plural = verbose_name
+        unique_together = ('user', 'variety')
+        ordering = ['-favorite_time']
+
+    def __str__(self):
+        return f"{self.user.username} 收藏了 {self.variety.name}"
+
+class FavoritePlantingTech(models.Model):
+    user = models.ForeignKey('User.CustomUser',verbose_name='用户', on_delete=models.CASCADE)
+    planting_tech = models.ForeignKey('PlantingTech',verbose_name= '种植技术' ,on_delete=models.CASCADE)
+    favorite_time = models.DateTimeField('收藏时间', auto_now_add=True)
+    class Meta:
+        verbose_name = '种植技术收藏'
+        verbose_name_plural = verbose_name
+        ordering = ['-favorite_time']
+        unique_together = ('user', 'planting_tech')
+
+    def __str__(self):
+        return f"{self.user.username} 收藏了 {self.planting_tech.name}"
+
+class FavoritePest(models.Model):
+    user = models.ForeignKey('User.CustomUser',verbose_name='用户', on_delete=models.CASCADE)
+    pest = models.ForeignKey('Pest',verbose_name= '病虫害' ,on_delete=models.CASCADE)
+    favorite_time = models.DateTimeField('收藏时间', auto_now_add=True)
+    class Meta:
+        verbose_name = '病虫害收藏'
+        verbose_name_plural = verbose_name
+        ordering = ['-favorite_time']
+        unique_together = ('user', 'pest')
+
+    def __str__(self):
+        return f"{self.user.username} 收藏了 {self.pest.name}"
