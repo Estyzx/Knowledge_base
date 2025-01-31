@@ -2,6 +2,7 @@ from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, ListView, DetailView, UpdateView
+from User.models import CustomUser
 
 from .forms import VarietyForm
 from .models import Variety, PlantingTech
@@ -16,8 +17,10 @@ class HomePage(TemplateView):
 
         context.update({
             'total_variety' : Variety.objects.count(),
+            'tech_count':PlantingTech.objects.count(),
             'last_variety': Variety.objects.order_by('-create_time')[:3],
             'last_planting_tech': PlantingTech.objects.order_by('-create_time')[:3],
+            'user_count': CustomUser.objects.count(),
         })
 
         # if self.request.user.is_authenticated:
