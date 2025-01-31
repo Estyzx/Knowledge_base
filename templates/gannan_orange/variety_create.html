@@ -53,11 +53,11 @@
     <div class="container mt-4">
         <div class="card shadow-lg">
             <div class="card-header text-white">
-                <h2 class="mb-0"><i class="fas fa-seedling me-2"></i>编辑品种：{{ variety.name }}</h2>
+                <h2 class="mb-0"><i class="fas fa-seedling me-2"></i>新建品种：</h2>
             </div>
 
             <div class="card-body">
-                <form method="post" action="{% url 'orange:edit' variety.id %}" class="needs-validation" novalidate>
+                <form method="post" action="{% url 'orange:creat' %}" class="needs-validation" novalidate>
                     {% csrf_token %}
 
                     <!-- 基础信息 -->
@@ -253,9 +253,9 @@
                     <!-- 操作按钮 -->
                     <div class="d-grid gap-3 mt-5">
                         <button type="submit" class="btn btn-success btn-lg py-3">
-                            <i class="fas fa-save me-2"></i>保存修改
+                            <i class="fas fa-save me-2"></i>提交创建
                         </button>
-                        <a href="{% url 'orange:detail' variety.id %}" class="btn btn-outline-secondary btn-lg py-3">
+                        <a href="{% url 'orange:home' %}" class="btn btn-outline-secondary btn-lg py-3">
                             <i class="fas fa-times me-2"></i>取消返回
                         </a>
                     </div>

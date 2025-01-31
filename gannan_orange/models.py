@@ -67,6 +67,8 @@ class Variety(models.Model):
     planting_tech = models.ManyToManyField('PlantingTech', verbose_name='种植技术', blank=True)
     pest = models.ManyToManyField('Pest', verbose_name='病虫害', blank=True)
 
+    def __str__(self):
+        return self.name
 
     class Meta:
         # 显示名称
