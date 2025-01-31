@@ -1,7 +1,7 @@
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView, ListView, DetailView, UpdateView
+from django.views.generic import TemplateView, ListView, DetailView, UpdateView, CreateView
 from User.models import CustomUser
 
 from .forms import VarietyForm
@@ -72,19 +72,29 @@ class VarietyDetail(DetailView):
         return get_object_or_404(Variety, id=vid)
 
 
-class VarietyCreate(UpdateView):
+class VarietyEdit(UpdateView):
     model = Variety
     form_class = VarietyForm
-    template_name = 'gannan_orange/variety_form.html'
+    template_name = 'gannan_orange/variety_edit.html'
     context_object_name = 'variety'
-
 
     def get_object(self, queryset = ...):
         vid = self.kwargs.get('id')
         return get_object_or_404(Variety, id=vid)
-
     def get_success_url(self):
         return reverse_lazy('orange:detail', kwargs={'id':self.object.id})
+
+    def form_valid(self, form):
+        if not form.is_valid():
+            print(f"Form errors: {form.errors}")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print(f"Form validation failed. Errors: {form.errors}")
+        return super().form_invalid(form)
+
+
+
 
 
 
