@@ -20,7 +20,7 @@
                                 <h5>{{ variety.name }}</h5>
                                 <p>{{ variety.description|truncatechars:45 }}</p>
                             </div>
-                            <span class="badge bg-success rounded-pill">{{ variety.update_time|date:"Y-m-d H:i:s" }}</span>
+                            <span class="badge bg-success rounded-pill">更新时间：{{ variety.update_time|date:"Y-m-d H:i:s" }}</span>
                         </li>
                         </a>
                     {% empty %}
@@ -39,9 +39,7 @@
                                     </a>
                                 </li>
                                 <li class="page-item">
-                                    <a class="page-link" href="?page=
-
-                                            {{ page_obj.previous_page_number }}{% if search_key %}&q={{ search_key }}{% endif %}"
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_key %}&q={{ search_key }}{% endif %}"
                                        aria-label="Previous">
                                         <span aria-hidden="true">&laquo;</span>
                                     </a>
