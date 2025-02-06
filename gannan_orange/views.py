@@ -1,5 +1,5 @@
 from django.db.models import Q
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, ListView, DetailView, UpdateView, CreateView, DeleteView
 from User.models import CustomUser
@@ -103,6 +103,9 @@ class VarietyDelete(DeleteView):
 
     model = Variety
     success_url = reverse_lazy('orange:list')
+    def get_object(self, queryset=None):
+        vid = self.kwargs.get('id')
+        return get_object_or_404(Variety, id=vid)
 
 
 class PlantingTechList(ListView):
@@ -133,3 +136,31 @@ class PlantingTechDetail(DetailView):
     def get_object(self, queryset=...):
         vid = self.kwargs.get('id')
         return get_object_or_404(PlantingTech, id=vid)
+
+
+class PlantingTechEdit(UpdateView):
+    model = PlantingTech
+    template_name = 'gannan_orange/planting_tech_edit.html'
+    context_object_name = 'plantingtech'
+    fields = ['name', 'description']
+
+    def get_object(self, queryset=...):
+        vid = self.kwargs.get('id')
+        return get_object_or_404(PlantingTech, id=vid)
+
+    def get_success_url(self):
+        return reverse_lazy("orange:tech_detail", kwargs={'id': self.object.id})
+
+class PlantingTechDelete(DeleteView):
+    model = PlantingTech
+    success_url = reverse_lazy('orange:tech_list')
+    def get_object(self, queryset=None):
+        vid = self.kwargs.get('id')
+        return get_object_or_404(PlantingTech, id=vid)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        self.object.delete()
+        return redirect(success_url)
+

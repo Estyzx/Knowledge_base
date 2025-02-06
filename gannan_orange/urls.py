@@ -11,6 +11,8 @@ urlpatterns = [
     # path('detail/<int:id>/delete', views.VarietyDelete.as_view(), name='delete'),
 
     path('list/tech', views.PlantingTechList.as_view(), name='tech_list'),
-    path('detail/tech/<int:id>', views.PlantingTechDetail.as_view(), name='tech_detail')
+    path('detail/tech/<int:id>', views.PlantingTechDetail.as_view(), name='tech_detail'),
+    path('detail/tech/<int:id>/edit', views.PlantingTechEdit.as_view(), name='tech_edit'),
+    path('detail/tech/<int:id>/delete', views.PlantingTechDelete.as_view(), name='tech_delete'),
 
 ]
