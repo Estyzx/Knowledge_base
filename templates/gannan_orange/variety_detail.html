@@ -187,15 +187,14 @@
                                 {% if variety.planting_tech.all %}
                                     <div class="tech-list">
                                         {% for tech in variety.planting_tech.all %}
-<a href="{% url 'orange:tech_detail' tech.id %}">
+                                            <a href="{% url 'orange:tech_detail' tech.id %}">
                                             <span class="badge rounded-pill px-3 py-2 bg-success">
-                                        <i class="fas fa-file-invoice text-teal me-2"></i>{{ tech.name }}
+                                        {{ tech.name }}
                                     </span></a>
                                         {% endfor %}
                                     </div>
                                 {% else %}
                                     <div class="empty-state text-center py-4">
-                                        <i class="fas fa-seedling fa-2x text-muted mb-3"></i>
                                         <p class="text-muted mb-0">暂无关联技术</p>
                                     </div>
                                 {% endif %}
