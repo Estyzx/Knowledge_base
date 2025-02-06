@@ -100,6 +100,7 @@ class VarietyCreate(CreateView):
 
 
 class VarietyDelete(DeleteView):
+
     model = Variety
     success_url = reverse_lazy('orange:list')
 
@@ -122,3 +123,13 @@ class PlantingTechList(ListView):
         context = super().get_context_data(**kwargs)
         context['search_key'] = self.request.GET.get('q')
         return context
+
+
+class PlantingTechDetail(DetailView):
+    model = PlantingTech
+    template_name = 'gannan_orange/planting_tech_detail.html'
+    context_object_name = 'tech'
+
+    def get_object(self, queryset=...):
+        vid = self.kwargs.get('id')
+        return get_object_or_404(PlantingTech, id=vid)

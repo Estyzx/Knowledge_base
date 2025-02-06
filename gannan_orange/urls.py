@@ -10,6 +10,7 @@ urlpatterns = [
     path('create', views.VarietyCreate.as_view(), name='creat'),
     # path('detail/<int:id>/delete', views.VarietyDelete.as_view(), name='delete'),
 
-    path('list/tech', views.PlantingTechList.as_view(), name='tech_list')
+    path('list/tech', views.PlantingTechList.as_view(), name='tech_list'),
+    path('detail/tech/<int:id>', views.PlantingTechDetail.as_view(), name='tech_detail')
 
 ]
