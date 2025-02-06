@@ -48,7 +48,7 @@ class HomePage(TemplateView):
 class VarietyList(ListView):
     model = Variety
     template_name = 'gannan_orange/variety_list.html'
-    paginate_by = 4  # 分页
+    paginate_by = 6  # 分页
 
     def get_queryset(self):
         queryset = Variety.objects.order_by('-create_time')
@@ -111,7 +111,7 @@ class VarietyDelete(DeleteView):
 class PlantingTechList(ListView):
     model = PlantingTech
     template_name = 'gannan_orange/planting_tech_list.html'
-    paginate_by = 4
+    paginate_by = 6
     def get_queryset(self):
         queryset = PlantingTech.objects.order_by('-create_time')
 
