@@ -110,14 +110,16 @@ class Pest(models.Model):
 
 # 土壤类型库
 class SoilType(models.Model):
-    name = models.CharField('土壤类型', max_length=50, unique=True)
-    ph_range = models.CharField('pH范围', max_length=10)  # 5.5-6.5
+    name = models.CharField('土壤名称', max_length=50, unique=True)
+    ph_range = models.FloatField('pH范围', max_length=10)  # 5.5-6.5
     organic_matter = models.DecimalField(
         '有机质含量(%)',
         max_digits=3,
         decimal_places=1
     )
     description = models.TextField('特征描述')
+    create_time = models.DateTimeField('创建时间', auto_now_add=True)
+    update_time = models.DateTimeField('更新时间', auto_now=True)
 
     def __str__(self):
         return f"{self.name} (pH {self.ph_range})"
