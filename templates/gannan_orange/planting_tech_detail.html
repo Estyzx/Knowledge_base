@@ -2,64 +2,46 @@
 {% load static %}
 
 {% block main %}
-<div class="container mt-4">
+<div class="container my-2">
     <!-- 面包屑导航 -->
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb bg-white py-2 px-3 shadow-sm rounded-3">
             <li class="breadcrumb-item">
-                <a href="/" class="text-decoration-none">
+                <a href="/" class="text-success">
                     <i class="fas fa-home fa-fw"></i> 首页
                 </a>
             </li>
             <li class="breadcrumb-item">
-                <a href="{% url 'orange:tech_list' %}" class="text-decoration-none">
+                <a href="{% url 'orange:tech_list' %}" class="text-success">
                     <i class="fas fa-book fa-fw"></i> 所有技术
                 </a>
             </li>
-            <li class="breadcrumb-item active" aria-current="page">
+            <li class="breadcrumb-item active " aria-current="page">
                 <i class="fas fa-file-alt fa-fw"></i> {{ tech.name|truncatechars:15 }}
             </li>
         </ol>
     </nav>
 
     <!-- 主卡片 -->
-    <div class="card border-0 shadow-lg overflow-hidden">
-        <div class="card-header py-4">
-            <div class="d-flex align-items-center justify-content-between">
+    <div class="card border-0 shadow-lg overflow-hidden rounded-4 ">
+        <div class="card-header py-4 bg-success">
+            <div class="d-flex align-items-center justify-content-between text-white">
                 <h2 class="mb-0 fw-bold">
                     <i class="fas fa-cog fa-lg me-2"></i>{{ tech.name }}
                 </h2>
-                <div class="badge bg-white text-primary fs-6 shadow">
+                <div class="badge bg-white text-success fs-6 shadow">
                     <i class="fas fa-clock me-1"></i>{{ tech.create_time|date:"Y/m/d" }}
                 </div>
             </div>
         </div>
 
         <div class="card-body position-relative">
-            <!-- 装饰性元素 -->
-            <div class="position-absolute top-0 end-0 mt-n4 me-3">
-                <i class="fas fa-thumbtack text-primary opacity-25" style="font-size: 4rem"></i>
-            </div>
-
-            <!-- 基本信息 -->
-            <div class="d-flex justify-content-between mb-4">
-                <p class="text-muted">
-                    <i class="fas fa-history"></i>
-                    <strong>创建时间：</strong>
-                    {{ tech.create_time|date:"Y年m月d日 H:i" }}
-                </p>
-                <p class="text-muted">
-                    <i class="fas fa-sync"></i>
-                    <strong>最后更新：</strong>
-                    {{ tech.update_time|date:"Y年m月d日 H:i" }}
-                </p>
-            </div>
 
             <!-- 技术描述 -->
             <div class="accordion mb-4" id="descAccordion">
                 <div class="accordion-item">
                     <h4 class="accordion-header">
-                        <button class="accordion-button bg-light fs-4 py-3"
+                        <button class="accordion-button bg-light fs-4 py-3 text-success"
                                 type="button"
                                 data-bs-toggle="collapse"
                                 data-bs-target="#collapseDesc"
@@ -72,7 +54,7 @@
                          data-bs-parent="#descAccordion">
                         <div class="accordion-body">
                             {% if tech.description %}
-                            <div class="tech-content lh-lg fs-5 text-muted">
+                            <div class="tech-content lh-lg fs-5 text-success">
                                 {{ tech.description|linebreaks }}
                             </div>
                             {% else %}
@@ -97,7 +79,7 @@
 
                 <div class="btn-group shadow">
                     <a href="{% url "orange:tech_edit" tech.id %}"> <button type="button" class="btn btn-light border rounded-start-pill px-4">
-                        <i class="fas fa-edit text-primary"></i>
+                        <i class="fas fa-edit text-success"></i>
                     </button></a>
                     <form action="{% url "orange:tech_delete" tech.id%}" method="post" >
                         {% csrf_token %}
@@ -110,63 +92,35 @@
     </div>
 </div>
 
-<style>
-    .bg-primary-gradient {
-        background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
-    }
-
-    .timeline-steps {
-        display: flex;
-        justify-content: center;
-        padding: 2rem 0;
-    }
-
-    .timeline-step {
-        flex: 1;
-        position: relative;
-        padding: 0 2rem;
-    }
-
-    .timeline-step:after {
-        content: "";
-        position: absolute;
-        width: 100%;
-        height: 2px;
-        background: #e9ecef;
-        top: 20px;
-        left: 50%;
-        z-index: 0;
-    }
-
-    .timeline-content {
-        text-align: center;
-        position: relative;
-        z-index: 1;
-    }
-
-    .circle {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto;
-    }
+    <style>
 
     .tech-content {
         padding: 2rem;
         border-radius: 1rem;
         border: 1px solid rgba(0,0,0,0.1);
+        background-color: #f8f9fa;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    .accordion-button:not(.collapsed) {
+
+    .card-footer {
         background-color: #f8f9fa;
-        box-shadow: none;
     }
 
     .fa-fw {
         width: 1.25em;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #e9ecef;
+    }
+
+    .btn-group .btn:hover {
+        background-color: #f8f9fa;
+    }
+
+    .breadcrumb-item a:hover {
+        text-decoration: underline;
     }
 </style>
 {% endblock %}

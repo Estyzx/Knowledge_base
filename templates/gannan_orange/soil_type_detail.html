@@ -12,7 +12,7 @@
                 </a>
             </li>
             <li class="breadcrumb-item">
-                <a href="" class="text-decoration-none text-success">
+                <a href="{% url 'orange:soil_list' %}" class="text-decoration-none text-success">
                     <i class="fas fa-leaf fa-fw"></i> 土壤类型列表
                 </a>
             </li>
@@ -107,7 +107,7 @@
                             <i class="fas fa-edit text-success"></i>
                         </button>
                     </a>
-                    <form action="" method="post">
+                    <form action="{% url 'orange:soil_delete' soil.id %}" method="post">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-light border rounded-end-pill px-4">
                             <i class="fas fa-trash text-danger"></i>
