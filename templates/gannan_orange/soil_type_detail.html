@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block main %}
+<div class="container my-2">
+    <!-- 面包屑导航 -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb bg-light py-2 px-3 shadow-sm rounded-3">
+            <li class="breadcrumb-item">
+                <a href="/" class="text-decoration-none text-success">
+                    <i class="fas fa-home fa-fw"></i> 首页
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="" class="text-decoration-none text-success">
+                    <i class="fas fa-leaf fa-fw"></i> 土壤类型列表
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <i class="fas fa-info-circle fa-fw"></i> 土壤类型详情
+            </li>
+        </ol>
+    </nav>
+
+    <!-- 主卡片 -->
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="card-header bg-success text-white py-4">
+            <div class="d-flex align-items-center justify-content-between">
+                <h2 class="mb-0 fw-bold">
+                    <i class="fas fa-cogs fa-lg me-2"></i>{{ soil.name }}
+                </h2>
+                <div class="badge bg-white text-success fs-6 shadow">
+                    <i class="fas fa-clock me-1"></i>{{ soil.create_time|date:"Y/m/d" }}
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <!-- 土壤类型信息（下拉卡片） -->
+            <div class="accordion mb-4" id="soilInfoAccordion">
+                <div class="accordion-item border-0">
+                    <h4 class="accordion-header">
+                        <button class="accordion-button bg-light fs-4 py-3 shadow-sm text-success"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#collapseSoilInfo"
+                                aria-expanded="true"
+                                aria-controls="collapseSoilInfo">
+                            <i class="fas fa-leaf me-2"></i> 土壤类型信息
+                        </button>
+                    </h4>
+                    <div id="collapseSoilInfo" class="accordion-collapse collapse show"
+                         data-bs-parent="#soilInfoAccordion">
+                        <div class="accordion-body d-flex justify-content-between">
+                            <p><strong>土壤类型名称：</strong> {{ soil.name }}</p>
+                            <p><strong>pH范围：</strong> {{ soil.ph_range }}</p>
+                            <p><strong>有机质含量：</strong> {{ soil.organic_matter }}%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 特征描述 -->
+            <div class="accordion mb-4" id="descAccordion">
+                <div class="accordion-item border-0">
+                    <h4 class="accordion-header">
+                        <button class="accordion-button bg-light fs-4 py-3 shadow-sm text-success"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#collapseDesc"
+                                aria-expanded="true"
+                                aria-controls="collapseDesc">
+                            <i class="fas fa-file-signature me-2"></i> 特征描述
+                        </button>
+                    </h4>
+                    <div id="collapseDesc" class="accordion-collapse collapse show"
+                         data-bs-parent="#descAccordion">
+                        <div class="accordion-body">
+                            {% if soil.description %}
+                            <div class="tech-content lh-lg fs-5 text-muted">
+                                {{ soil.description|linebreaks }}
+                            </div>
+                            {% else %}
+                            <div class="alert alert-warning d-flex align-items-center mb-0">
+                                <i class="fas fa-exclamation-triangle me-2 fs-4"></i>
+                                <span class="fs-5">暂无详细描述</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="card-footer bg-transparent py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <a href=""
+                   class="btn btn-outline-secondary rounded-pill px-4">
+                    <i class="fas fa-arrow-left me-2"></i> 返回列表
+                </a>
+
+                <div class="btn-group shadow-sm">
+                    <a href="{% url 'orange:soil_edit' soil.id %}">
+                        <button type="button" class="btn btn-light border rounded-start-pill px-4">
+                            <i class="fas fa-edit text-success"></i>
+                        </button>
+                    </a>
+                    <form action="" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-light border rounded-end-pill px-4">
+                            <i class="fas fa-trash text-danger"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+
+    .tech-content {
+        padding: 2rem;
+        border-radius: 1rem;
+        border: 1px solid rgba(0,0,0,0.1);
+        background-color: #f8f9fa;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+
+    .card-footer {
+        background-color: #f8f9fa;
+    }
+
+    .fa-fw {
+        width: 1.25em;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #e9ecef;
+    }
+
+    .btn-group .btn:hover {
+        background-color: #f8f9fa;
+    }
+
+    .breadcrumb-item a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}

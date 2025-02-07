@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load crispy_forms_filters %}
+{% load static crispy_forms_tags %}
+
+{% block head %}
+    <!-- Select2 样式表（如无需要可移除） -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #dee2e6;
+        }
+
+        .form-section h3 {
+            color: #2c7a47;
+            border-bottom: 2px solid #2c7a47;
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #2c7a47, #38a169);
+        }
+
+        .form-icon {
+            color: #2c7a47;
+            margin-right: 0.5rem;
+        }
+
+        /* 错误星标 */
+        .is-invalid {
+            border-color: #dc3545;
+        }
+
+        .is-invalid + .invalid-feedback {
+            display: block;
+            color: #dc3545;
+        }
+
+        .required-star {
+            color: red;
+        }
+    </style>
+{% endblock %}
+
+{% block main %}
+    <div class="container mt-4">
+        <div class="card shadow-lg">
+            <div class="card-header text-white">
+                <h2 class="mb-0"><i class="fas fa-seedling me-2"></i>创建种植技术：</h2>
+            </div>
+
+            <div class="card-body">
+                <form method="post" action="{% url 'orange:tech_create' %}" class="needs-validation" novalidate>
+                    {% csrf_token %}
+
+                    <!-- 基础信息 -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-info-circle form-icon"></i>基础信息</h3>
+                        <div class="row g-4">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    {{ form.name|as_crispy_field }}
+                                    {% if form.name.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.name.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 技术描述 -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-info-circle form-icon"></i>技术描述</h3>
+                        <div class="row g-4">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    {{ form.description|as_crispy_field }}
+                                    {% if form.description.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.description.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 操作按钮 -->
+                    <div class="d-grid gap-3 mt-5">
+                        <button type="submit" class="btn btn-success btn-lg py-3">
+                            <i class="fas fa-save me-2"></i>保存修改
+                        </button>
+                        <a href="{% url 'orange:home' %}" class="btn btn-outline-secondary btn-lg py-3">
+                            <i class="fas fa-times me-2"></i>取消返回
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 如需Select2支持，保留以下JS引用 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // 若需要Select2初始化（当前无多选字段，此处可省略）
+            $('#id_some_field').select2({
+                placeholder: '请选择相关选项',
+                allowClear: true,
+                width: '100%',
+                language: {
+                    noResults: function () {
+                        return "没有找到匹配项";
+                    },
+                    searching: function () {
+                        return "搜索中...";
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}

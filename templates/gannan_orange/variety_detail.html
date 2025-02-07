@@ -22,6 +22,10 @@
             color: white !important;
         }
 
+        .bg-success {
+            color: white !important;
+        }
+
         .text-orange {
             color: var(--primary-orange) !important;
         }
@@ -81,31 +85,28 @@
             font-size: 0.6em;
         }
 
-        .growth-progress {
-            height: 8px;
-        }
     </style>
 {% endblock %}
 
 {% block main %}
     <div class="container mt-4">
         <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb bg-white py-2 px-3 shadow-sm rounded-3">
-            <li class="breadcrumb-item">
-                <a href="/" class="text-decoration-none">
-                    <i class="fas fa-home fa-fw"></i> 首页
-                </a>
-            </li>
-            <li class="breadcrumb-item">
-                <a href="{% url 'orange:list' %}" class="text-decoration-none">
-                    <i class="fas fa-book fa-fw"></i> 所有品种
-                </a>
-            </li>
-            <li class="breadcrumb-item active" aria-current="page">
-                <i class="fas fa-file-alt fa-fw"></i> {{ variety.name|truncatechars:15 }}
-            </li>
-        </ol>
-    </nav>
+            <ol class="breadcrumb bg-white py-2 px-3 shadow-sm rounded-3">
+                <li class="breadcrumb-item">
+                    <a href="/" class="text-decoration-none">
+                        <i class="fas fa-home fa-fw"></i> 首页
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'orange:list' %}" class="text-decoration-none">
+                        <i class="fas fa-book fa-fw"></i> 所有品种
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <i class="fas fa-file-alt fa-fw"></i> {{ variety.name|truncatechars:15 }}
+                </li>
+            </ol>
+        </nav>
         <div class="row g-4">
             <!-- 左侧：主体信息 -->
             <div class="col-lg-8">
@@ -181,9 +182,11 @@
                             <div class="card-body">
                                 <div class="d-flex flex-wrap gap-2">
                                     {% for soil in variety.soil_preference.all %}
+                                        <a href="{% url 'orange:soil_detail' soil.id %}">
                                         <span class="badge bg-soil rounded-pill px-3 py-2">
                                         <i class="fas fa-seedling me-1"></i>{{ soil.name }}
                                     </span>
+                                        </a>
                                     {% empty %}
                                         <div class="alert alert-light mb-0 py-2">
                                             <i class="fas fa-info-circle me-1"></i>暂无土壤数据
@@ -201,20 +204,20 @@
                                 <h5 class="mb-0"><i class="fas fa-tractor me-2"></i>种植技术</h5>
                             </div>
                             <div class="card-body">
-                                {% if variety.planting_tech.all %}
-                                    <div class="tech-list">
-                                        {% for tech in variety.planting_tech.all %}
-                                            <a href="{% url 'orange:tech_detail' tech.id %}">
+                                <div class="d-flex flex-wrap gap-2">
+                                    {% for tech in variety.planting_tech.all %}
+                                        <a href="{% url 'orange:tech_detail' tech.id %}">
+
                                             <span class="badge rounded-pill px-3 py-2 bg-success">
+                                                <i class="fas fa-cog me-2 text-white"></i>
                                         {{ tech.name }}
                                     </span></a>
-                                        {% endfor %}
-                                    </div>
-                                {% else %}
-                                    <div class="empty-state text-center py-4">
-                                        <p class="text-muted mb-0">暂无关联技术</p>
-                                    </div>
-                                {% endif %}
+                                        </div>
+                                    {% empty %}
+                                        <div class="empty-state text-center py-4">
+                                            <p class="text-muted mb-0">暂无关联技术</p>
+                                        </div>
+                                    {% endfor %}
                             </div>
                         </div>
                     </div>
