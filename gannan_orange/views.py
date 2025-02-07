@@ -5,7 +5,7 @@ from django.views.generic import TemplateView, ListView, DetailView, UpdateView,
 from User.models import CustomUser
 
 from .forms import VarietyForm
-from .models import Variety, PlantingTech
+from .models import Variety, PlantingTech,SoilType
 
 
 # Create your views here.
@@ -31,7 +31,6 @@ class HomePage(TemplateView):
 
         return context
 
-
 """
     def get_user_recommend(self):
         user = self.request.user
@@ -43,7 +42,6 @@ class HomePage(TemplateView):
 
         return context
 """
-
 
 class VarietyList(ListView):
     model = Variety
@@ -65,7 +63,6 @@ class VarietyList(ListView):
         context['search_key'] = self.request.GET.get('q')
         return context
 
-
 class VarietyDetail(DetailView):
     model = Variety
     template_name = 'gannan_orange/variety_detail.html'
@@ -74,7 +71,6 @@ class VarietyDetail(DetailView):
     def get_object(self, queryset=...):
         vid = self.kwargs.get('id')
         return get_object_or_404(Variety, id=vid)
-
 
 class VarietyEdit(UpdateView):
     model = Variety
@@ -89,7 +85,6 @@ class VarietyEdit(UpdateView):
     def get_success_url(self):
         return reverse_lazy('orange:detail', kwargs={'id': self.object.id})
 
-
 class VarietyCreate(CreateView):
     model = Variety
     form_class = VarietyForm
@@ -98,7 +93,6 @@ class VarietyCreate(CreateView):
     def get_success_url(self):
         return reverse_lazy('orange:detail', kwargs={'id': self.object.id})
 
-
 class VarietyDelete(DeleteView):
 
     model = Variety
@@ -106,7 +100,6 @@ class VarietyDelete(DeleteView):
     def get_object(self, queryset=None):
         vid = self.kwargs.get('id')
         return get_object_or_404(Variety, id=vid)
-
 
 class PlantingTechList(ListView):
     model = PlantingTech
@@ -127,7 +120,6 @@ class PlantingTechList(ListView):
         context['search_key'] = self.request.GET.get('q')
         return context
 
-
 class PlantingTechDetail(DetailView):
     model = PlantingTech
     template_name = 'gannan_orange/planting_tech_detail.html'
@@ -136,7 +128,6 @@ class PlantingTechDetail(DetailView):
     def get_object(self, queryset=...):
         vid = self.kwargs.get('id')
         return get_object_or_404(PlantingTech, id=vid)
-
 
 class PlantingTechEdit(UpdateView):
     model = PlantingTech
@@ -164,3 +155,29 @@ class PlantingTechDelete(DeleteView):
         self.object.delete()
         return redirect(success_url)
 
+class PlantingTechCreate(CreateView):
+    model = PlantingTech
+    template_name = 'gannan_orange/planting_tech_creat.html'
+    fields = ['name', 'description']
+
+    def get_success_url(self):
+        return reverse_lazy('orange:detail', kwargs={'id': self.object.id})
+
+class SoilTypeDetail(DetailView):
+    mobile = SoilType
+    template_name = 'gannan_orange/soil_type_detail.html'
+    context_object_name = 'soil'
+    def get_object(self, queryset=...):
+        vid = self.kwargs.get('id')
+        return get_object_or_404(SoilType, id=vid)
+
+class SoilTypeEdit(UpdateView):
+    model = SoilType
+    template_name = 'gannan_orange/soil_type_edit.html'
+    context_object_name = 'soil'
+    fields = ['name', 'description', 'organic_matter', 'ph_range']
+    def get_object(self, queryset=...):
+        vid = self.kwargs.get('id')
+        return get_object_or_404(SoilType, id=vid)
+    def get_success_url(self):
+        return reverse_lazy("orange:soil_detail", kwargs={'id': self.object.id})
