@@ -181,3 +181,33 @@ class SoilTypeEdit(UpdateView):
         return get_object_or_404(SoilType, id=vid)
     def get_success_url(self):
         return reverse_lazy("orange:soil_detail", kwargs={'id': self.object.id})
+
+
+class SoilTypeList(ListView):
+    model = SoilType
+    template_name = 'gannan_orange/soil_type_list.html'
+    paginate_by = 6
+    def get_queryset(self):
+        queryset = SoilType.objects.order_by('-create_time')
+        search_key = self.request.GET.get('q')
+        if search_key:
+            queryset = queryset.filter(Q(name__icontains=search_key) | Q(description__icontains=search_key)).order_by(
+                '-create_time')
+        return queryset
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_key'] = self.request.GET.get('q')
+        return context
+
+
+class SoilTypeDelete(DeleteView):
+    model = SoilType
+    success_url = reverse_lazy('orange:soil_list')
+    def get_object(self, queryset=None):
+        vid = self.kwargs.get('id')
+        return get_object_or_404(SoilType, id=vid)
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        self.object.delete()
+        return redirect(success_url)

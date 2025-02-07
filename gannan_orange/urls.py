@@ -16,6 +16,9 @@ urlpatterns = [
     path('create/tech', views.PlantingTechCreate.as_view(), name='tech_create'),
     path('detail/soil/<int:id>', views.SoilTypeDetail.as_view(), name='soil_detail'),
     path('detail/soil/<int:id>/edit', views.SoilTypeEdit.as_view(), name='soil_edit'),
+    path('list/soil', views.SoilTypeList.as_view(), name='soil_list'),
+    path('detail/soil/<int:id>/delete', views.SoilTypeDelete.as_view(), name='soil_delete'),
+
 
 
 ]
