@@ -18,6 +18,10 @@ urlpatterns = [
     path('detail/soil/<int:id>/edit', views.SoilTypeEdit.as_view(), name='soil_edit'),
     path('list/soil', views.SoilTypeList.as_view(), name='soil_list'),
     path('detail/soil/<int:id>/delete', views.SoilTypeDelete.as_view(), name='soil_delete'),
+    path('detail/pest/<int:id>', views.PestDetail.as_view(), name='pest_detail'),
+    path('detail/pest/<int:id>/edit', views.PestEdit.as_view(), name='pest_edit'),
+    path('detail/pest/<int:id>/delete', views.PestDelete.as_view(), name='pest_delete'),
+    path('list/pest', views.PestList.as_view(), name='pest_list'),
 
 
 

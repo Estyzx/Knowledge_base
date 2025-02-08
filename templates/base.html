@@ -73,8 +73,8 @@
 <!-- 导航栏 -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-success shadow-sm">
     <div class="container">
-        <a class="navbar-brand" href="/">
-            <img src="/static/logo.png" alt="Logo"> 赣橙智库
+        <a class="navbar-brand" href="{% url 'orange:home' %}">
+            <img src="" alt="Logo"> 农业智库
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
             <span class="navbar-toggler-icon"></span>
@@ -86,6 +86,16 @@
                     <a class="nav-link" href="{% url 'orange:list' %}">
                         <i class="fas fa-seedling me-1"></i>品种库
                     </a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-tools me-1"></i>其他知识库
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'orange:tech_list' %}"><i class="fas fa-tractor me-1"></i>种植技术库</a></li>
+                        <li><a class="dropdown-item" href="{% url 'orange:pest_list' %}"><i class="fas fa-bug me-1"></i>病虫害库</a></li>
+                        <li><a class="dropdown-item" href="{% url 'orange:soil_list' %}"><i class="fas fa-globe-asia me-1"></i>土壤库</a></li>
+                    </ul>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
@@ -108,7 +118,9 @@
                             <li><a class="dropdown-item" href="">
                                 <i class="fas fa-user me-2"></i>个人中心
                             </a></li>
-                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
                             <li>
                                 <form action="{% url 'user:logout' %}" method="post">
                                     {% csrf_token %}
@@ -139,10 +151,10 @@
 <!-- 主体内容 -->
 <div class="container mt-4">
     <div class="row justify-content-center">
-            <div class="content-card p-4">
-                {% block main %}
-                {% endblock %}
-            </div>
+        <div class="content-card p-4">
+            {% block main %}
+            {% endblock %}
+        </div>
     </div>
 </div>
 

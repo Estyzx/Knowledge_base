@@ -5,7 +5,7 @@ from django.views.generic import TemplateView, ListView, DetailView, UpdateView,
 from User.models import CustomUser
 
 from .forms import VarietyForm
-from .models import Variety, PlantingTech,SoilType
+from .models import Variety, PlantingTech,SoilType,Pest
 
 
 # Create your views here.
@@ -206,6 +206,55 @@ class SoilTypeDelete(DeleteView):
     def get_object(self, queryset=None):
         vid = self.kwargs.get('id')
         return get_object_or_404(SoilType, id=vid)
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        self.object.delete()
+        return redirect(success_url)
+
+
+class PestDetail(DetailView):
+    model = Pest
+    template_name = 'gannan_orange/pest_detail.html'
+    context_object_name = 'pest'
+    def get_object(self, queryset=...):
+        vid = self.kwargs.get('id')
+        return get_object_or_404(Pest, id=vid)
+
+
+class PestList(ListView):
+    model = Pest
+    template_name = 'gannan_orange/pest_list.html'
+    paginate_by = 6
+    def get_queryset(self):
+        queryset = Pest.objects.order_by('-create_time')
+        search_key = self.request.GET.get('q')
+        if search_key:
+            queryset = queryset.filter(Q(name__icontains=search_key) | Q(description__icontains=search_key)).order_by(
+                '-create_time')
+        return queryset
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_key'] = self.request.GET.get('q')
+        return context
+
+
+class PestEdit(UpdateView):
+    model = Pest
+    template_name = 'gannan_orange/pest_edit.html'
+    context_object_name = 'edit'
+    fields = ['name', 'description']
+    def get_object(self, queryset=...):
+        vid = self.kwargs.get('id')
+        return get_object_or_404(Pest, id=vid)
+
+
+class PestDelete(DeleteView):
+    model = Pest
+    success_url = reverse_lazy('orange:pest_list')
+    def get_object(self, queryset=None):
+        vid = self.kwargs.get('id')
+        return get_object_or_404(Pest, id=vid)
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         success_url = self.get_success_url()

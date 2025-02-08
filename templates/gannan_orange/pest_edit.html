@@ -31,6 +31,8 @@
             margin-right: 0.5rem;
         }
 
+        /* 错误星标 */
+
     </style>
 {% endblock %}
 
@@ -38,12 +40,11 @@
     <div class="container mt-4">
         <div class="card shadow-lg">
             <div class="card-header text-white">
-                <h2 class="mb-0"><i class="fas fa-seedling me-2"></i>编辑种植技术：{{ plantingtech.name }}</h2>
+                <h2 class="mb-0"><i class="fas fa-seedling me-2"></i>编辑病虫害：{{ edit.name }}</h2>
             </div>
 
             <div class="card-body">
-                <form method="post" action="{% url 'orange:tech_edit' plantingtech.id %}" class="needs-validation"
-                      novalidate>
+                <form method="post" action="{% url 'orange:pest_edit' edit.id %}" class="needs-validation" novalidate>
                     {% csrf_token %}
 
                     <!-- 基础信息 -->
@@ -67,7 +68,7 @@
 
                     <!-- 技术描述 -->
                     <div class="form-section">
-                        <h3><i class="fas fa-info-circle form-icon"></i>技术描述</h3>
+                        <h3><i class="fas fa-info-circle form-icon"></i>病虫害描述</h3>
                         <div class="row g-4">
                             <div class="col-md-12">
                                 <div class="form-group">
@@ -89,8 +90,7 @@
                         <button type="submit" class="btn btn-success btn-lg py-3">
                             <i class="fas fa-save me-2"></i>保存修改
                         </button>
-                        <a href="{% url 'orange:tech_detail' plantingtech.id %}"
-                           class="btn btn-outline-secondary btn-lg py-3">
+                        <a href="{% url 'orange:pest_detail' edit.id %}" class="btn btn-outline-secondary btn-lg py-3">
                             <i class="fas fa-times me-2"></i>取消返回
                         </a>
                     </div>
@@ -98,4 +98,5 @@
             </div>
         </div>
     </div>
+
 {% endblock %}

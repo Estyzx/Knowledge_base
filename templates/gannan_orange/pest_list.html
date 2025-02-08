@@ -2,14 +2,14 @@
 
 {% block main %}
     <div class="container">
-        <h1 class="text-center my-4 text-success">土壤列表</h1>
+        <h1 class="text-center my-4 text-success">病虫害列表</h1>
 
         <!-- 搜索框 -->
         <div class="row mb-4">
             <div class="col-md-8 offset-md-2">
-                <form method="get" action="{% url 'orange:soil_list' %}">
+                <form method="get" action="{% url 'orange:pest_list' %}">
                     <div class="input-group">
-                        <input type="text" name="q" class="form-control rounded-pill" placeholder="搜索土壤名称或描述"
+                        <input type="text" name="q" class="form-control rounded-pill" placeholder="搜索病虫害名称或描述"
                                value="{% if search_key %}{{ search_key }}{% endif %}">
                         <button type="submit" class="btn btn-success rounded-pill">
                             <i class="bi bi-search"></i> 搜索
@@ -21,13 +21,13 @@
 
         <!-- 列表显示 -->
         <div class="row">
-            {% for variety in soiltype_list %}
+            {% for variety in pest_list %}
                 <div class="col-md-4 mb-4">
                     <div class="card shadow-lg border-light rounded-lg hover-card fixed-height">
                         <div class="card-body">
                             <h5 class="card-title text-success">{{ variety.name }}</h5>
                             <p class="card-text text-muted">{{ variety.description|truncatechars:45 }}</p>
-                            <a href="{% url 'orange:soil_detail' variety.id %}" class="btn btn-outline-success btn-sm stretched-link">
+                            <a href="{% url 'orange:pest_detail' variety.id %}" class="btn btn-outline-success btn-sm stretched-link">
                                 <i class="bi bi-eye"></i> 查看详情
                             </a>
                             <p class="mt-2 text-muted">更新时间：{{ variety.update_time|date:"Y-m-d H:i:s" }}</p>
@@ -36,7 +36,7 @@
                 </div>
             {% empty %}
                 <div class="col-12">
-                    <div class="alert alert-info text-center">没有找到相关土壤。</div>
+                    <div class="alert alert-info text-center">没有找到相关技术。</div>
                 </div>
             {% endfor %}
         </div>

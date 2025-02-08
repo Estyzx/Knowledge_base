@@ -89,7 +89,7 @@
 {% endblock %}
 
 {% block main %}
-    <div class="container mt-4">
+    <div class="container mt-1">
         <nav aria-label="breadcrumb" class="mb-4">
             <ol class="breadcrumb bg-white py-2 px-3 shadow-sm rounded-3">
                 <li class="breadcrumb-item">
@@ -217,45 +217,38 @@
                                             <p class="text-muted mb-0">暂无关联技术</p>
                                         </div>
                                     {% endfor %}
-                            </div></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- 病虫害 -->
-                    <div class="col-12">
-                        <div class="card border-0 shadow-hover">
+                    <div class="col-md-12">
+                        <div class="card h-100 border-0 shadow-hover">
                             <div class="card-header bg-danger text-white py-3">
                                 <h5 class="mb-0"><i class="fas fa-bug me-2"></i>病虫害防治</h5>
                             </div>
                             <div class="card-body">
-                                {% if variety.pest.all %}
-                                    <div class="row g-3">
-                                        {% for disease in variety.pest.all %}
-                                            <div class="col-md-4">
-                                                <div class="pest-card bg-light-danger p-3 rounded-3 h-100">
-                                                    <div class="d-flex align-items-center mb-2">
-                                                        <i class="fas fa-skull-crossbones text-danger me-2"></i>
-                                                        <h6 class="mb-0">{{ disease.name }}</h6>
-                                                    </div>
-                                                    <div class="text-muted small">
-                                                        {{ disease.symptom|truncatechars:60 }}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        {% endfor %}
-                                    </div>
-                                {% else %}
-                                    <div class="empty-state text-center py-4">
-                                        <i class="fas fa-smile-beam fa-2x text-muted mb-3"></i>
-                                        <p class="text-muted mb-0">当前无病虫害记录</p>
-                                    </div>
-                                {% endif %}
+                                <div class="d-flex flex-wrap gap-2">
+                                    {% for disease in variety.pest.all %}
+                                        <a href="{% url 'orange:pest_detail' disease.id %}"
+                                           class="text-decoration-none">
+                        <span class="badge rounded-pill px-3 py-2 bg-danger">
+                            <i class="fas fa-skull-crossbones me-1 text-white"></i>
+                            {{ disease.name }}
+                        </span>
+                                        </a>
+                                    {% empty %}
+                                        <div class="empty-state text-center py-4">
+                                            <p class="text-muted mb-0">当前无病虫害记录</p>
+                                        </div>
+                                    {% endfor %}
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
             <!-- 右侧：特性信息 -->
             <div class="col-lg-4">
                 <!-- 生长特性 -->
@@ -268,7 +261,8 @@
                             <div class="stat-item d-flex justify-content-between align-items-center p-3 mb-3 bg-light rounded-3">
                                 <div>
                                     <small class="text-muted">生长周期</small>
-                                    <h4 class="mb-0">{{ variety.growth_cycle }} <small class="text-muted">天</small>
+                                    <h4 class="mb-0">{{ variety.growth_cycle }} <small
+                                            class="text-muted">天</small>
                                     </h4>
                                 </div>
                                 <i class="fas fa-calendar-alt text-primary fa-2x"></i>
@@ -332,7 +326,8 @@
                                             <i class="fas fa-wine-bottle fa-lg"></i>
                                         </div>
                                         <small class="text-muted">可溶固形物</small>
-                                        <h4 class="mb-0">{{ variety.brix }}<small class="text-muted">%</small></h4>
+                                        <h4 class="mb-0">{{ variety.brix }}<small class="text-muted">%</small>
+                                        </h4>
                                     </div>
                                 </div>
 
