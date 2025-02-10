@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Variety, PlantingTech, Pest,SoilType,FavoriteVariety
+from .models import Variety, PlantingTech, Pest,SoilType
 
 
 # Register your models here.
@@ -19,5 +19,4 @@ admin.site.register(Variety, VarietyAdmin)
 admin.site.register(PlantingTech)
 admin.site.register(Pest)
 admin.site.register(SoilType)
-admin.site.register(FavoriteVariety)
 

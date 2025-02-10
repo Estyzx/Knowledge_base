@@ -1,5 +1,7 @@
+from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from User.models import CustomUser
 
 
 
@@ -59,6 +61,11 @@ class Variety(models.Model):
     soil_preference = models.ManyToManyField(
         'SoilType',
         verbose_name='适宜土壤类型'
+    )
+    favorite_user = models.ManyToManyField(
+        CustomUser,
+        verbose_name='收藏用户',
+        blank=True
     )
 
     description = models.TextField('品种描述', blank=True)
@@ -127,43 +134,3 @@ class SoilType(models.Model):
         verbose_name = '土壤类型'
         verbose_name_plural = verbose_name
         ordering = ['name']
-
-class FavoriteVariety(models.Model):
-    user = models.ForeignKey('User.CustomUser',verbose_name='用户', on_delete=models.CASCADE)
-    variety = models.ForeignKey('Variety',verbose_name= '品种' ,on_delete=models.CASCADE)
-    favorite_time = models.DateTimeField('收藏时间', auto_now_add=True)
-
-    class Meta:
-        verbose_name = '品种收藏'
-        verbose_name_plural = verbose_name
-        unique_together = ('user', 'variety')
-        ordering = ['-favorite_time']
-
-    def __str__(self):
-        return f"{self.user.username} 收藏了 {self.variety.name}"
-
-class FavoritePlantingTech(models.Model):
-    user = models.ForeignKey('User.CustomUser',verbose_name='用户', on_delete=models.CASCADE)
-    planting_tech = models.ForeignKey('PlantingTech',verbose_name= '种植技术' ,on_delete=models.CASCADE)
-    favorite_time = models.DateTimeField('收藏时间', auto_now_add=True)
-    class Meta:
-        verbose_name = '种植技术收藏'
-        verbose_name_plural = verbose_name
-        ordering = ['-favorite_time']
-        unique_together = ('user', 'planting_tech')
-
-    def __str__(self):
-        return f"{self.user.username} 收藏了 {self.planting_tech.name}"
-
-class FavoritePest(models.Model):
-    user = models.ForeignKey('User.CustomUser',verbose_name='用户', on_delete=models.CASCADE)
-    pest = models.ForeignKey('Pest',verbose_name= '病虫害' ,on_delete=models.CASCADE)
-    favorite_time = models.DateTimeField('收藏时间', auto_now_add=True)
-    class Meta:
-        verbose_name = '病虫害收藏'
-        verbose_name_plural = verbose_name
-        ordering = ['-favorite_time']
-        unique_together = ('user', 'pest')
-
-    def __str__(self):
-        return f"{self.user.username} 收藏了 {self.pest.name}"

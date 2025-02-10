@@ -72,6 +72,16 @@ class VarietyDetail(DetailView):
         vid = self.kwargs.get('id')
         return get_object_or_404(Variety, id=vid)
 
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        user = request.user
+        if user.is_authenticated:
+            if user not in self.object.favorite_user.all():
+                self.object.favorite_user.add(user)
+            else:
+                self.object.favorite_user.remove(user)
+        return self.get(request, *args, **kwargs)
+
 class VarietyEdit(UpdateView):
     model = Variety
     form_class = VarietyForm
@@ -260,3 +270,4 @@ class PestDelete(DeleteView):
         success_url = self.get_success_url()
         self.object.delete()
         return redirect(success_url)
+
