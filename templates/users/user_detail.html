@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ user.username }} - 个人主页
+{% endblock %}
+
+{% block main %}
+    <div class="container mt-3">
+        <div class="row">
+            <!-- 左侧：用户头像和基本信息 -->
+            <div class="col-md-4">
+                <div class="card shadow-hover mb-4">
+                    <div class="card-header bg-success text-white py-3">
+                        <h5 class="mb-0"><i class="fas fa-user me-2"></i>用户资料</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <h4 class="mb-3">{{ user.username }}</h4>
+                        <p class="text-muted mb-3">{{ user.get_role_display }}</p>
+                        <p class="text-muted">注册时间：{{ user.date_joined|date:"Y/m/d H:i" }}</p>
+                        <!-- 编辑按钮 -->
+                        {% if request.user == user %}
+                            <a href="" class="btn btn-primary btn-sm">
+                                <i class="fas fa-edit me-1"></i> 编辑资料
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- 联系方式 -->
+                <div class="card shadow-hover">
+                    <div class="card-header bg-info text-white py-3">
+                        <h5 class="mb-0"><i class="fas fa-phone me-2"></i>联系方式</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-1"><i class="fas fa-phone-alt me-2"></i> 手机号：{{ user.phone|default:"暂无" }}</p>
+                        <p class="mb-1"><i class="fas fa-map-marker-alt me-2"></i>
+                            地址：{{ user.location|default:"暂无" }}</p>
+                        <p class="mb-1"><i class="fas fa-envelope me-2"></i> 邮箱：{{ user.email|default:"暂无" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：用户动态或成就 -->
+            {% if user.is_expert %}
+                <div class="col-md-8">
+                    <div class="card shadow-hover mb-4">
+                        <div class="card-header bg-purple text-white py-3">
+                            <h5 class="mb-0"><i class="fas fa-user-tie me-2"></i>专家成就</h5>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">学术成果</h5>
+                            <p class="card-text">发表论文数：10篇</p>
+                            <p class="card-text">获得专利数：3项</p>
+                        </div>
+                    </div>
+                </div>
+            {% elif user.is_farmer %}
+                <div class="col-md-8">
+                    <div class="card shadow-hover mb-4">
+                        <div class="card-header bg-orange-gradient text-white py-3">
+                            <h5 class="mb-0"><i class="fas fa-farm me-2"></i>我的农场</h5>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">种植作物</h5>
+                            <p class="card-text">柑橘类作物：150棵</p>
+                            <p class="card-text">年产量：5吨</p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

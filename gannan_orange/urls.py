@@ -22,6 +22,7 @@ urlpatterns = [
     path('detail/pest/<int:id>/edit', views.PestEdit.as_view(), name='pest_edit'),
     path('detail/pest/<int:id>/delete', views.PestDelete.as_view(), name='pest_delete'),
     path('list/pest', views.PestList.as_view(), name='pest_list'),
+    path('favorite', views.FavoriteVariety.as_view(), name='favorite'),
 
 
 

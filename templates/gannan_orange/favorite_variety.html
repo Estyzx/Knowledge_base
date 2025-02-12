@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    我的收藏
+{% endblock %}
+
+{% block head %}
+    <style>
+        :root {
+            --primary-orange: #FF6B35;
+            --primary-teal: #2A9D8F;
+            --primary-purple: #6C63FF;
+            --primary-cyan: #00B4D8;
+            --soil-color: #8D6E63;
+        }
+
+        .bg-orange-gradient {
+            background: linear-gradient(135deg, var(--primary-orange) 0%, #FF9F1C 100%) !important;
+        }
+
+        .shadow-hover {
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, .15);
+        }
+
+        .shadow-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, .15) !important;
+        }
+
+        .fruit-stats h3 small {
+            font-size: 0.6em;
+        }
+
+    </style>
+{% endblock %}
+
+
+
+{% block main %}
+    <div class="container mt-3">
+        <h1 class="mb-4">我的收藏</h1>
+        {% if favorite_varieties %}
+            <ul class="list-group">
+                {% for variety in favorite_varieties %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1">{{ variety.name }}</h5>
+                            <p class="mb-0 text-muted">{{ variety.description|truncatechars:10 }}</p>
+                        </div>
+                        <div>
+                            <a href="{% url 'orange:detail' variety.id %}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-eye me-1"></i> 查看详情
+                            </a>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="alert alert-info text-center">
+                <i class="fas fa-info-circle me-1"></i> 您还没有收藏任何品种。
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

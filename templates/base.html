@@ -64,6 +64,86 @@
             transform: scale(1.05);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
+        :root {
+            --primary-orange: #FF6B35;
+            --primary-teal: #2A9D8F;
+            --primary-purple: #6C63FF;
+            --primary-cyan: #00B4D8;
+            --soil-color: #8D6E63;
+        }
+
+        .bg-orange-gradient {
+            background: linear-gradient(135deg, var(--primary-orange) 0%, #FF9F1C 100%) !important;
+        }
+
+        .bg-soil {
+            background-color: var(--soil-color) !important;
+            color: white !important;
+        }
+
+        .bg-success {
+            color: white !important;
+        }
+
+        .text-orange {
+            color: var(--primary-orange) !important;
+        }
+
+        .bg-teal {
+            background-color: var(--primary-teal) !important;
+        }
+
+        .text-teal {
+            color: var(--primary-teal) !important;
+        }
+
+        .bg-purple {
+            background-color: var(--primary-purple) !important;
+        }
+
+        .text-purple {
+            color: var(--primary-purple) !important;
+        }
+
+        .shadow-hover {
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, .15);
+        }
+
+        .shadow-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, .15) !important;
+        }
+
+        .icon-lg {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+        }
+
+        .bg-light-20 {
+            background-color: rgba(248, 249, 250, 0.2);
+        }
+
+        .bg-orange-20 {
+            background-color: rgba(255, 107, 53, 0.15);
+        }
+
+        .bg-purple-20 {
+            background-color: rgba(108, 99, 255, 0.15);
+        }
+
+        .bg-cyan-20 {
+            background-color: rgba(0, 180, 216, 0.15);
+        }
+
+        .fruit-stats h3 small {
+            font-size: 0.6em;
+        }
+
     </style>
     {% block head %}
     {% endblock %}
@@ -115,7 +195,7 @@
                             <i class="fas fa-user-circle me-1"></i>{{ user.username }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="">
+                            <li><a class="dropdown-item" href="{% url 'user:detail' user.id %}">
                                 <i class="fas fa-user me-2"></i>个人中心
                             </a></li>
                             <li>

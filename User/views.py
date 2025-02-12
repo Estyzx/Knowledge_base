@@ -1,9 +1,11 @@
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView
+from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.views.generic import CreateView
+from django.views.generic import CreateView, DetailView
 from .forms import CustomUserCreationForm
+from .models import CustomUser
 
 
 class CustomLoginView(LoginView):
@@ -27,3 +29,7 @@ class CustomRegisterView(CreateView):
 
     form_class = CustomUserCreationForm
 
+
+def user_detail(request, pk):
+    user = CustomUser.objects.get(pk=pk)
+    return render(request, 'users/user_detail.html', {'user': user})

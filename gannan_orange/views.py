@@ -271,3 +271,15 @@ class PestDelete(DeleteView):
         self.object.delete()
         return redirect(success_url)
 
+
+class FavoriteVariety(ListView):
+    model = Variety
+    template_name = 'gannan_orange/favorite_variety.html'
+    context_object_name = 'favorite_varieties'
+    def get_queryset(self):
+        queryset = self.request.user.favorite_varieties.all()
+        search_key = self.request.GET.get('q')
+        if search_key:
+            queryset = queryset.filter(Q(name__icontains=search_key) | Q(description__icontains=search_key)).order_by(
+                '-create_time')
+        return queryset

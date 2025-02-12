@@ -65,6 +65,7 @@ class Variety(models.Model):
     favorite_user = models.ManyToManyField(
         CustomUser,
         verbose_name='收藏用户',
+        related_name='favorite_varieties',
         blank=True
     )
 
