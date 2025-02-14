@@ -64,6 +64,7 @@
             transform: scale(1.05);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
+
         :root {
             --primary-orange: #FF6B35;
             --primary-teal: #2A9D8F;
@@ -144,6 +145,22 @@
             font-size: 0.6em;
         }
 
+        .breadcrumb {
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .breadcrumb .breadcrumb-item a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .breadcrumb .breadcrumb-item.active {
+            color: #6c757d;
+        }
+
     </style>
     {% block head %}
     {% endblock %}
@@ -172,9 +189,12 @@
                         <i class="fas fa-tools me-1"></i>其他知识库
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{% url 'orange:tech_list' %}"><i class="fas fa-tractor me-1"></i>种植技术库</a></li>
-                        <li><a class="dropdown-item" href="{% url 'orange:pest_list' %}"><i class="fas fa-bug me-1"></i>病虫害库</a></li>
-                        <li><a class="dropdown-item" href="{% url 'orange:soil_list' %}"><i class="fas fa-globe-asia me-1"></i>土壤库</a></li>
+                        <li><a class="dropdown-item" href="{% url 'orange:tech_list' %}"><i
+                                class="fas fa-tractor me-1"></i>种植技术库</a></li>
+                        <li><a class="dropdown-item" href="{% url 'orange:pest_list' %}"><i class="fas fa-bug me-1"></i>病虫害库</a>
+                        </li>
+                        <li><a class="dropdown-item" href="{% url 'orange:soil_list' %}"><i
+                                class="fas fa-globe-asia me-1"></i>土壤库</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown">

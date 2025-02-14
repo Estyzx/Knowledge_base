@@ -41,7 +41,9 @@ INSTALLED_APPS = [
     'User',
     'crispy_forms',
     'crispy_bootstrap5',
-    'article'
+    'article',
+    'ckeditor',
+    'ckeditor_uploader',
 ]
 
 MIDDLEWARE = [
@@ -131,3 +133,14 @@ AUTH_USER_MODEL = 'User.CustomUser'
 LOGOUT_REDIRECT_URL = '/orange'
 
 CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+CKEDITOR_UPLOAD_PATH = "uploads/"
+
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'Full',
+        'height': 300,
+        'width': '100%',
+    },
+}
