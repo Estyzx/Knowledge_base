@@ -1,8 +1,10 @@
+import requests
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, ListView, DetailView, UpdateView, CreateView, DeleteView
 from User.models import CustomUser
+from article.models import PlantingTechArticle
 
 from .forms import VarietyForm
 from .models import Variety, PlantingTech,SoilType,Pest
@@ -17,12 +19,35 @@ class HomePage(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        url = "https://api.seniverse.com/v3/weather/daily.json?key=SsIcJ_YpHt1dJPr1Q&location=ganzhou&language=zh-Hans&unit=c&start=0&days=5"
+        url1 = "https://api.seniverse.com/v3/weather/now.json?key=SsIcJ_YpHt1dJPr1Q&location=ganzhou&language=zh-Hans&unit=c"
+        response = requests.get(url)
+        response1 = requests.get(url1)
+        if response.status_code == 200:
+            data = response.json()
+            update_data = data['results'][0]['last_update'][:10]
+            humidity = data['results'][0]['daily'][0]['humidity']
+            wind_speed = data['results'][0]['daily'][0]['wind_speed']
+            code_day = data['results'][0]['daily'][0]['code_day']
+            if response1.status_code == 200:
+                temperature = response1.json()['results'][0]['now']['temperature']
+                update_data = data['results'][0]['last_update'][12:19]
+            else:
+                temperature = '暂无数据'
+
+            context.update({
+                'update_time': update_data,
+                'temperature': temperature,
+                'humidity': humidity,
+                'wind_speed': wind_speed,
+                'icon_night': code_day+'@1x.png',
+            })
         context.update({
             'total_variety': Variety.objects.count(),
             'tech_count': PlantingTech.objects.count(),
             'last_variety': Variety.objects.order_by('-create_time')[:3],
-            'last_planting_tech': PlantingTech.objects.order_by('-create_time')[:3],
             'user_count': CustomUser.objects.count(),
+            'tech_articles': PlantingTechArticle.objects.order_by('-create_time')[:3],
         })
 
         # if self.request.user.is_authenticated:
