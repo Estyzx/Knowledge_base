@@ -71,17 +71,17 @@
                     </div>
                     <div class="card-body">
                         <div class="row align-items-center">
-                            <div class="col-4 text-center">
+                            <div class="col-6 text-center">
                                 <div class="display-4">{{ temperature }}℃</div>
                             </div>
-                            <div class="col-8">
+                            <div class="col-6">
                                 <div class="weather-details">
                                     <div class="alert weather-alert mb-0">
-                                        <div class="weather-icon">
+                                        <div class="weather-icon text-center">
                                             <img src="{% static 'white/'|add:icon_night %}" alt="Night Icon" width="40"
                                                  height="40" class="text-warning">
                                         </div>
-                                        <div class="mt-2">
+                                        <div class="mt-2 text-center">
                                             <small>湿度 {{ humidity }}% | 风速 {{ wind_speed }}km/h</small>
                                         </div>
                                     </div>
