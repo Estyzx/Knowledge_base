@@ -6,12 +6,12 @@
         <nav aria-label="breadcrumb" class="mb-4">
             <ol class="breadcrumb bg-white rounded-3 shadow-sm p-3 mb-4">
                 <li class="breadcrumb-item">
-                    <a href="/" class="text-success">
+                    <a href="{% url "orange:home" %}" class="text-success">
                         <i class="fas fa-home fa-fw"></i> 首页
                     </a>
                 </li>
                 <li class="breadcrumb-item">
-                    <a href="{% url 'orange:list' %}" class="text-success">
+                    <a href="{% url 'article:list' %}" class="text-success">
                         <i class="fas fa-book fa-fw"></i> 所有文章
                     </a>
                 </li>
@@ -63,7 +63,7 @@
                                     {% endif %}
                                 </div>
                                 <div>
-                                    <form method="post" action="">
+                                    <form method="post" action="{% url "article:favorite" article.id %}">
                                         {% csrf_token %}
                                         {% if user.is_authenticated %}
                                             {% if user in article.favorite_user.all %}
@@ -89,6 +89,65 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- 评论区域 -->
+                <div class="card border-0 shadow-hover mt-4">
+                    <div class="card-header bg-light text-dark py-3">
+                        <h5 class="card-title mb-0">评论</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- 评论表单 -->
+                        <div class="mb-4">
+                            {% if user.is_authenticated %}
+                                <form method="post" action="" class="needs-validation" novalidate>
+                                    {% csrf_token %}
+                                    <div class="form-floating mb-3">
+                                        <!-- 使用 form-control 类来样式化输入框 -->
+                                        {{ comment_form.content }}
+                                        <label for="id_content">评论内容</label>
+                                        <!-- 添加验证反馈 -->
+                                        <div class="invalid-feedback">
+                                            请输入评论内容。
+                                        </div>
+                                    </div>
+                                    <!-- 使用 btn-success 类来样式化按钮 -->
+                                    <button type="submit" class="btn btn-success btn-sm rounded-pill w-100">
+                                        提交评论
+                                    </button>
+                                </form>
+                            {% else %}
+                                <p class="text-muted">请 <a href="{% url 'user:login' %}" class="text-primary">登录</a>
+                                    后发表评论。</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- 评论列表 -->
+                        <hr class="my-4">
+                        <div>
+                            {% if comments %}
+                                <ul class="list-group list-group-flush">
+                                    {% for comment in comments %}
+                                        <li class="list-group-item">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fas fa-user me-2"></i>
+                                                    <strong>{{ comment.author.username }}</strong>
+                                                </div>
+                                                <div class="text-muted">
+                                                    {{ comment.created_at|date:"Y-m-d H:i" }}
+                                                </div>
+                                            </div>
+                                            <p class="mt-2">{{ comment.content }}</p>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="text-muted">暂无评论。</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
             </div>
             <!-- 右侧栏 -->
             <div class="col-lg-4">
@@ -108,7 +167,6 @@
                         </address>
                     </div>
                 </div>
-
 
                 <div class="card mb-4 rounded-3 shadow-hover">
                     <div class="card-header bg-info text-white text-center py-3">

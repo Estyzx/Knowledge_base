@@ -20,3 +20,15 @@ class PlantingTechArticle(models.Model):
     class Meta:
         verbose_name = '种植技术文章'
         verbose_name_plural = '种植技术文章'
+
+class Comment(models.Model):
+    create_time = models.DateTimeField('创建时间', auto_now_add=True)
+    updated_time = models.DateTimeField('更新时间', auto_now=True)
+    content = RichTextUploadingField('内容', blank=False)
+    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='comments', verbose_name='作者')
+    article = models.ForeignKey(PlantingTechArticle, on_delete=models.CASCADE, related_name='comments', verbose_name='文章')
+    def __str__(self):
+        return self.content
+    class Meta:
+        verbose_name = '评论'
+        verbose_name_plural = '评论'

@@ -4,7 +4,7 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView,ListView
 
 from article.forms import PlantingTechArticleForm
-from article.models import PlantingTechArticle
+from article.models import PlantingTechArticle, Comment
 
 
 # Create your views here.
@@ -17,18 +17,38 @@ class PlantingTechCreateView(CreateView):
         form.instance.author = self.request.user
         return super().form_valid(form)
 
+from django.views.generic.detail import DetailView
+from django.shortcuts import redirect
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .models import PlantingTechArticle, Comment
+from .forms import CommentForm
+
 class PlantingTechDetailView(DetailView):
     model = PlantingTechArticle
     template_name = 'article/planting_tech_detail.html'
     context_object_name = 'article'
-    def post (self, request, *args, **kwargs):
-        article = self.get_object()
-        user = self.request.user
-        if user in article.favorite_user.all():
-            article.favorite_user.remove(user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['comments'] = Comment.objects.filter(article=self.object).order_by('-create_time')
+        context['comment_form'] = CommentForm()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        comment_form = CommentForm(request.POST)
+
+        if comment_form.is_valid():
+            new_comment = comment_form.save(commit=False)
+            new_comment.article = self.object
+            new_comment.author = request.user
+            new_comment.save()
+            messages.success(request, "评论已成功发布！")
         else:
-            article.favorite_user.add(user)
-        return self.get(request, *args, **kwargs)
+            messages.error(request, "评论提交失败，请检查输入内容！")
+
+        return redirect('article:detail', pk=self.object.pk)
 
 class PlantingTechListView(ListView):
     model = PlantingTechArticle
