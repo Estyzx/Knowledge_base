@@ -6,4 +6,5 @@ urlpatterns = [
     path('create/',PlantingTechCreateView.as_view(), name='create'),
     path('<int:pk>/', PlantingTechDetailView.as_view(), name='detail'),
     path('list', PlantingTechListView.as_view(), name='list'),
+    path('favorite/get/<int:pk>', favorite_article, name='favorite'),
 ]

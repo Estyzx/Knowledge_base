@@ -48,4 +48,13 @@ class PlantingTechListView(ListView):
         return context
 
 
+def favorite_article(request, pk):
+    article = PlantingTechArticle.objects.get(pk=pk)
+    if request.user in article.favorite_user.all():
+        article.favorite_user.remove(request.user)
+    else:
+        article.favorite_user.add(request.user)
+    return redirect('article:detail', pk=pk)
+
+
 
