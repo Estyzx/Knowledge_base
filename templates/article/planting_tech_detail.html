@@ -102,15 +102,15 @@
                                 <form method="post" action="" class="needs-validation" novalidate>
                                     {% csrf_token %}
                                     <div class="form-floating mb-3">
-                                        <!-- 使用 form-control 类来样式化输入框 -->
-                                        {{ comment_form.content }}
-                                        <label for="id_content">评论内容</label>
-                                        <!-- 添加验证反馈 -->
+                                        <textarea name="{{ comment_form.content.name }}" class="form-control"
+                                                  id="floatingTextarea2"
+                                                  placeholder="Leave a comment here"
+                                                  style="height: 100px; border-radius: 15px; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);"></textarea>
+                                        <label for="floatingTextarea2">输入评论内容</label>
                                         <div class="invalid-feedback">
                                             请输入评论内容。
                                         </div>
                                     </div>
-                                    <!-- 使用 btn-success 类来样式化按钮 -->
                                     <button type="submit" class="btn btn-success btn-sm rounded-pill w-100">
                                         提交评论
                                     </button>
@@ -169,21 +169,26 @@
                 </div>
 
                 <div class="card mb-4 rounded-3 shadow-hover">
-                    <div class="card-header bg-info text-white text-center py-3">
-                        <h5 class="card-title mb-0">Ta的文章</h5>
-                    </div>
-                    <ul class="list-group list-group-flush">
-                        {% for article in article.author.planting_tech_articles.all %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <a href="{% url 'article:detail' article.id %}" class="text-dark text-decoration-none">
-                                    {{ article.title }}
-                                </a>
-                                <span class="badge bg-danger rounded-pill">
+
+                    {% if recommended_articles %}
+                        <div class="card-header bg-info text-white text-center py-3">
+                            <h5 class="card-title mb-0">你可能感兴趣的其他文章</h5>
+                        </div>
+                            <ul class="list-group list-group-flush">
+                                {% for article in recommended_articles %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <a href="{% url 'article:detail' article.id %}"
+                                           class="text-dark text-decoration-none">
+                                            {{ article.title }}
+                                        </a>
+                                        <span class="badge bg-danger rounded-pill">
                                     {{ article.favorite_user.count }}
                                 </span>
-                            </li>
-                        {% endfor %}
-                    </ul>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                    {% endif %}
+
                 </div>
             </div>
         </div>

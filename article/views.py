@@ -1,11 +1,12 @@
 from django.db.models import Q
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DetailView,ListView
-
+from django.views.generic import CreateView, DetailView, ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
 from article.forms import PlantingTechArticleForm
-from article.models import PlantingTechArticle, Comment
-
+from article.models import PlantingTechArticle, Comment, UserArticleView
+from .forms import CommentForm
 
 # Create your views here.
 class PlantingTechCreateView(CreateView):
@@ -17,12 +18,7 @@ class PlantingTechCreateView(CreateView):
         form.instance.author = self.request.user
         return super().form_valid(form)
 
-from django.views.generic.detail import DetailView
-from django.shortcuts import redirect
-from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import PlantingTechArticle, Comment
-from .forms import CommentForm
+
 
 class PlantingTechDetailView(DetailView):
     model = PlantingTechArticle
@@ -33,6 +29,13 @@ class PlantingTechDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['comments'] = Comment.objects.filter(article=self.object).order_by('-create_time')
         context['comment_form'] = CommentForm()
+        user = self.request.user
+        UserArticleView.objects.create(user=user, article=self.object)
+        user_views = UserArticleView.objects.filter(user=user)
+        if user_views.exists():
+            most_viewed_article = user_views.latest('view_time').article
+            recommended_articles = get_similar_articles(most_viewed_article)
+            context['recommended_articles'] = recommended_articles
         return context
 
     def post(self, request, *args, **kwargs):
@@ -77,4 +80,28 @@ def favorite_article(request, pk):
     return redirect('article:detail', pk=pk)
 
 
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
+
+def get_similar_articles(article):
+    articles = list(PlantingTechArticle.objects.all())  # 将 QuerySet 转换为列表
+    article_id_to_index = {art.id: idx for idx, art in enumerate(articles)}  # 创建 id 到索引的映射
+
+    # 找到目标文章的索引
+    try:
+        article_index = article_id_to_index[article.id]
+    except KeyError:
+        raise ValueError("Target article not found in the articles list.")
+
+    vectorizer = TfidfVectorizer(stop_words='english')
+    tfidf_matrix = vectorizer.fit_transform([art.content for art in articles])
+    cos_sim = cosine_similarity(tfidf_matrix)
+
+    # 计算相似度分数
+    sim_scores = list(enumerate(cos_sim[article_index]))
+    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+    sim_scores = sim_scores[1:6]  # 排除目标文章本身
+
+    article_indices = [i[0] for i in sim_scores]
+    return [articles[i] for i in article_indices]

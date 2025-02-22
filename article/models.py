@@ -32,3 +32,8 @@ class Comment(models.Model):
     class Meta:
         verbose_name = '评论'
         verbose_name_plural = '评论'
+
+class UserArticleView(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    article = models.ForeignKey(PlantingTechArticle, on_delete=models.CASCADE)
+    view_time = models.DateTimeField(auto_now_add=True)
