@@ -31,13 +31,13 @@ class Variety(models.Model):
     fruit_weight = models.DecimalField(
         '平均单果重(g)',
         max_digits=5, decimal_places=1,
-        validators=[MinValueValidator(50), MaxValueValidator(1000)],
+        validators=[MinValueValidator(0), MaxValueValidator(1000)],
         default=50
     )
     brix = models.DecimalField(
         '可溶性固形物(%)',
         max_digits=4, decimal_places=1,
-        validators=[MinValueValidator(8), MaxValueValidator(25)],
+        validators=[MinValueValidator(0), MaxValueValidator(25)],
         default=10
     )
     peel_thickness = models.DecimalField(
@@ -60,7 +60,8 @@ class Variety(models.Model):
 
     soil_preference = models.ManyToManyField(
         'SoilType',
-        verbose_name='适宜土壤类型'
+        verbose_name='适宜土壤类型',
+        blank=True
     )
     favorite_user = models.ManyToManyField(
         CustomUser,

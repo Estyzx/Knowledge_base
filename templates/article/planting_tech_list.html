@@ -50,6 +50,10 @@
                 </div>
             </a>
         </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">没有找到相关文章。</div>
+        </div>
         {% endfor %}
     </div>
 
