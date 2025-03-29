@@ -1,162 +1,119 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}脐橙品种库 - 知识平台{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/list.css' %}">
+{% endblock %}
 
 {% block main %}
-    <div class="container">
-        <h1 class="text-center my-4 text-success">病虫害列表</h1>
+    <div class="container my-4 animate-fadeInUp">
+        <h1 class="variety-page-title mb-5">土壤库</h1>
 
         <!-- 搜索框 -->
-        <div class="row mb-4">
+        <div class="row mb-5 animate-fadeInUp delay-1">
             <div class="col-md-8 offset-md-2">
-                <form method="get" action="{% url 'orange:pest_list' %}">
-                    <div class="input-group">
-                        <input type="text" name="q" class="form-control rounded-pill" placeholder="搜索病虫害名称或描述"
-                               value="{% if search_key %}{{ search_key }}{% endif %}">
-                        <button type="submit" class="btn btn-success rounded-pill">
-                            <i class="bi bi-search"></i> 搜索
-                        </button>
-                    </div>
-                </form>
+                <div class="glass-card p-4">
+                    <form method="get" action="{% url 'orange:pest_list' %}">
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-0">
+                                <i class="fas fa-search text-success"></i>
+                            </span>
+                            <input type="text" name="q" class="form-control border-0 shadow-none" 
+                                placeholder="搜索土壤名称或描述..."
+                                value="{% if search_key %}{{ search_key }}{% endif %}">
+                            <button type="submit" class="btn btn-success rounded-pill px-4">
+                                <i class="fas fa-search me-2"></i> 搜索
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
 
-        <!-- 列表显示 -->
+        <!-- 卡片式列表 -->
         <div class="row">
             {% for variety in pest_list %}
-                <div class="col-md-4 mb-4">
-                    <div class="card shadow-lg border-light rounded-lg hover-card fixed-height">
-                        <div class="card-body">
-                            <h5 class="card-title text-success">{{ variety.name }}</h5>
-                            <p class="card-text text-muted">{{ variety.description|truncatechars:45 }}</p>
-                            <a href="{% url 'orange:pest_detail' variety.id %}" class="btn btn-outline-success btn-sm stretched-link">
-                                <i class="bi bi-eye"></i> 查看详情
-                            </a>
-                            <p class="mt-2 text-muted">更新时间：{{ variety.update_time|date:"Y-m-d H:i:s" }}</p>
+                <div class="col-md-4 mb-4 animate-fadeInUp delay-{{ forloop.counter|add:"1" }}">
+                    <div class="glass-card h-100 position-relative overflow-hidden">
+                        <!-- 渐变背景装饰 -->
+                        <div class="position-absolute top-0 end-0 w-50 h-50 opacity-25 rounded-circle" 
+                             style="background: linear-gradient(135deg, var(--primary-green), var(--primary-teal)); transform: translate(25%, -25%);"></div>
+                        
+                        <div class="card-body position-relative z-index-1 p-4">
+                            <h5 class="card-title fw-bold mb-3">{{ variety.name }}</h5>
+                            <p class="card-text text-muted mb-4">{{ variety.description|truncatechars:60 }}</p>
+                            
+                            <div class="d-flex justify-content-between align-items-center mt-auto">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i> {{ variety.update_time|date:"Y-m-d" }}
+                                </small>
+                                <a href="{% url 'orange:pest_detail' id=variety.id %}" class="btn btn-sm btn-success rounded-pill px-3">
+                                    <i class="fas fa-eye me-1"></i> 查看详情
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             {% empty %}
-                <div class="col-12">
-                    <div class="alert alert-info text-center">没有找到相关技术。</div>
+                <div class="col-12 animate-fadeInUp delay-2">
+                    <div class="glass-card p-4 text-center">
+                        <i class="fas fa-info-circle text-info fa-2x mb-3"></i>
+                        <p class="mb-0">没有找到相关品种。</p>
+                    </div>
                 </div>
             {% endfor %}
         </div>
 
         <!-- 分页 -->
         {% if is_paginated %}
-            <nav aria-label="Page navigation" class="mt-4">
-                <ul class="pagination justify-content-center">
-                    {% if page_obj.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page=1{% if search_key %}&q={{ search_key }}{% endif %}"
-                               aria-label="First">
-                                <span aria-hidden="true">&laquo;&laquo;</span>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_key %}&q={{ search_key }}{% endif %}"
-                               aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-                    {% endif %}
-                    {% for num in page_obj.paginator.page_range %}
-                        {% if page_obj.number == num %}
-                            <li class="page-item active" aria-current="page">
-                                <span class="page-link">{{ num }}</span>
-                            </li>
-                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <nav aria-label="Page navigation" class="mt-5 animate-fadeInUp delay-5">
+                <div class="glass-card p-3">
+                    <ul class="pagination justify-content-center mb-0">
+                        {% if page_obj.has_previous %}
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ num }}{% if search_key %}&q={{ search_key }}{% endif %}">{{ num }}</a>
+                                <a class="page-link" href="?page=1{% if search_key %}&q={{ search_key }}{% endif %}"
+                                aria-label="First">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_key %}&q={{ search_key }}{% endif %}"
+                                aria-label="Previous">
+                                    <i class="fas fa-angle-left"></i>
+                                </a>
                             </li>
                         {% endif %}
-                    {% endfor %}
-                    {% if page_obj.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_key %}&q={{ search_key }}{% endif %}"
-                               aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_key %}&q={{ search_key }}{% endif %}"
-                               aria-label="Last">
-                                <span aria-hidden="true">&raquo;&raquo;</span>
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active" aria-current="page">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if search_key %}&q={{ search_key }}{% endif %}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_key %}&q={{ search_key }}{% endif %}"
+                                aria-label="Next">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_key %}&q={{ search_key }}{% endif %}"
+                                aria-label="Last">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
             </nav>
         {% endif %}
     </div>
-{% endblock %}
-
-{% block head %}
-<style>
-/* 设置统一卡片高度 */
-.card.fixed-height {
-    height: 200px; /* 设置固定高度 */
-    display: flex;
-    flex-direction: column; /* 保证内容在卡片内垂直排列 */
-}
-
-.card-body {
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 10px;
-    flex-grow: 1; /* 使卡片内容区域填满卡片 */
-}
-
-/* 卡片标题和描述 */
-.card-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #28a745;
-}
-
-.card-text {
-    font-size: 1rem;
-    color: #6c757d;
-    flex-grow: 1; /* 保证文本区填满剩余空间 */
-}
-
-/* 卡片悬浮效果 */
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-}
-
-/* 按钮样式 */
-.btn-outline-success {
-    border-radius: 30px;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-.btn-outline-success:hover {
-    background-color: #28a745;
-    color: white;
-}
-
-/* 分页按钮 */
-.page-link {
-    border-radius: 50%;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    background-color: #e0e7ff;
-    border: 1px solid #d1d9e6;
-}
-.page-link:hover {
-    background-color: #28a745;
-    color: white;
-}
-.page-item.active .page-link {
-    background-color: #28a745;
-    color: white;
-}
-
-/* 页脚调整 */
-footer {
-    padding: 20px 0;
-    text-align: center;
-    background-color: #f8f9fa;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-}
-</style>
 {% endblock %}
