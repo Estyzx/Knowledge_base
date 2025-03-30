@@ -1,102 +1,143 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}用户注册{% endblock %}
 
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    <style>
+        /* 页面背景渐变 */
+        body {
+            background: linear-gradient(135deg, #e0f7fa, #e8f5e9);
+        }
+    </style>
+{% endblock %}
+
 {% block main %}
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8 m-5">
-                <div class="card shadow-lg glassmorphism">
-                    <div class="card-header bg-success text-white text-center">
-                        <h4>注册账户</h4>
-                    </div>
-                    <form method="post" class="row g-3 m-3" novalidate>
-                        {% csrf_token %}
-
-                        <!-- 用户名 -->
-                        <div class="col-md-6 position-relative">
-                            <label for="username" class="form-label">用户名</label>
-                            <input type="text" class="form-control {% if form.username.errors %}is-invalid{% endif %}"
-                                   id="username" name="username" value="{{ form.username.value|default:'' }}" required>
-                            {% if form.username.errors %}
-                                <div class="invalid-feedback">
-                                    {% for error in form.username.errors %}
-                                        <p>{{ error }}</p>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- 手机号 -->
-                        <div class="col-md-6 position-relative">
-                            <label for="phone" class="form-label">手机号</label>
-                            <input type="text" class="form-control {% if form.phone.errors %}is-invalid{% endif %}"
-                                   id="phone" name="phone" value="{{ form.phone.value|default:'' }}" required>
-                            {% if form.phone.errors %}
-                                <div class="invalid-feedback">
-                                    {% for error in form.phone.errors %}
-                                        <p>{{ error }}</p>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- 密码 -->
-                        <div class="col-md-6 position-relative">
-                            <label for="password1" class="form-label">密码</label>
-                            <input type="password" class="form-control {% if form.password1.errors %}is-invalid{% endif %}"
-                                   id="password1" name="password1" required>
-                            {% if form.password1.errors %}
-                                <div class="invalid-feedback">
-                                    {% for error in form.password1.errors %}
-                                        <p>{{ error }}</p>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- 确认密码 -->
-                        <div class="col-md-6 position-relative">
-                            <label for="password2" class="form-label">确认密码</label>
-                            <input type="password" class="form-control {% if form.password2.errors %}is-invalid{% endif %}"
-                                   id="password2" name="password2" required>
-                            {% if form.password2.errors %}
-                                <div class="invalid-feedback">
-                                    {% for error in form.password2.errors %}
-                                        <p>{{ error }}</p>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- 角色 -->
-                        <div class="col-md-12 position-relative">
-                            <label for="role" class="form-label">角色</label>
-                            <select class="form-select {% if form.role.errors %}is-invalid{% endif %}" id="role" name="role" required>
-                                <option value="" {% if not form.role.value %}selected{% endif %}>请选择角色</option>
-                                <option value="farmer" {% if form.role.value == 'farmer' %}selected{% endif %}>农民</option>
-                                <option value="expert" {% if form.role.value == 'expert' %}selected{% endif %}>专家</option>
-                            </select>
-                            {% if form.role.errors %}
-                                <div class="invalid-feedback">
-                                    {% for error in form.role.errors %}
-                                        <p>{{ error }}</p>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- 提交按钮 -->
-                        <div class="col-12">
-                            <button class="btn btn-primary" type="submit">提交注册</button>
-                        </div>
-                    </form>
-
-                    <div class="card-footer text-center">
-                        <p>已有账号？<a href="{% url 'user:login' %}">点击登录</a></p>
-                    </div>
-                </div>
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-icon">
+                <i class="fas fa-user-plus"></i>
             </div>
+            <h3>用户注册</h3>
+            <p class="text-white-50">加入农业智库，共享知识</p>
         </div>
-    </div>
+        
+        <div class="auth-body">
+            <!-- 显示消息 -->
+            {% if messages %}
+                <div class="alert alert-danger">
+                    {% for message in messages %}
+                        {{ message }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                 <!-- 用户名 -->
+                 <div class="mb-3">
+                     <div class="input-group {% if form.username.errors %}is-invalid{% endif %}">
+                         <span class="input-group-text bg-light">
+                             <i class="fas fa-user text-muted"></i>
+                         </span>
+                         <input type="text" name="username" id="username" class="form-control {% if form.username.errors %}is-invalid{% endif %}" 
+                                placeholder="用户名" value="{{ form.username.value|default:'' }}" required>
+                     </div>
+                     {% if form.username.errors %}
+                         <div class="invalid-feedback d-block mt-1">
+                             {% for error in form.username.errors %}
+                                 {{ error }}
+                             {% endfor %}
+                         </div>
+                     {% endif %}
+                 </div>
+
+                 <!-- 手机号 -->
+                 <div class="mb-3">
+                     <div class="input-group {% if form.phone.errors %}is-invalid{% endif %}">
+                         <span class="input-group-text bg-light">
+                             <i class="fas fa-mobile-alt text-muted"></i>
+                         </span>
+                         <input type="text" name="phone" id="phone" class="form-control {% if form.phone.errors %}is-invalid{% endif %}" 
+                                placeholder="手机号" value="{{ form.phone.value|default:'' }}" required>
+                     </div>
+                     {% if form.phone.errors %}
+                         <div class="invalid-feedback d-block mt-1">
+                             {% for error in form.phone.errors %}
+                                 {{ error }}
+                             {% endfor %}
+                         </div>
+                     {% endif %}
+                 </div>
+
+                 <!-- 密码 -->
+                 <div class="mb-3">
+                     <div class="input-group {% if form.password1.errors %}is-invalid{% endif %}">
+                         <span class="input-group-text bg-light">
+                             <i class="fas fa-lock text-muted"></i>
+                         </span>
+                         <input type="password" name="password1" id="password1" class="form-control {% if form.password1.errors %}is-invalid{% endif %}" 
+                                placeholder="密码" required>
+                     </div>
+                     {% if form.password1.errors %}
+                         <div class="invalid-feedback d-block mt-1">
+                             {% for error in form.password1.errors %}
+                                 {{ error }}
+                             {% endfor %}
+                         </div>
+                     {% endif %}
+                 </div>
+
+                 <!-- 确认密码 -->
+                 <div class="mb-3">
+                     <div class="input-group {% if form.password2.errors %}is-invalid{% endif %}">
+                         <span class="input-group-text bg-light">
+                             <i class="fas fa-lock text-muted"></i>
+                         </span>
+                         <input type="password" name="password2" id="password2" class="form-control {% if form.password2.errors %}is-invalid{% endif %}" 
+                                placeholder="确认密码" required>
+                     </div>
+                     {% if form.password2.errors %}
+                         <div class="invalid-feedback d-block mt-1">
+                             {% for error in form.password2.errors %}
+                                 {{ error }}
+                             {% endfor %}
+                         </div>
+                     {% endif %}
+                 </div>
+
+                 <!-- 角色 -->
+                 <div class="mb-4">
+                     <div class="input-group {% if form.role.errors %}is-invalid{% endif %}">
+                         <span class="input-group-text bg-light">
+                             <i class="fas fa-user-tag text-muted"></i>
+                         </span>
+                         <select name="role" id="role" class="form-select {% if form.role.errors %}is-invalid{% endif %}" required>
+                             <option value="" {% if not form.role.value %}selected{% endif %}>请选择角色</option>
+                             <option value="farmer" {% if form.role.value == 'farmer' %}selected{% endif %}>农民</option>
+                             <option value="expert" {% if form.role.value == 'expert' %}selected{% endif %}>专家</option>
+                         </select>
+                     </div>
+                     {% if form.role.errors %}
+                         <div class="invalid-feedback d-block mt-1">
+                             {% for error in form.role.errors %}
+                                 {{ error }}
+                             {% endfor %}
+                         </div>
+                     {% endif %}
+                 </div>
+
+                 <!-- 提交按钮 -->
+                 <button type="submit" class="btn btn-success w-100 py-2 mb-3 auth-btn">注册账户</button>
+                     </form>
+         </div>
+         
+         <div class="auth-footer">
+             <p class="mb-0">已有账号？<a href="{% url 'user:login' %}">点击登录</a></p>
+         </div>
+     </div>
+ </div>
 {% endblock %}

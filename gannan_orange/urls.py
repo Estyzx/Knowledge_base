@@ -23,7 +23,12 @@ urlpatterns = [
     path('detail/pest/<int:id>/delete', views.PestDelete.as_view(), name='pest_delete'),
     path('list/pest', views.PestList.as_view(), name='pest_list'),
     path('favorite', views.FavoriteVariety.as_view(), name='favorite'),
-
-
-
+    
+    # 专家审核功能路由
+    path('review/pending', views.PendingReviewListView.as_view(), name='pending_review'),
+    path('review/history', views.ReviewHistoryListView.as_view(), name='review_history'),
+    path('review/variety/<int:id>', views.VarietyReviewView.as_view(), name='review_variety'),
+    path('review/tech/<int:id>', views.PlantingTechReviewView.as_view(), name='review_tech'),
+    path('review/pest/<int:id>', views.PestReviewView.as_view(), name='review_pest'),
+    path('review/soil/<int:id>', views.SoilTypeReviewView.as_view(), name='review_soil'),
 ]

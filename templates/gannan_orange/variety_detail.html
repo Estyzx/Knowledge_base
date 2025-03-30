@@ -6,6 +6,8 @@
 
 {% block head %}
     <link rel="stylesheet" href="/static/css/variety_detail.css">
+    <link rel="stylesheet" href="/static/css/collapsible.css">
+    <script src="/static/js/collapsible.js" defer></script>
 {% endblock %}
 
 
@@ -72,42 +74,171 @@
 
                     <div class="card-body p-4">
                         <!-- 基础信息行 -->
-                        <div class="row g-4 mb-4">
-                            <div class="col-md-6">
-                                <div class="info-card bg-light-20 stat-item">
-                                    <div class="d-flex align-items-center">
-                                        <div class="icon-container" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-light))">
-                                            <i class="fas fa-flask"></i>
-                                        </div>
-                                        <div>
-                                            <span class="data-label">学名</span>
-                                            <h4 class="data-value">{{ variety.scientific_name|default:"-" }}</h4>
+                        <div class="collapsible-section collapsible-primary" id="basic-info">
+                            <div class="collapsible-header" aria-expanded="true">
+                                <h5>
+                                    <div class="icon-container">
+                                        <i class="fas fa-info-circle"></i>
+                                    </div>
+                                    基础信息
+                                </h5>
+                                <i class="fas fa-chevron-down toggle-icon"></i>
+                            </div>
+                            <div class="collapsible-body show">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <div class="info-card bg-light-20 stat-item">
+                                            <div class="d-flex align-items-center">
+                                                <div class="icon-container" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-light))">
+                                                    <i class="fas fa-flask"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="data-label">学名</span>
+                                                    <h4 class="data-value">{{ variety.scientific_name|default:"-" }}</h4>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="info-card bg-light-20 stat-item">
-                                    <div class="d-flex align-items-center">
-                                        <div class="icon-container" style="background: linear-gradient(135deg, var(--primary-teal), var(--info-color))">
-                                            <i class="fas fa-map-marker-alt"></i>
+                                    <div class="col-md-6">
+                                        <div class="info-card bg-light-20 stat-item">
+                                            <div class="d-flex align-items-center">
+                                                <div class="icon-container" style="background: linear-gradient(135deg, var(--primary-teal), var(--info-color))">
+                                                    <i class="fas fa-map-marker-alt"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="data-label">原产地</span>
+                                                    <h4 class="data-value">{{ variety.origin|default:"-" }}</h4>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <span class="data-label">原产地</span>
-                                            <h4 class="data-value">{{ variety.origin|default:"-" }}</h4>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <div class="info-card bg-light-20 stat-item">
+                                            <div class="d-flex align-items-center">
+                                                <div class="icon-container" style="background: linear-gradient(135deg, var(--primary-purple), var(--primary-light))">
+                                                    <i class="fas fa-id-card"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="data-label">品种登记号</span>
+                                                    <h4 class="data-value">{{ variety.registration_number|default:"-" }}</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <div class="info-card bg-light-20 stat-item">
+                                            <div class="d-flex align-items-center">
+                                                <div class="icon-container" style="background: linear-gradient(135deg, var(--warning-color), var(--accent-light))">
+                                                    <i class="fas fa-clock"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="data-label">成熟类型</span>
+                                                    <h4 class="data-value">{{ variety.get_maturity_type_display|default:"-" }}</h4>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- 生长特性详情 -->
+                        <div class="collapsible-section collapsible-warning mt-4" id="growth-details">
+                            <div class="collapsible-header" aria-expanded="false">
+                                <h5>
+                                    <div class="icon-container">
+                                        <i class="fas fa-seedling"></i>
+                                    </div>
+                                    生长特性详情
+                                </h5>
+                                <i class="fas fa-chevron-down toggle-icon"></i>
+                            </div>
+                            <div class="collapsible-body">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <div class="info-card bg-light-20 stat-item">
+                                            <div class="d-flex align-items-center">
+                                                <div class="icon-container" style="background: linear-gradient(135deg, var(--success-color), var(--primary-light))">
+                                                    <i class="fas fa-calendar-alt"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="data-label">采收季节</span>
+                                                    <h4 class="data-value">{{ variety.harvest_season|default:"-" }}</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="info-card bg-light-20 stat-item">
+                                            <div class="d-flex align-items-center">
+                                                <div class="icon-container" style="background: linear-gradient(135deg, var(--info-color), var(--primary-teal))">
+                                                    <i class="fas fa-mountain"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="data-label">适宜海拔范围</span>
+                                                    <h4 class="data-value">{{ variety.altitude_range|default:"-" }}</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <div class="info-card bg-light-20 stat-item">
+                                            <div class="d-flex align-items-center">
+                                                <div class="icon-container" style="background: linear-gradient(135deg, var(--primary-green), var(--success-color))">
+                                                    <i class="fas fa-balance-scale"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="data-label">平均亩产</span>
+                                                    <h4 class="data-value">{% if variety.annual_yield %}{{ variety.annual_yield }} kg{% else %}-{% endif %}</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <div class="info-card bg-light-20 stat-item">
+                                            <div class="d-flex align-items-center">
+                                                <div class="icon-container" style="background: linear-gradient(135deg, var(--primary-orange), var(--warning-color))">
+                                                    <i class="fas fa-tree"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="data-label">树形</span>
+                                                    <h4 class="data-value">{{ variety.tree_shape|default:"-" }}</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <div class="info-card bg-light-20 stat-item">
+                                            <div class="d-flex align-items-center">
+                                                <div class="icon-container" style="background: linear-gradient(135deg, var(--primary-purple), var(--danger-color))">
+                                                    <i class="fas fa-bug"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="data-label">授粉类型</span>
+                                                    <h4 class="data-value">{{ variety.pollination_type|default:"-" }}</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <!-- 品种描述 -->
-                        <div class="desc-section glass-card p-4 rounded-3 animate-fadeInUp delay-3">
-                            <h5 class="text-uppercase mb-3" style="background: linear-gradient(120deg, var(--primary-orange), var(--accent-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                                <i class="fas fa-book-open me-2"></i>品种描述
-                            </h5>
-                            <div class="desc-content" style="text-indent: 2em; line-height: 1.8; font-size: 1.05rem;">
-                                {{ variety.description|default:"暂无详细描述"|linebreaks }}
+                        <div class="collapsible-section collapsible-orange mt-4" id="variety-desc">
+                            <div class="collapsible-header" aria-expanded="true">
+                                <h5>
+                                    <div class="icon-container">
+                                        <i class="fas fa-book-open"></i>
+                                    </div>
+                                    品种描述
+                                </h5>
+                                <i class="fas fa-chevron-down toggle-icon"></i>
+                            </div>
+                            <div class="collapsible-body show">
+                                <div class="desc-content" style="text-indent: 2em; line-height: 1.8; font-size: 1.05rem;">
+                                    {{ variety.description|default:"暂无详细描述"|linebreaks }}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -134,90 +265,87 @@
                 </div>
 
                 <!-- 技术信息卡片组 -->
-                <div class="row g-4 animate-fadeInUp delay-4">
+                <div class="animate-fadeInUp delay-4">
                     <!-- 生态适应性 -->
-                    <div class="col-md-6">
-                        <div class="glass-card h-100">
-                            <div class="card-header bg-teal-gradient text-white py-3">
-                                <div class="d-flex align-items-center">
-                                    <div class="icon-container me-3" style="background: linear-gradient(135deg, var(--primary-teal), #4ecdc4);">
-                                        <i class="fas fa-globe-asia"></i>
+                    <div class="collapsible-section collapsible-teal mt-4" id="soil-preference">
+                        <div class="collapsible-header" aria-expanded="false">
+                            <h5>
+                                <div class="icon-container">
+                                    <i class="fas fa-globe-asia"></i>
+                                </div>
+                                生态适应性
+                            </h5>
+                            <i class="fas fa-chevron-down toggle-icon"></i>
+                        </div>
+                        <div class="collapsible-body">
+                            <div class="tag-container">
+                                {% for soil in variety.soil_preference.all %}
+                                    <a href="{% url 'orange:soil_detail' soil.id %}?next={{ request.get_full_path|urlencode }}" class="text-decoration-none">
+                                        <span class="feature-tag" style="background-color: var(--soil-color); color: white;">
+                                            <i class="fas fa-seedling"></i>{{ soil.name }}
+                                        </span>
+                                    </a>
+                                {% empty %}
+                                    <div class="alert alert-light mb-0 py-3 text-center w-100 shadow-sm">
+                                        <i class="fas fa-info-circle me-2 text-info"></i>暂无土壤适应性数据
                                     </div>
-                                    <h5 class="mb-0">生态适应性</h5>
-                                </div>
-                            </div>
-                            <div class="card-body p-4">
-                                <div class="tag-container">
-                                    {% for soil in variety.soil_preference.all %}
-                                        <a href="{% url 'orange:soil_detail' soil.id %}" class="text-decoration-none">
-                                            <span class="feature-tag" style="background-color: var(--soil-color); color: white;">
-                                                <i class="fas fa-seedling"></i>{{ soil.name }}
-                                            </span>
-                                        </a>
-                                    {% empty %}
-                                        <div class="alert alert-light mb-0 py-3 text-center w-100 shadow-sm">
-                                            <i class="fas fa-info-circle me-2 text-info"></i>暂无土壤适应性数据
-                                        </div>
-                                    {% endfor %}
-                                </div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
 
                     <!-- 种植技术 -->
-                    <div class="col-md-6">
-                        <div class="glass-card h-100">
-                            <div class="card-header bg-teal-gradient text-white py-3">
-                                <div class="d-flex align-items-center">
-                                    <div class="icon-container me-3" style="background: linear-gradient(135deg, var(--primary-green), #6dd5a1);">
-                                        <i class="fas fa-tractor"></i>
+                    <div class="collapsible-section collapsible-success mt-4" id="planting-tech">
+                        <div class="collapsible-header" aria-expanded="false">
+                            <h5>
+                                <div class="icon-container">
+                                    <i class="fas fa-tractor"></i>
+                                </div>
+                                种植技术
+                            </h5>
+                            <i class="fas fa-chevron-down toggle-icon"></i>
+                        </div>
+                        <div class="collapsible-body">
+                            <div class="tag-container">
+                                {% for tech in variety.planting_tech.all %}
+                                    <a href="{% url 'orange:tech_detail' tech.id %}" class="text-decoration-none">
+                                        <span class="feature-tag" style="background: linear-gradient(135deg, var(--primary-green), #6dd5a1); color: white;">
+                                            <i class="fas fa-cog"></i>{{ tech.name }}
+                                        </span>
+                                    </a>
+                                {% empty %}
+                                    <div class="alert alert-light mb-0 py-3 text-center w-100 shadow-sm">
+                                        <i class="fas fa-info-circle me-2 text-info"></i>暂无关联技术
                                     </div>
-                                    <h5 class="mb-0">种植技术</h5>
-                                </div>
-                            </div>
-                            <div class="card-body p-4">
-                                <div class="tag-container">
-                                    {% for tech in variety.planting_tech.all %}
-                                        <a href="{% url 'orange:tech_detail' tech.id %}" class="text-decoration-none">
-                                            <span class="feature-tag" style="background: linear-gradient(135deg, var(--primary-green), #6dd5a1); color: white;">
-                                                <i class="fas fa-cog"></i>{{ tech.name }}
-                                            </span>
-                                        </a>
-                                    {% empty %}
-                                        <div class="alert alert-light mb-0 py-3 text-center w-100 shadow-sm">
-                                            <i class="fas fa-info-circle me-2 text-info"></i>暂无关联技术
-                                        </div>
-                                    {% endfor %}
-                                </div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
 
                     <!-- 病虫害 -->
-                    <div class="col-md-12">
-                        <div class="glass-card h-100">
-                            <div class="card-header bg-danger-gradient text-white py-3">
-                                <div class="d-flex align-items-center">
-                                    <div class="icon-container me-3" style="background: linear-gradient(135deg, var(--danger-color), #ff6b6b);">
-                                        <i class="fas fa-bug"></i>
+                    <div class="collapsible-section collapsible-danger mt-4" id="pest-control">
+                        <div class="collapsible-header" aria-expanded="false">
+                            <h5>
+                                <div class="icon-container">
+                                    <i class="fas fa-bug"></i>
+                                </div>
+                                病虫害防治
+                            </h5>
+                            <i class="fas fa-chevron-down toggle-icon"></i>
+                        </div>
+                        <div class="collapsible-body">
+                            <div class="tag-container">
+                                {% for disease in variety.pest.all %}
+                                    <a href="{% url 'orange:pest_detail' disease.id %}" class="text-decoration-none">
+                                        <span class="feature-tag" style="background: linear-gradient(135deg, var(--danger-color), #ff6b6b); color: white;">
+                                            <i class="fas fa-skull-crossbones"></i>{{ disease.name }}
+                                        </span>
+                                    </a>
+                                {% empty %}
+                                    <div class="alert alert-light mb-0 py-3 text-center w-100 shadow-sm">
+                                        <i class="fas fa-info-circle me-2 text-info"></i>当前无病虫害记录
                                     </div>
-                                    <h5 class="mb-0">病虫害防治</h5>
-                                </div>
-                            </div>
-                            <div class="card-body p-4">
-                                <div class="tag-container">
-                                    {% for disease in variety.pest.all %}
-                                        <a href="{% url 'orange:pest_detail' disease.id %}" class="text-decoration-none">
-                                            <span class="feature-tag" style="background: linear-gradient(135deg, var(--danger-color), #ff6b6b); color: white;">
-                                                <i class="fas fa-skull-crossbones"></i>{{ disease.name }}
-                                            </span>
-                                        </a>
-                                    {% empty %}
-                                        <div class="alert alert-light mb-0 py-3 text-center w-100 shadow-sm">
-                                            <i class="fas fa-info-circle me-2 text-info"></i>当前无病虫害记录
-                                        </div>
-                                    {% endfor %}
-                                </div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
@@ -227,53 +355,56 @@
             <div class="col-lg-4">
                 <!-- 生长特性 -->
                 <div class="glass-card mb-4 animate-fadeInUp delay-2">
-                    <div class="card-header bg-primary text-white py-3">
-                        <div class="d-flex align-items-center">
-                            <div class="icon-container me-3" style="background: linear-gradient(135deg, var(--primary-color), #4e7cff);">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-                            <h5 class="mb-0">生长特性</h5>
+                    <div class="collapsible-section collapsible-primary" id="growth-features">
+                        <div class="collapsible-header" aria-expanded="true">
+                            <h5>
+                                <div class="icon-container">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                生长特性
+                            </h5>
+                            <i class="fas fa-chevron-down toggle-icon"></i>
                         </div>
-                    </div>
-                    <div class="card-body p-4">
-                        <div class="growth-stats">
-                            <div class="stat-item d-flex justify-content-between align-items-center p-3 mb-4 bg-light rounded-3">
-                                <div>
-                                    <span class="data-label">生长周期</span>
-                                    <h3 class="data-value">{{ variety.growth_cycle }} <small class="text-muted">天</small></h3>
-                                </div>
-                                <div class="icon-container" style="background: linear-gradient(135deg, var(--primary-color), #4e7cff);">
-                                    <i class="fas fa-calendar-alt"></i>
-                                </div>
-                            </div>
-
-                            <div class="stat-item d-flex justify-content-between align-items-center p-3 mb-4 bg-light rounded-3">
-                                <div>
-                                    <span class="data-label">需冷量 (≤7.2℃)</span>
-                                    <h3 class="data-value">{{ variety.chill_requirement }} <small class="text-muted">小时</small></h3>
-                                </div>
-                                <div class="icon-container" style="background: linear-gradient(135deg, var(--info-color), #5dceeb);">
-                                    <i class="fas fa-thermometer-half"></i>
-                                </div>
-                            </div>
-
-                            <div class="row g-3">
-                                <div class="col-6">
-                                    <div class="p-3 bg-light rounded-3 text-center stat-item">
-                                        <span class="data-label">耐寒性</span>
-                                        <div class="tolerance-bar tolerance-{{ variety.cold_tolerance|lower }}">
-                                            <div class="progress"></div>
-                                        </div>
-                                        <span class="badge bg-info mt-2 px-3 py-2">{{ variety.get_cold_tolerance_display }}</span>
+                        <div class="collapsible-body show">
+                            <div class="growth-stats">
+                                <div class="stat-item d-flex justify-content-between align-items-center p-3 mb-4 bg-light rounded-3">
+                                    <div>
+                                        <span class="data-label">生长周期</span>
+                                        <h3 class="data-value">{{ variety.growth_cycle }} <small class="text-muted">天</small></h3>
+                                    </div>
+                                    <div class="icon-container" style="background: linear-gradient(135deg, var(--primary-color), #4e7cff);">
+                                        <i class="fas fa-calendar-alt"></i>
                                     </div>
                                 </div>
-                                <div class="col-6">
-                                    <div class="p-3 bg-light rounded-3 text-center stat-item">
-                                        <span class="data-label">耐旱性</span>
-                                        <div class="tolerance-bar tolerance-{{ variety.drought_tolerance|lower }}">
-                                            <div class="progress"></div>
+
+                                <div class="stat-item d-flex justify-content-between align-items-center p-3 mb-4 bg-light rounded-3">
+                                    <div>
+                                        <span class="data-label">需冷量 (≤7.2℃)</span>
+                                        <h3 class="data-value">{{ variety.chill_requirement }} <small class="text-muted">小时</small></h3>
+                                    </div>
+                                    <div class="icon-container" style="background: linear-gradient(135deg, var(--info-color), #5dceeb);">
+                                        <i class="fas fa-thermometer-half"></i>
+                                    </div>
+                                </div>
+
+                                <div class="row g-3">
+                                    <div class="col-6">
+                                        <div class="p-3 bg-light rounded-3 text-center stat-item">
+                                            <span class="data-label">耐寒性</span>
+                                            <div class="tolerance-bar tolerance-{{ variety.cold_tolerance|lower }}">
+                                                <div class="progress"></div>
+                                            </div>
+                                            <span class="badge bg-info mt-2 px-3 py-2">{{ variety.get_cold_tolerance_display }}</span>
                                         </div>
-                                        <span class="badge bg-warning mt-2 px-3 py-2">{{ variety.get_drought_tolerance_display }}</span>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-3 bg-light rounded-3 text-center stat-item">
+                                            <span class="data-label">耐旱性</span>
+                                            <div class="tolerance-bar tolerance-{{ variety.drought_tolerance|lower }}">
+                                                <div class="progress"></div>
+                                            </div>
+                                            <span class="badge bg-warning mt-2 px-3 py-2">{{ variety.get_drought_tolerance_display }}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -283,46 +414,139 @@
 
                 <!-- 果实特性 -->
                 <div class="glass-card animate-fadeInUp delay-3">
-                    <div class="card-header bg-purple-gradient text-white py-3">
-                        <div class="d-flex align-items-center">
-                            <div class="icon-container me-3" style="background: linear-gradient(135deg, var(--primary-purple), #9c8fff);">
-                                <i class="fas fa-apple-alt"></i>
-                            </div>
-                            <h5 class="mb-0">果实特性</h5>
+                    <div class="collapsible-section collapsible-purple" id="fruit-features">
+                        <div class="collapsible-header" aria-expanded="true">
+                            <h5>
+                                <div class="icon-container">
+                                    <i class="fas fa-apple-alt"></i>
+                                </div>
+                                果实特性
+                            </h5>
+                            <i class="fas fa-chevron-down toggle-icon"></i>
                         </div>
-                    </div>
-                    <div class="card-body p-4">
-                        <div class="fruit-stats">
-                            <div class="row g-4">
-                                <div class="col-12">
-                                    <div class="stat-item d-flex justify-content-between align-items-center p-4 bg-light rounded-3">
-                                        <div>
-                                            <span class="data-label">平均单果重</span>
-                                            <h3 class="data-value">{{ variety.fruit_weight }}<small class="text-muted">g</small></h3>
+                        <div class="collapsible-body show">
+                            <div class="fruit-stats">
+                                <div class="row g-4">
+                                    <div class="col-12">
+                                        <div class="stat-item d-flex justify-content-between align-items-center p-4 bg-light rounded-3">
+                                            <div>
+                                                <span class="data-label">平均单果重</span>
+                                                <h3 class="data-value">{{ variety.fruit_weight }}<small class="text-muted">g</small></h3>
+                                            </div>
+                                            <div class="icon-container" style="background: linear-gradient(135deg, var(--primary-purple), #9c8fff);">
+                                                <i class="fas fa-weight-hanging"></i>
+                                            </div>
                                         </div>
-                                        <div class="icon-container" style="background: linear-gradient(135deg, var(--primary-purple), #9c8fff);">
-                                            <i class="fas fa-weight-hanging"></i>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="stat-item p-4 bg-light rounded-3 text-center h-100">
+                                            <div class="icon-container mx-auto mb-3" style="background: linear-gradient(135deg, var(--primary-orange), #ffb347);">
+                                                <i class="fas fa-wine-bottle"></i>
+                                            </div>
+                                            <span class="data-label">可溶固形物</span>
+                                            <h3 class="data-value mt-2">{{ variety.brix }}<small class="text-muted">%</small></h3>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="stat-item p-4 bg-light rounded-3 text-center h-100">
+                                            <div class="icon-container mx-auto mb-3" style="background: linear-gradient(135deg, var(--primary-cyan), #5dceeb);">
+                                                <i class="fas fa-ruler-vertical"></i>
+                                            </div>
+                                            <span class="data-label">果皮厚度</span>
+                                            <h3 class="data-value mt-2">{{ variety.peel_thickness }}<small class="text-muted">mm</small></h3>
                                         </div>
                                     </div>
                                 </div>
-
-                                <div class="col-md-6">
-                                    <div class="stat-item p-4 bg-light rounded-3 text-center h-100">
-                                        <div class="icon-container mx-auto mb-3" style="background: linear-gradient(135deg, var(--primary-orange), #ffb347);">
-                                            <i class="fas fa-wine-bottle"></i>
-                                        </div>
-                                        <span class="data-label">可溶固形物</span>
-                                        <h3 class="data-value mt-2">{{ variety.brix }}<small class="text-muted">%</small></h3>
+                                
+                                <!-- 更多果实特性 -->
+                                <div class="collapsible-section collapsible-info mt-4" id="more-fruit-features">
+                                    <div class="collapsible-header" aria-expanded="false">
+                                        <h5>
+                                            <div class="icon-container">
+                                                <i class="fas fa-info-circle"></i>
+                                            </div>
+                                            更多果实特性
+                                        </h5>
+                                        <i class="fas fa-chevron-down toggle-icon"></i>
                                     </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="stat-item p-4 bg-light rounded-3 text-center h-100">
-                                        <div class="icon-container mx-auto mb-3" style="background: linear-gradient(135deg, var(--primary-cyan), #5dceeb);">
-                                            <i class="fas fa-ruler-vertical"></i>
+                                    <div class="collapsible-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="p-3 bg-light rounded-3 text-center h-100">
+                                                    <div class="icon-container mx-auto mb-2" style="background: linear-gradient(135deg, var(--primary-color), #4e7cff);">
+                                                        <i class="fas fa-shapes"></i>
+                                                    </div>
+                                                    <span class="data-label">果实形状</span>
+                                                    <h4 class="data-value mt-2">{{ variety.get_fruit_shape_display|default:"-" }}</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="p-3 bg-light rounded-3 text-center h-100">
+                                                    <div class="icon-container mx-auto mb-2" style="background: linear-gradient(135deg, var(--primary-orange), #ffb347);">
+                                                        <i class="fas fa-palette"></i>
+                                                    </div>
+                                                    <span class="data-label">果皮颜色</span>
+                                                    <h4 class="data-value mt-2">{{ variety.fruit_color|default:"-" }}</h4>
+                                                </div>
+                                            </div>
+                                            {% if variety.seed_count %}
+                                            <div class="col-md-6 mt-3">
+                                                <div class="p-3 bg-light rounded-3 text-center h-100">
+                                                    <div class="icon-container mx-auto mb-2" style="background: linear-gradient(135deg, var(--primary-teal), #4ecdc4);">
+                                                        <i class="fas fa-seedling"></i>
+                                                    </div>
+                                                    <span class="data-label">平均种子数</span>
+                                                    <h4 class="data-value mt-2">{{ variety.seed_count }}</h4>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                            {% if variety.juice_content %}
+                                            <div class="col-md-6 mt-3">
+                                                <div class="p-3 bg-light rounded-3 text-center h-100">
+                                                    <div class="icon-container mx-auto mb-2" style="background: linear-gradient(135deg, var(--info-color), #5dceeb);">
+                                                        <i class="fas fa-tint"></i>
+                                                    </div>
+                                                    <span class="data-label">果汁含量</span>
+                                                    <h4 class="data-value mt-2">{{ variety.juice_content }}%</h4>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                            {% if variety.acidity %}
+                                            <div class="col-md-6 mt-3">
+                                                <div class="p-3 bg-light rounded-3 text-center h-100">
+                                                    <div class="icon-container mx-auto mb-2" style="background: linear-gradient(135deg, var(--warning-color), #ffb347);">
+                                                        <i class="fas fa-lemon"></i>
+                                                    </div>
+                                                    <span class="data-label">酸度</span>
+                                                    <h4 class="data-value mt-2">{{ variety.acidity }}%</h4>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                            {% if variety.sugar_acid_ratio %}
+                                            <div class="col-md-6 mt-3">
+                                                <div class="p-3 bg-light rounded-3 text-center h-100">
+                                                    <div class="icon-container mx-auto mb-2" style="background: linear-gradient(135deg, var(--success-color), #66bb6a);">
+                                                        <i class="fas fa-balance-scale"></i>
+                                                    </div>
+                                                    <span class="data-label">糖酸比</span>
+                                                    <h4 class="data-value mt-2">{{ variety.sugar_acid_ratio }}</h4>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                            {% if variety.shelf_life %}
+                                            <div class="col-md-6 mt-3">
+                                                <div class="p-3 bg-light rounded-3 text-center h-100">
+                                                    <div class="icon-container mx-auto mb-2" style="background: linear-gradient(135deg, var(--primary-purple), #9c8fff);">
+                                                        <i class="fas fa-hourglass-half"></i>
+                                                    </div>
+                                                    <span class="data-label">保鲜期</span>
+                                                    <h4 class="data-value mt-2">{{ variety.shelf_life }} 天</h4>
+                                                </div>
+                                            </div>
+                                            {% endif %}
                                         </div>
-                                        <span class="data-label">果皮厚度</span>
-                                        <h3 class="data-value mt-2">{{ variety.peel_thickness }}<small class="text-muted">mm</small></h3>
                                     </div>
                                 </div>
                             </div>
@@ -330,6 +554,4 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 {% endblock %}

@@ -1,0 +1,210 @@
+/* 详细页面通用样式 - 应用于所有详细页面（品种、土壤类型、种植技术和病虫害） */
+
+/* 毛玻璃效果卡片 */
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border-radius: 1rem;
+    transition: all 0.4s ease;
+}
+
+.glass-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    border-left: 3px solid var(--primary-color);
+}
+
+/* 页面标题样式 */
+.detail-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(120deg, #fff, #fff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+}
+
+/* 信息卡片 */
+.info-card {
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    height: 100%;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.info-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+    z-index: -1;
+    transition: all 0.4s ease;
+}
+
+.info-card:hover::before {
+    transform: translateY(-10px);
+    opacity: 0.8;
+}
+
+/* 图标容器 */
+.icon-container {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    color: white;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.icon-container:hover {
+    transform: rotate(10deg) scale(1.1);
+}
+
+/* 数据标签和值 */
+.data-label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+}
+
+.data-value {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-dark);
+}
+
+/* 标签容器 */
+.tag-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+/* 特性标签 */
+.feature-tag {
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: white;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: inline-flex;
+    align-items: center;
+}
+
+.feature-tag:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.feature-tag i {
+    margin-right: 0.5rem;
+}
+
+/* 内容区域 */
+.content-section {
+    padding: 2rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(0,0,0,0.1);
+    background-color: rgba(248, 249, 250, 0.7);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.content-section:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary-color-light);
+}
+
+/* 面包屑导航 */
+.breadcrumb {
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+    border-radius: 0.75rem;
+}
+
+/* 动画效果 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeInUp {
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+
+/* 延迟动画 */
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+.delay-5 { animation-delay: 0.5s; }
+
+/* 特殊背景渐变 */
+.bg-orange-gradient {
+    background: linear-gradient(135deg, var(--primary-orange), var(--accent-light));
+}
+
+.bg-teal-gradient {
+    background: linear-gradient(135deg, var(--primary-teal), var(--info-color));
+}
+
+.bg-purple-gradient {
+    background: linear-gradient(135deg, var(--primary-purple), #9c8fff);
+}
+
+.bg-danger-gradient {
+    background: linear-gradient(135deg, var(--danger-color), #ff6b6b);
+}
+
+.bg-success-gradient {
+    background: linear-gradient(135deg, var(--success-color), #66bb6a);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .detail-title {
+        font-size: 1.8rem;
+    }
+    
+    .icon-container {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .icon-container i {
+        font-size: 1.2rem;
+    }
+    
+    .content-section {
+        padding: 1.5rem;
+    }
+}

@@ -1,93 +1,286 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block title %}
+    {{ soil.name }}
+{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="/static/css/detail_pages.css">
+    <link rel="stylesheet" href="/static/css/collapsible.css">
+    <script src="/static/js/collapsible.js" defer></script>
+    <style>
+        /* 页面背景渐变 */
+        body {
+            background: linear-gradient(135deg, #e0f7fa, #e8f5e9);
+        }
+    </style>
+{% endblock %}
+
 {% block main %}
-<div class="container my-2">
+<div class="container mt-3">
     <!-- 面包屑导航 -->
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb bg-light py-2 px-3 shadow-sm rounded-3">
+    <nav aria-label="breadcrumb" class="mb-4 animate-fadeInUp">
+        <ol class="breadcrumb glass-card py-3 px-4 shadow-sm">
             <li class="breadcrumb-item">
-                <a href="/" class="text-decoration-none text-success">
+                <a href="{% url 'orange:home' %}" class="text-success">
                     <i class="fas fa-home fa-fw"></i> 首页
                 </a>
             </li>
             <li class="breadcrumb-item">
-                <a href="{% url 'orange:soil_list' %}" class="text-decoration-none text-success">
+                <a href="{% url 'orange:soil_list' %}" class="text-success">
                     <i class="fas fa-leaf fa-fw"></i> 土壤类型列表
                 </a>
             </li>
             <li class="breadcrumb-item active" aria-current="page">
-                <i class="fas fa-info-circle fa-fw"></i> 土壤类型详情
+                <i class="fas fa-info-circle fa-fw"></i> {{ soil.name|truncatechars:15 }}
             </li>
         </ol>
     </nav>
 
     <!-- 主卡片 -->
-    <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-        <div class="card-header bg-success text-white py-4">
+    <div class="glass-card mb-4 animate-fadeInUp delay-1 overflow-hidden">
+        <div class="card-header bg-teal-gradient text-white py-4">
             <div class="d-flex align-items-center justify-content-between">
-                <h2 class="mb-0 fw-bold">
-                    <i class="fas fa-cogs fa-lg me-2"></i>{{ soil.name }}
-                </h2>
-                <div class="badge bg-white text-success fs-6 shadow">
-                    <i class="fas fa-clock me-1"></i>{{ soil.create_time|date:"Y/m/d" }}
+                <h1 class="detail-title mb-0">{{ soil.name }}</h1>
+                <div class="icon-container">
+                    <i class="fas fa-seedling fa-2x"></i>
                 </div>
             </div>
         </div>
 
-        <div class="card-body">
-            <!-- 土壤类型信息（下拉卡片） -->
-            <div class="accordion mb-4" id="soilInfoAccordion">
-                <div class="accordion-item border-0">
-                    <h4 class="accordion-header">
-                        <button class="accordion-button bg-light fs-4 py-3 shadow-sm text-success"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#collapseSoilInfo"
-                                aria-expanded="true"
-                                aria-controls="collapseSoilInfo">
-                            <i class="fas fa-leaf me-2"></i> 土壤类型信息
-                        </button>
-                    </h4>
-                    <div id="collapseSoilInfo" class="accordion-collapse collapse show"
-                         data-bs-parent="#soilInfoAccordion">
-                        <div class="accordion-body d-flex justify-content-between">
-                            <p><strong>土壤类型名称：</strong> {{ soil.name }}</p>
-                            <p><strong>pH范围：</strong> {{ soil.ph_range }}</p>
-                            <p><strong>有机质含量：</strong> {{ soil.organic_matter }}%</p>
+        <div class="card-body p-4">
+            <!-- 土壤类型信息卡片 -->
+            <div class="collapsible-section collapsible-teal" id="soil-basic-info">
+                <div class="collapsible-header" aria-expanded="true">
+                    <h5>
+                        <div class="icon-container">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        土壤类型基本信息
+                    </h5>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <div class="collapsible-body show">
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-4">
+                            <div class="info-card bg-light-20 stat-item">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-container" style="background: linear-gradient(135deg, var(--primary-teal), var(--info-color))">
+                                        <i class="fas fa-layer-group"></i>
+                                    </div>
+                                    <div>
+                                        <span class="data-label">土壤质地</span>
+                                        <h4 class="data-value">{{ soil.get_texture_display }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-card bg-light-20 stat-item">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-container" style="background: linear-gradient(135deg, var(--primary-purple), #9c8fff)">
+                                        <i class="fas fa-flask"></i>
+                                    </div>
+                                    <div>
+                                        <span class="data-label">pH范围</span>
+                                        <h4 class="data-value">{{ soil.ph_range }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-card bg-light-20 stat-item">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-container" style="background: linear-gradient(135deg, var(--primary-orange), var(--accent-light))">
+                                        <i class="fas fa-leaf"></i>
+                                    </div>
+                                    <div>
+                                        <span class="data-label">有机质含量</span>
+                                        <h4 class="data-value">{{ soil.organic_matter }}%</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row g-4">
+                        <div class="col-md-3">
+                            <div class="info-card bg-light-20 stat-item">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-container" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-light))">
+                                        <i class="fas fa-tint"></i>
+                                    </div>
+                                    <div>
+                                        <span class="data-label">排水性</span>
+                                        <h4 class="data-value">{{ soil.get_drainage_display }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-card bg-light-20 stat-item">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-container" style="background: linear-gradient(135deg, var(--info-color), #4ecdc4)">
+                                        <i class="fas fa-water"></i>
+                                    </div>
+                                    <div>
+                                        <span class="data-label">保水性</span>
+                                        <h4 class="data-value">{{ soil.get_water_retention_display }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-card bg-light-20 stat-item">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-container" style="background: linear-gradient(135deg, var(--success-color), #66bb6a)">
+                                        <i class="fas fa-seedling"></i>
+                                    </div>
+                                    <div>
+                                        <span class="data-label">肥力</span>
+                                        <h4 class="data-value">{{ soil.get_fertility_display }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-card bg-light-20 stat-item">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-container" style="background: linear-gradient(135deg, var(--danger-color), #ff6b6b)">
+                                        <i class="fas fa-atom"></i>
+                                    </div>
+                                    <div>
+                                        <span class="data-label">养分含量</span>
+                                        <h4 class="data-value">详情见下</h4>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- 特征描述 -->
-            <div class="accordion mb-4" id="descAccordion">
-                <div class="accordion-item border-0">
-                    <h4 class="accordion-header">
-                        <button class="accordion-button bg-light fs-4 py-3 shadow-sm text-success"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#collapseDesc"
-                                aria-expanded="true"
-                                aria-controls="collapseDesc">
-                            <i class="fas fa-file-signature me-2"></i> 特征描述
-                        </button>
-                    </h4>
-                    <div id="collapseDesc" class="accordion-collapse collapse show"
-                         data-bs-parent="#descAccordion">
-                        <div class="accordion-body">
-                            {% if soil.description %}
-                            <div class="tech-content lh-lg fs-5 text-muted">
-                                {{ soil.description|linebreaks }}
+            
+            <!-- 养分详情 -->
+            <div class="collapsible-section collapsible-danger mt-4" id="soil-nutrients">
+                <div class="collapsible-header" aria-expanded="false">
+                    <h5>
+                        <div class="icon-container">
+                            <i class="fas fa-microscope"></i>
+                        </div>
+                        养分详细数据
+                    </h5>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <div class="collapsible-body">
+                    <div class="row g-3">
+                        {% if soil.nitrogen_content %}
+                        <div class="col-md-3">
+                            <div class="p-3 rounded bg-light">
+                                <span class="data-label">氮含量</span>
+                                <h5 class="data-value text-primary">{{ soil.nitrogen_content }}%</h5>
                             </div>
-                            {% else %}
+                        </div>
+                        {% endif %}
+                        {% if soil.phosphorus_content %}
+                        <div class="col-md-3">
+                            <div class="p-3 rounded bg-light">
+                                <span class="data-label">磷含量</span>
+                                <h5 class="data-value text-info">{{ soil.phosphorus_content }} mg/kg</h5>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if soil.potassium_content %}
+                        <div class="col-md-3">
+                            <div class="p-3 rounded bg-light">
+                                <span class="data-label">钾含量</span>
+                                <h5 class="data-value text-success">{{ soil.potassium_content }} mg/kg</h5>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if soil.cation_exchange %}
+                        <div class="col-md-3">
+                            <div class="p-3 rounded bg-light">
+                                <span class="data-label">阳离子交换量</span>
+                                <h5 class="data-value text-warning">{{ soil.cation_exchange }} cmol/kg</h5>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if not soil.nitrogen_content and not soil.phosphorus_content and not soil.potassium_content and not soil.cation_exchange %}
+                        <div class="col-12">
                             <div class="alert alert-warning d-flex align-items-center mb-0">
                                 <i class="fas fa-exclamation-triangle me-2 fs-4"></i>
-                                <span class="fs-5">暂无详细描述</span>
+                                <span class="fs-5">暂无养分详细数据</span>
                             </div>
-                            {% endif %}
                         </div>
+                        {% endif %}
                     </div>
+                </div>
+            </div>
+
+            <!-- 适宜作物 -->
+            <div class="collapsible-section collapsible-success mt-4" id="suitable-crops">
+                <div class="collapsible-header" aria-expanded="false">
+                    <h5>
+                        <div class="icon-container">
+                            <i class="fas fa-seedling"></i>
+                        </div>
+                        适宜作物
+                    </h5>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <div class="collapsible-body">
+                    {% if soil.suitable_crops %}
+                    <div class="p-4 bg-light-20 rounded-3" style="line-height: 1.8; font-size: 1.05rem;">
+                        {{ soil.suitable_crops|linebreaks }}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning d-flex align-items-center mb-0">
+                        <i class="fas fa-exclamation-triangle me-2 fs-4"></i>
+                        <span class="fs-5">暂无适宜作物信息</span>
+                    </div>
+                    {% endif %}
+            </div>
+
+            <!-- 改良方法 -->
+            <div class="content-section glass-card animate-fadeInUp delay-4 mb-4">
+                <h5 class="text-uppercase mb-3" style="background: linear-gradient(120deg, var(--primary-purple), #9c8fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    <i class="fas fa-tools me-2"></i>改良方法
+                </h5>
+                {% if soil.improvement_methods %}
+                <div class="p-4 bg-light-20 rounded-3" style="line-height: 1.8; font-size: 1.05rem;">
+                    {{ soil.improvement_methods|linebreaks }}
+                </div>
+                {% else %}
+                <div class="alert alert-warning d-flex align-items-center mb-0">
+                    <i class="fas fa-exclamation-triangle me-2 fs-4"></i>
+                    <span class="fs-5">暂无改良方法信息</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- 土壤描述 -->
+            <div class="collapsible-section collapsible-teal mt-4" id="soil-description">
+                <div class="collapsible-header" aria-expanded="false">
+                    <h5>
+                        <div class="icon-container">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        土壤描述
+                    </h5>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <div class="collapsible-body">
+                    {% if soil.description %}
+                    <div class="desc-content" style="text-indent: 2em; line-height: 1.8; font-size: 1.05rem;">
+                        {{ soil.description|linebreaks }}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning d-flex align-items-center mb-0">
+                        <i class="fas fa-exclamation-triangle me-2 fs-4"></i>
+                        <span class="fs-5">暂无详细描述</span>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
 
@@ -96,7 +289,7 @@
         <!-- 操作按钮 -->
         <div class="card-footer bg-transparent py-3">
             <div class="d-flex justify-content-between align-items-center">
-                <a href=""
+                <a href="{{referer}}"
                    class="btn btn-outline-secondary rounded-pill px-4">
                     <i class="fas fa-arrow-left me-2"></i> 返回列表
                 </a>
@@ -118,36 +311,4 @@
         </div>
     </div>
 </div>
-
-<style>
-
-    .tech-content {
-        padding: 2rem;
-        border-radius: 1rem;
-        border: 1px solid rgba(0,0,0,0.1);
-        background-color: #f8f9fa;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-
-    .card-footer {
-        background-color: #f8f9fa;
-    }
-
-    .fa-fw {
-        width: 1.25em;
-    }
-
-    .btn-outline-secondary:hover {
-        background-color: #e9ecef;
-    }
-
-    .btn-group .btn:hover {
-        background-color: #f8f9fa;
-    }
-
-    .breadcrumb-item a:hover {
-        text-decoration: underline;
-    }
-</style>
 {% endblock %}

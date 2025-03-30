@@ -1,0 +1,109 @@
+/* 折叠面板样式 */
+.collapsible-section {
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.collapsible-header {
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.collapsible-header:hover {
+    filter: brightness(1.05);
+}
+
+.collapsible-header h5 {
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+}
+
+.collapsible-header .icon-container {
+    margin-right: 0.75rem;
+}
+
+.collapsible-body {
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease, padding 0.3s ease;
+}
+
+.collapsible-body.show {
+    padding: 1.5rem;
+    max-height: 2000px; /* 足够大的值以容纳内容 */
+}
+
+.toggle-icon {
+    transition: transform 0.3s ease;
+}
+
+.collapsible-header[aria-expanded="true"] .toggle-icon {
+    transform: rotate(180deg);
+}
+
+/* 保持毛玻璃效果 */
+.collapsible-section .glass-card {
+    backdrop-filter: blur(10px);
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 不同类型的折叠面板头部样式 */
+.collapsible-primary .collapsible-header {
+    background: linear-gradient(135deg, var(--primary-color), #4e7cff);
+    color: white;
+}
+
+.collapsible-success .collapsible-header {
+    background: linear-gradient(135deg, var(--success-color), #66bb6a);
+    color: white;
+}
+
+.collapsible-danger .collapsible-header {
+    background: linear-gradient(135deg, var(--danger-color), #ff6b6b);
+    color: white;
+}
+
+.collapsible-warning .collapsible-header {
+    background: linear-gradient(135deg, var(--warning-color), #ffb347);
+    color: white;
+}
+
+.collapsible-info .collapsible-header {
+    background: linear-gradient(135deg, var(--info-color), #5dceeb);
+    color: white;
+}
+
+.collapsible-teal .collapsible-header {
+    background: linear-gradient(135deg, var(--primary-teal), #4ecdc4);
+    color: white;
+}
+
+.collapsible-purple .collapsible-header {
+    background: linear-gradient(135deg, var(--primary-purple), #9c8fff);
+    color: white;
+}
+
+.collapsible-orange .collapsible-header {
+    background: linear-gradient(135deg, var(--primary-orange), var(--accent-light));
+    color: white;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .collapsible-header {
+        padding: 0.75rem 1rem;
+    }
+    
+    .collapsible-body.show {
+        padding: 1rem;
+    }
+}

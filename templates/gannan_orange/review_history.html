@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}审核历史 - 知识平台{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/list.css' %}">
+    <style>
+        .history-card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            background-color: #fff;
+        }
+        
+        .history-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+        }
+        
+        .history-header {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .history-body {
+            padding: 1.5rem;
+        }
+        
+        .history-footer {
+            padding: 1rem;
+            border-top: 1px solid #eee;
+            background-color: #f9f9f9;
+        }
+        
+        .badge-approve {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .badge-reject {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .badge-comment {
+            background-color: var(--info-color);
+            color: white;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            margin: 2rem 0;
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            color: #ccc;
+            margin-bottom: 1rem;
+        }
+        
+        .pagination {
+            justify-content: center;
+            margin-top: 2rem;
+        }
+    </style>
+{% endblock %}
+
+{% block main %}
+    <div class="container my-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="page-title">审核历史</h1>
+            <a href="{% url 'orange:pending_review' %}" class="btn btn-outline-primary">
+                <i class="fas fa-tasks me-2"></i>待审核内容
+            </a>
+        </div>
+        
+        <!-- 审核历史列表 -->
+        {% if review_histories %}
+            <div class="row">
+                {% for history in review_histories %}
+                    <div class="col-md-6">
+                        <div class="history-card">
+                            <div class="history-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">{{ history.get_content_type_display }}</h5>
+                                <span class="badge badge-{{ history.action }}">
+                                    {{ history.get_action_display }}
+                                </span>
+                            </div>
+                            <div class="history-body">
+                                <div class="mb-3">
+                                    <strong>审核时间：</strong> {{ history.review_date|date:"Y-m-d H:i" }}
+                                </div>
+                                {% if history.comment %}
+                                    <div class="mb-3">
+                                        <strong>审核意见：</strong>
+                                        <p class="mt-2">{{ history.comment }}</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="history-footer text-end">
+                                {% if history.content_type == 'variety' %}
+                                    <a href="{% url 'orange:detail' history.content_id %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-eye me-1"></i>查看内容
+                                    </a>
+                                {% elif history.content_type == 'planting_tech' %}
+                                    <a href="{% url 'orange:tech_detail' history.content_id %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-eye me-1"></i>查看内容
+                                    </a>
+                                {% elif history.content_type == 'pest' %}
+                                    <a href="{% url 'orange:pest_detail' history.content_id %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-eye me-1"></i>查看内容
+                                    </a>
+                                {% elif history.content_type == 'soil_type' %}
+                                    <a href="{% url 'orange:soil_detail' history.content_id %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-eye me-1"></i>查看内容
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- 分页 -->
+            {% if is_paginated %}
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1" aria-label="First">
+                                    <span aria-hidden="true">&laquo;&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                                    <span aria-hidden="true">&raquo;&raquo;</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon"><i class="fas fa-history"></i></div>
+                <h4>暂无审核历史</h4>
+                <p class="text-muted">您还没有进行过任何审核操作</p>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

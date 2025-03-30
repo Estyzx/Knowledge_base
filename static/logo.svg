@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <!-- 背景圆形 -->
+  <circle cx="100" cy="100" r="90" fill="#28a745" />
+  
+  <!-- 橙子图形 -->
+  <circle cx="100" cy="100" r="70" fill="#FF9F1C" />
+  <path d="M100,30 Q130,50 130,100 Q130,150 100,170 Q70,150 70,100 Q70,50 100,30" fill="#FF6B35" />
+  
+  <!-- 叶子 -->
+  <path d="M100,30 Q120,10 140,20 Q130,40 100,30" fill="#4CAF50" />
+  <path d="M140,20 Q150,15 155,25 Q145,30 140,20" fill="#388E3C" />
+  
+  <!-- 文字 -->
+  <text x="100" y="105" font-family="'Microsoft YaHei', sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="white">农业智库</text>
+</svg>

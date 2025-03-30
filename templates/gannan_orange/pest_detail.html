@@ -1,126 +1,330 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block title %}
+    {{ pest.name }}
+{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="/static/css/detail_pages.css">
+    <link rel="stylesheet" href="/static/css/collapsible.css">
+    <script src="/static/js/collapsible.js" defer></script>
+{% endblock %}
+
 {% block main %}
-<div class="container my-2">
+<div class="container mt-3">
     <!-- 面包屑导航 -->
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb bg-white py-2 px-3 shadow-sm rounded-3">
+    <nav aria-label="breadcrumb" class="mb-4 animate-fadeInUp">
+        <ol class="breadcrumb glass-card py-3 px-4 shadow-sm">
             <li class="breadcrumb-item">
                 <a href="{% url 'orange:home' %}" class="text-success">
                     <i class="fas fa-home fa-fw"></i> 首页
                 </a>
             </li>
             <li class="breadcrumb-item">
-                <a href="" class="text-success">
-                    <i class="fas fa-book fa-fw"></i> 所有病虫害
+                <a href="{% url 'orange:pest_list' %}" class="text-success">
+                    <i class="fas fa-bug fa-fw"></i> 所有病虫害
                 </a>
             </li>
-            <li class="breadcrumb-item active " aria-current="page">
+            <li class="breadcrumb-item active" aria-current="page">
                 <i class="fas fa-file-alt fa-fw"></i> {{ pest.name|truncatechars:15 }}
             </li>
         </ol>
     </nav>
 
     <!-- 主卡片 -->
-    <div class="card border-0 shadow-lg overflow-hidden rounded-4 ">
-        <div class="card-header py-4 bg-success">
-            <div class="d-flex align-items-center justify-content-between text-white">
-                <h2 class="mb-0 fw-bold">
-                    <i class="fas fa-cog fa-lg me-2"></i>{{ pest.name }}
-                </h2>
-                <div class="badge bg-white text-success fs-6 shadow">
-                    <i class="fas fa-clock me-1"></i>{{ pest.create_time|date:"Y/m/d" }}
+    <div class="glass-card mb-4 animate-fadeInUp delay-1 overflow-hidden">
+        <div class="card-header bg-danger-gradient text-white py-4">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h1 class="detail-title mb-0">{{ pest.name }}</h1>
+                    {% if pest.scientific_name %}
+                    <p class="text-white-50 mb-0 mt-1"><i>{{ pest.scientific_name }}</i></p>
+                    {% endif %}
+                </div>
+                <div class="icon-container">
+                    <i class="fas fa-bug fa-2x"></i>
                 </div>
             </div>
         </div>
 
-        <div class="card-body position-relative">
-
-
-            <div class="accordion mb-4" id="descAccordion">
-                <div class="accordion-item">
-                    <h4 class="accordion-header">
-                        <button class="accordion-button bg-light fs-4 py-3 text-success"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#collapseDesc"
-                                aria-expanded="true"
-                                aria-controls="collapseDesc">
-                            <i class="fas fa-file-signature me-2"></i>病虫害描述
-                        </button>
-                    </h4>
-                    <div id="collapseDesc" class="accordion-collapse collapse show"
-                         data-bs-parent="#descAccordion">
-                        <div class="accordion-body">
-                            {% if pest.description %}
-                            <div class="tech-content lh-lg fs-5 text-success">
-                                {{ pest.description|linebreaks }}
+        <div class="card-body p-4">
+            <!-- 基本信息 -->
+            <div class="collapsible-section collapsible-primary" id="pest-basic-info">
+                <div class="collapsible-header" aria-expanded="true">
+                    <h5>
+                        <div class="icon-container">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        基本信息
+                    </h5>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <div class="collapsible-body show">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="info-card bg-light-20 stat-item">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-container" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-light))">
+                                        <i class="fas fa-tag"></i>
+                                    </div>
+                                    <div>
+                                        <span class="data-label">类型</span>
+                                        <h4 class="data-value">{{ pest.get_type_display|default:"-" }}</h4>
+                                    </div>
+                                </div>
                             </div>
-                            {% else %}
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-card bg-light-20 stat-item">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-container" style="background: linear-gradient(135deg, var(--danger-color), var(--warning-color))">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </div>
+                                    <div>
+                                        <span class="data-label">危害程度</span>
+                                        <h4 class="data-value">{{ pest.get_severity_display|default:"-" }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mt-3">
+                            <div class="info-card bg-light-20 stat-item">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-container" style="background: linear-gradient(135deg, var(--primary-orange), var(--accent-light))">
+                                        <i class="fas fa-calendar-alt"></i>
+                                    </div>
+                                    <div>
+                                        <span class="data-label">发生季节</span>
+                                        <h4 class="data-value">{{ pest.occurrence_season|default:"-" }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mt-3">
+                            <div class="info-card bg-light-20 stat-item">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-container" style="background: linear-gradient(135deg, var(--primary-teal), var(--info-color))">
+                                        <i class="fas fa-leaf"></i>
+                                    </div>
+                                    <div>
+                                        <span class="data-label">受害部位</span>
+                                        <h4 class="data-value">{{ pest.affected_parts|default:"-" }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 病虫害描述 -->
+            <div class="collapsible-section collapsible-danger" id="pest-description">
+                <div class="collapsible-header" aria-expanded="true">
+                    <h5>
+                        <div class="icon-container">
+                            <i class="fas fa-file-signature"></i>
+                        </div>
+                        病虫害描述
+                    </h5>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <div class="collapsible-body show">
+                    {% if pest.description %}
+                    <div class="desc-content" style="text-indent: 2em; line-height: 1.8; font-size: 1.05rem;">
+                        {{ pest.description|linebreaks }}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning d-flex align-items-center mb-0">
+                        <i class="fas fa-exclamation-triangle me-2 fs-4"></i>
+                        <span class="fs-5">暂无详细描述</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- 发生规律 -->
+            <div class="collapsible-section collapsible-warning mt-4" id="pest-pattern">
+                <div class="collapsible-header" aria-expanded="false">
+                    <h5>
+                        <div class="icon-container">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        发生规律
+                    </h5>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <div class="collapsible-body">
+                    {% if pest.occurrence_pattern %}
+                    <div class="desc-content" style="text-indent: 2em; line-height: 1.8; font-size: 1.05rem;">
+                        {{ pest.occurrence_pattern|linebreaks }}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning d-flex align-items-center mb-0">
+                        <i class="fas fa-exclamation-triangle me-2 fs-4"></i>
+                        <span class="fs-5">暂无发生规律信息</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- 生活史 -->
+            <div class="collapsible-section collapsible-info mt-4" id="pest-lifecycle">
+                <div class="collapsible-header" aria-expanded="false">
+                    <h5>
+                        <div class="icon-container">
+                            <i class="fas fa-sync-alt"></i>
+                        </div>
+                        生活史
+                    </h5>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <div class="collapsible-body">
+                    {% if pest.life_cycle %}
+                    <div class="desc-content" style="text-indent: 2em; line-height: 1.8; font-size: 1.05rem;">
+                        {{ pest.life_cycle|linebreaks }}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning d-flex align-items-center mb-0">
+                        <i class="fas fa-exclamation-triangle me-2 fs-4"></i>
+                        <span class="fs-5">暂无生活史信息</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- 危害症状 -->
+            <div class="collapsible-section collapsible-danger mt-4" id="pest-symptoms">
+                <div class="collapsible-header" aria-expanded="false">
+                    <h5>
+                        <div class="icon-container">
+                            <i class="fas fa-biohazard"></i>
+                        </div>
+                        危害症状
+                    </h5>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <div class="collapsible-body">
+                    {% if pest.symptoms %}
+                    <div class="desc-content" style="text-indent: 2em; line-height: 1.8; font-size: 1.05rem;">
+                        {{ pest.symptoms|linebreaks }}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning d-flex align-items-center mb-0">
+                        <i class="fas fa-exclamation-triangle me-2 fs-4"></i>
+                        <span class="fs-5">暂无危害症状信息</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- 防治方法 -->
+            <div class="collapsible-section collapsible-success mt-4" id="pest-control">
+                <div class="collapsible-header" aria-expanded="false">
+                    <h5>
+                        <div class="icon-container">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        防治方法
+                    </h5>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <div class="collapsible-body">
+                    <div class="row g-4">
+                        {% if pest.chemical_control %}
+                        <div class="col-md-6">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-header bg-danger text-white">
+                                    <i class="fas fa-flask me-2"></i>化学防治
+                                </div>
+                                <div class="card-body">
+                                    {{ pest.chemical_control|linebreaks }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if pest.biological_control %}
+                        <div class="col-md-6">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-header bg-success text-white">
+                                    <i class="fas fa-leaf me-2"></i>生物防治
+                                </div>
+                                <div class="card-body">
+                                    {{ pest.biological_control|linebreaks }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if pest.physical_control %}
+                        <div class="col-md-6">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-header bg-primary text-white">
+                                    <i class="fas fa-tools me-2"></i>物理防治
+                                </div>
+                                <div class="card-body">
+                                    {{ pest.physical_control|linebreaks }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if pest.agricultural_control %}
+                        <div class="col-md-6">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-header bg-info text-white">
+                                    <i class="fas fa-tractor me-2"></i>农业防治
+                                </div>
+                                <div class="card-body">
+                                    {{ pest.agricultural_control|linebreaks }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if not pest.chemical_control and not pest.biological_control and not pest.physical_control and not pest.agricultural_control %}
+                        <div class="col-12">
                             <div class="alert alert-warning d-flex align-items-center mb-0">
                                 <i class="fas fa-exclamation-triangle me-2 fs-4"></i>
-                                <span class="fs-5">暂无详细描述</span>
+                                <span class="fs-5">暂无防治方法信息</span>
                             </div>
-                            {% endif %}
                         </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- 操作按钮 -->
-        <div class="card-footer bg-transparent py-3">
+        <div class="card-footer glass-card border-top-0 p-3">
             <div class="d-flex justify-content-between align-items-center">
-                <a href="{% url 'orange:pest_list' %}"
-                   class="btn btn-outline-secondary rounded-pill px-4">
-                    <i class="fas fa-arrow-left me-2"></i>返回列表
-                </a>
-
-                <div class="btn-group shadow">
-                    <a href="{% url "orange:pest_edit" pest.id %}"> <button type="button" class="btn btn-light border rounded-start-pill px-4">
-                        <i class="fas fa-edit text-success"></i>
-                    </button></a>
-                    <form action="{% url "orange:pest_delete" pest.id%}" method="post" >
+                <div class="d-flex align-items-center">
+                    <span class="badge bg-light text-dark me-2 p-2 shadow-sm">
+                        <i class="fas fa-history me-1 text-primary"></i>{{ pest.create_time|date:"Y/m/d H:i" }}
+                    </span>
+                    <span class="badge bg-light text-dark p-2 shadow-sm">
+                        <i class="fas fa-bug me-1 text-danger"></i>病虫害
+                    </span>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <a href="{{referer}}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 shadow-hover">
+                        <i class="fas fa-arrow-left me-1"></i>返回列表
+                    </a>
+                    
+                    <a href="{% url "orange:pest_edit" pest.id %}" class="btn btn-primary btn-sm rounded-pill shadow-hover">
+                        <i class="fas fa-edit me-1"></i>编辑
+                    </a>
+                    <form action="{% url "orange:pest_delete" pest.id%}" method="post" class="d-inline">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-light border rounded-end-pill px-4">
-                        <i class="fas fa-trash text-success"></i>
-                    </button></form>
+                        <button type="submit" class="btn btn-danger btn-sm rounded-pill shadow-hover">
+                            <i class="fas fa-trash me-1"></i>删除
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-    <style>
-
-    .tech-content {
-        padding: 2rem;
-        border-radius: 1rem;
-        border: 1px solid rgba(0,0,0,0.1);
-        background-color: #f8f9fa;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-
-    .card-footer {
-        background-color: #f8f9fa;
-    }
-
-    .fa-fw {
-        width: 1.25em;
-    }
-
-    .btn-outline-secondary:hover {
-        background-color: #e9ecef;
-    }
-
-    .btn-group .btn:hover {
-        background-color: #f8f9fa;
-    }
-
-    .breadcrumb-item a:hover {
-        text-decoration: underline;
-    }
-</style>
 {% endblock %}

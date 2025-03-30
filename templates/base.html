@@ -32,6 +32,18 @@
             --border-radius-sm: 8px;
             --border-radius-md: 12px;
             --border-radius-lg: 20px;
+            --primary-color: #ff5733; /* 主色调 */
+            --primary-light: #ff6e40; /* 主色调的浅色版本 */
+            --primary-teal: #008080; /* 深绿色 */
+            --info-color: #00bfff; /* 信息色 */
+            --primary-orange: #ff8000; /* 橙色 */
+            --accent-light: #ffcc80; /* 强调色浅版 */
+            --primary-purple: #800080; /* 紫色 */
+            --primary-cyan: #00ffff; /* 青色 */
+            --danger-color: #ff0000; /* 危险色（红色） */
+            --accent-color: #ffcc80; /* 强调色 */
+            --warning-color: #ffc107; /* 黄色 */
+            --success-color: #28a745; /* 绿色 */
         }
         
         /* 背景优化 */
@@ -404,6 +416,21 @@
                             <li><a class="dropdown-item" href="{% url 'user:detail' user.id %}">
                                 <i class="fas fa-user me-2"></i>个人中心
                             </a></li>
+                            {% if user.is_staff %}
+                            <li>
+                                <a class="dropdown-item" href="{% url 'orange:pending_review' %}">
+                                    <i class="fas fa-tasks me-2"></i>内容审核
+                                    {% if total_pending > 0 %}
+                                    <span class="badge rounded-pill bg-danger">{{ total_pending }}</span>
+                                    {% endif %}
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'orange:review_history' %}">
+                                    <i class="fas fa-history me-2"></i>审核历史
+                                </a>
+                            </li>
+                            {% endif %}
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
@@ -433,6 +460,18 @@
         </div>
     </div>
 </nav>
+
+<!-- 消息提示 -->
+<div class="container mt-3">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
 
 <!-- 主体内容 -->
 <div class="container mt-5">

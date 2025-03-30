@@ -47,6 +47,69 @@
                 <form method="post" action="{% url 'orange:pest_edit' edit.id %}" class="needs-validation" novalidate>
                     {% csrf_token %}
 
+                    <!-- 审核信息 -->
+                    {% if user.is_staff or user.is_expert %}
+                    <div class="form-section">
+                        <h3><i class="fas fa-check-circle form-icon"></i>审核信息</h3>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">当前状态</label>
+                                    <div class="form-control-static">
+                                        {% if edit.review_status == 'pending' %}
+                                            <span class="badge bg-warning">待审核</span>
+                                        {% elif edit.review_status == 'approved' %}
+                                            <span class="badge bg-success">已通过</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">已拒绝</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">审核人</label>
+                                    <div class="form-control-static">
+                                        {{ edit.reviewer.username|default:'暂无' }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-label">审核意见</label>
+                                    <div class="form-control-static">
+                                        {{ edit.review_comment|default:'暂无' }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- 审核操作 -->
+                    {% if user.is_staff %}
+                    <div class="form-section">
+                        <h3><i class="fas fa-gavel form-icon"></i>审核操作</h3>
+                        <div class="row g-4">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    {{ review_form.action|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    {{ review_form.comment|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" name="review" class="btn btn-primary">
+                                    <i class="fas fa-check-circle me-2"></i>提交审核
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
                     <!-- 基础信息 -->
                     <div class="form-section">
                         <h3><i class="fas fa-info-circle form-icon"></i>基础信息</h3>
@@ -63,8 +126,68 @@
                                     {% endif %}
                                 </div>
                             </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    {{ form.scientific_name|as_crispy_field }}
+                                </div>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- 病虫害特性 -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-bug form-icon"></i>病虫害特性</h3>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.type|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.severity|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.occurrence_season|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.affected_parts|as_crispy_field }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 防治方法 -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-shield-alt form-icon"></i>防治方法</h3>
+                        <div class="row g-4">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    {{ form.prevention_methods|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    {{ form.chemical_control|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    {{ form.biological_control|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    {{ form.physical_control|as_crispy_field }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
 
                     <!-- 技术描述 -->
                     <div class="form-section">

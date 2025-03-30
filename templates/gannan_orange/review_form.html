@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}审核 {{ content_type }} - 知识平台{% endblock %}
+
+{% block head %}
+    <style>
+        .review-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .content-preview {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--primary-green);
+        }
+        
+        .review-form {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 1px solid #eee;
+        }
+        
+        .review-actions {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .form-check-input:checked[type="radio"][value="approve"] {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+        
+        .form-check-input:checked[type="radio"][value="reject"] {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+    </style>
+{% endblock %}
+
+{% block main %}
+    <div class="container my-4">
+        <div class="review-container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="page-title">审核 {{ content_type }}</h1>
+                <a href="{% url 'orange:pending_review' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>返回列表
+                </a>
+            </div>
+            
+            <!-- 内容预览 -->
+            <div class="content-preview">
+                <h4 class="mb-3">内容信息</h4>
+                {% if content_type == '品种' %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>品种名称：</strong> {{ content.name }}</p>
+                            <p><strong>学名：</strong> {{ content.scientific_name|default:"暂无" }}</p>
+                            <p><strong>原产地：</strong> {{ content.origin }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>提交时间：</strong> {{ content.create_time|date:"Y-m-d H:i" }}</p>
+                            <p><strong>提交人：</strong> {{ content.creator.username }}</p>
+                            <p><strong>成熟类型：</strong> {{ content.get_maturity_type_display }}</p>
+                        </div>
+                    </div>
+                {% elif content_type == '种植技术' %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>技术标题：</strong> {{ content.title }}</p>
+                            <p><strong>适用品种：</strong> {{ content.variety.name|default:"通用" }}</p>
+                            <p><strong>技术类型：</strong> {{ content.get_tech_type_display }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>提交时间：</strong> {{ content.create_time|date:"Y-m-d H:i" }}</p>
+                            <p><strong>提交人：</strong> {{ content.creator.username }}</p>
+                        </div>
+                    </div>
+                {% elif content_type == '病虫害' %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>病虫害名称：</strong> {{ content.name }}</p>
+                            <p><strong>学名：</strong> {{ content.scientific_name|default:"暂无" }}</p>
+                            <p><strong>类型：</strong> {{ content.get_pest_type_display }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>提交时间：</strong> {{ content.create_time|date:"Y-m-d H:i" }}</p>
+                            <p><strong>提交人：</strong> {{ content.creator.username }}</p>
+                        </div>
+                    </div>
+                {% elif content_type == '土壤类型' %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>土壤名称：</strong> {{ content.name }}</p>
+                            <p><strong>pH值：</strong> {{ content.ph_value }}</p>
+                            <p><strong>有机质含量：</strong> {{ content.organic_matter_content }}%</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>提交时间：</strong> {{ content.create_time|date:"Y-m-d H:i" }}</p>
+                            <p><strong>提交人：</strong> {{ content.creator.username }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <div class="mt-3">
+                    {% if content_type == '品种' %}
+                        <a href="{% url 'orange:detail' content.id %}" class="btn btn-sm btn-outline-primary" target="_blank">
+                            <i class="fas fa-external-link-alt me-1"></i>查看完整内容
+                        </a>
+                    {% elif content_type == '种植技术' %}
+                        <a href="{% url 'orange:tech_detail' content.id %}" class="btn btn-sm btn-outline-primary" target="_blank">
+                            <i class="fas fa-external-link-alt me-1"></i>查看完整内容
+                        </a>
+                    {% elif content_type == '病虫害' %}
+                        <a href="{% url 'orange:pest_detail' content.id %}" class="btn btn-sm btn-outline-primary" target="_blank">
+                            <i class="fas fa-external-link-alt me-1"></i>查看完整内容
+                        </a>
+                    {% elif content_type == '土壤类型' %}
+                        <a href="{% url 'orange:soil_detail' content.id %}" class="btn btn-sm btn-outline-primary" target="_blank">
+                            <i class="fas fa-external-link-alt me-1"></i>查看完整内容
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- 审核表单 -->
+            <div class="review-form">
+                <h4 class="mb-3">审核操作</h4>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        {{ form.action|as_crispy_field }}
+                    </div>
+                    <div class="mb-4">
+                        {{ form.comment|as_crispy_field }}
+                    </div>
+                    <div class="review-actions">
+                        <a href="{% url 'orange:pending_review' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>取消
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-check me-2"></i>提交审核
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
