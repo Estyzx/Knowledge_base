@@ -163,6 +163,7 @@ class Variety(models.Model):
     update_time = models.DateTimeField('更新时间', auto_now=True)
     planting_tech = models.ManyToManyField('PlantingTech', verbose_name='种植技术', blank=True)
     pest = models.ManyToManyField('Pest', verbose_name='病虫害', blank=True)
+    category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True, verbose_name='品种分类', related_name='varieties')
 
     def __str__(self):
         return self.name
@@ -445,5 +446,17 @@ class SoilType(models.Model):
         
     class Meta:
         verbose_name = '土壤类型'
+        verbose_name_plural = verbose_name
+        ordering = ['name']
+
+class Category(models.Model):
+    name = models.CharField('分类名称', max_length=50, unique=True)
+    description = models.TextField('分类描述', blank=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name ='品种分类'
         verbose_name_plural = verbose_name
         ordering = ['name']

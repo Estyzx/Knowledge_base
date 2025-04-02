@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="verify-expert-container">
+    <h2>专家认定</h2>
+    
+    <div class="expert-info">
+        <h3>{{ expert.user.username }}</h3>
+        <p><strong>专业领域：</strong>{{ expert.expertise }}</p>
+        <p><strong>专业类别：</strong>{{ expert.get_category_display }}</p>
+        <p><strong>简介：</strong>{{ expert.bio }}</p>
+        <p><strong>当前状态：</strong>
+            {% if expert.is_verified %}
+            <span class="verified">已认证</span>
+            <small>(认证时间：{{ expert.verified_at|date:"Y-m-d H:i" }})</small>
+            {% else %}
+            <span class="unverified">未认证</span>
+            {% endif %}
+        </p>
+    </div>
+
+    {% if perms.expert_qa.can_verify_expert and not expert.is_verified %}
+    <form method="post" class="verify-form">
+        {% csrf_token %}
+        <button type="submit" class="verify-button">
+            <i class="fas fa-check-circle"></i> 认定为专家
+        </button>
+    </form>
+    {% endif %}
+</div>
+
+<style>
+.verify-expert-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.expert-info {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+}
+
+.expert-info h3 {
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.expert-info p {
+    margin-bottom: 0.8rem;
+}
+
+.verified {
+    color: #28a745;
+    font-weight: 500;
+}
+
+.unverified {
+    color: #dc3545;
+    font-weight: 500;
+}
+
+.verify-form {
+    text-align: center;
+}
+
+.verify-button {
+    padding: 0.8rem 2rem;
+    font-size: 1.1rem;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.verify-button:hover {
+    background-color: #0056b3;
+}
+
+.verify-button i {
+    margin-right: 0.5rem;
+}
+</style>
+{% endblock %}

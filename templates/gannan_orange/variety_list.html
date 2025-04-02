@@ -92,6 +92,23 @@
         .delay-4 { animation-delay: 0.4s; }
         .delay-5 { animation-delay: 0.5s; }
         .delay-6 { animation-delay: 0.6s; }
+        .filter-section {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .filter-title {
+        color: #28a745;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid #28a745;
+        padding-bottom: 0.5rem;
+    }
     </style>
 {% endblock %}
 
@@ -122,6 +139,30 @@
 
         <!-- 卡片式列表 -->
         <div class="row">
+        <div class="col-lg-3">
+            <div class="filter-section sticky-top" style="top: 100px;">
+                <h5 class="filter-title"><i class="fas fa-filter me-2"></i>筛选</h5>
+
+                <!-- 分类筛选 -->
+                <div class="mb-4">
+                    <h6 class="text-success mb-3">品种分类</h6>
+                    <div class="list-group">
+                        <a href="{% url 'orange:list' %}" class="list-group-item list-group-item-action {% if not category_id %}active{% endif %}">
+                            全部分类
+                        </a>
+                        {% for category in categories %}
+                        <a href="{% url 'orange:list' %}?category={{ category.id }}{% if search_key %}&q={{ search_key }}{% endif %}"
+                           class="list-group-item list-group-item-action {% if category_id == category.id|stringformat:'i' %}active{% endif %}">
+                            {{ category.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    <div class="col-lg-9">
+             <div class="row g-4">
             {% for variety in variety_list %}
                 <div class="col-md-4 mb-4 animate-fadeInUp delay-{{ forloop.counter|add:"1" }}">
                     <div class="glass-card h-100 position-relative overflow-hidden">
@@ -152,6 +193,8 @@
                     </div>
                 </div>
             {% endfor %}
+             </div>
+    </div>
         </div>
 
         <!-- 分页 -->

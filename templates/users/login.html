@@ -26,10 +26,10 @@
         
         <div class="auth-body">
             <!-- 显示消息 -->
-            {% if messages %}
-                <div class="alert alert-danger">
-                    {% for message in messages %}
-                        {{ message }}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger" role="alert">
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
                     {% endfor %}
                 </div>
             {% endif %}
@@ -39,21 +39,35 @@
                 {% csrf_token %}
 
                 <div class="mb-3">
-                    <div class="input-group">
+                    <div class="input-group {% if form.username.errors %}is-invalid{% endif %}">
                         <span class="input-group-text bg-light">
                             <i class="fas fa-user text-muted"></i>
                         </span>
-                        <input type="text" name="username" id="id_username" class="form-control" placeholder="用户名" value="{% if form.username.value %}{{ form.username.value }}{% endif %}" required>
+                        <input type="text" name="username" id="id_username" class="form-control {% if form.username.errors %}is-invalid{% endif %}" placeholder="用户名" value="{% if form.username.value %}{{ form.username.value }}{% endif %}" required>
                     </div>
+                    {% if form.username.errors %}
+                        <div class="invalid-feedback d-block mt-1">
+                            {% for error in form.username.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
 
                 <div class="mb-4">
-                    <div class="input-group">
+                    <div class="input-group {% if form.password.errors %}is-invalid{% endif %}">
                         <span class="input-group-text bg-light">
                             <i class="fas fa-lock text-muted"></i>
                         </span>
-                        <input type="password" name="password" id="id_password" class="form-control" placeholder="密码" required>
+                        <input type="password" name="password" id="id_password" class="form-control {% if form.password.errors %}is-invalid{% endif %}" placeholder="密码" required>
                     </div>
+                    {% if form.password.errors %}
+                        <div class="invalid-feedback d-block mt-1">
+                            {% for error in form.password.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
 
                 <button type="submit" class="btn btn-success w-100 py-2 mb-3 auth-btn">登录</button>

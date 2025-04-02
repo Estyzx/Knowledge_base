@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="follow-up-container">
+    <h2>追问</h2>
+
+    <div class="original-question">
+        <h4>原问题：</h4>
+        <div class="question-title">{{ parent_question.title }}</div>
+        <div class="question-content">
+            {{ parent_question.content|linebreaks }}
+        </div>
+    </div>
+
+    <form method="post" class="follow-up-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="title">追问标题：</label>
+            <input type="text" name="title" id="title" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="content">追问内容：</label>
+            <textarea name="content" id="content" class="form-control" rows="5" required></textarea>
+        </div>
+        <input type="hidden" name="category" value="{{ parent_question.get_category_display }}">
+        <button type="submit" class="btn btn-primary">提交追问</button>
+        <a href="{% url 'expert_qa:question_detail' pk=parent_question.pk %}" class="btn btn-secondary">返回</a>
+    </form>
+</div>
+{% endblock %}
+
+{% block head %}
+<style>
+.follow-up-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.original-question {
+    background-color: #f8f9fa;
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 5px;
+}
+
+.question-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.question-content {
+    color: #666;
+}
+
+.follow-up-form {
+    margin-top: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.btn {
+    margin-right: 10px;
+}
+</style>
+{% endblock %}

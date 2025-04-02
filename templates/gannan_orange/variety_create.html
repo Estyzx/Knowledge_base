@@ -66,6 +66,18 @@
                         <div class="row g-4">
                             <div class="col-md-6">
                                 <div class="form-group">
+                                    {{ form.category|as_crispy_field }}
+                                    {% if form.category.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.category.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
                                     {{ form.name|as_crispy_field }}
                                     {% if form.name.errors %}
                                         <div class="invalid-feedback">

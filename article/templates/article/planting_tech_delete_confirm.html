@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}确认删除 - {{ article.title }}{% endblock %}
+
+{% block head %}
+<style>
+    .delete-card {
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .delete-header {
+        background: linear-gradient(135deg, #dc3545, #ff6b6b);
+        color: white;
+        padding: 1.5rem;
+    }
+    
+    .warning-icon {
+        font-size: 3rem;
+        color: #dc3545;
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb bg-white rounded-3 shadow-sm p-3 mb-4">
+            <li class="breadcrumb-item">
+                <a href="{% url 'orange:home' %}" class="text-success">
+                    <i class="fas fa-home fa-fw"></i> 首页
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'article:list' %}" class="text-success">
+                    <i class="fas fa-book fa-fw"></i> 所有文章
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'article:detail' article.id %}" class="text-success">
+                    <i class="fas fa-file-alt fa-fw"></i> {{ article.title|truncatechars:20 }}
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <i class="fas fa-trash fa-fw"></i> 确认删除
+            </li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="delete-card">
+                <div class="delete-header">
+                    <h2 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>确认删除</h2>
+                </div>
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-exclamation-circle warning-icon mb-3"></i>
+                        <h3>您确定要删除这篇文章吗？</h3>
+                        <p class="text-muted">文章标题: <strong>{{ article.title }}</strong></p>
+                        <p class="text-danger">此操作不可逆，删除后数据将无法恢复！</p>
+                    </div>
+                    
+                    <div class="d-flex justify-content-center gap-3 mt-4">
+                        <a href="{% url 'article:detail' article.id %}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-times me-2"></i>取消
+                        </a>
+                        <form method="post" action="{% url 'article:delete' article.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="fas fa-trash me-2"></i>确认删除
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block main %}
+<div class="ask-question-container">
+    <div class="row">
+        {% if expert %}
+        <div class="col-md-4">
+            <div class="expert-profile-card p-4 mb-4">
+                <div class="text-center mb-4">
+                    <div class="expert-avatar-lg mb-3">
+                        {% if expert.avatar %}
+                        <img src="{{ expert.avatar.url }}" alt="{{ expert.user.username }}" class="rounded-circle">
+                        {% else %}
+                        <i class="fas fa-user-tie fa-4x"></i>
+                        {% endif %}
+                    </div>
+                    
+                    <h4 class="mb-1">{{ expert.user.username }}</h4>
+                    <!-- 暂时注释掉 title 字段显示，直到迁移完成 -->
+                    {% comment %}
+                    {% if expert.title %}
+                    <p class="text-muted mb-1">{{ expert.title }}</p>
+                    {% endif %}
+                    {% endcomment %}
+                    
+                    <div class="expert-rating mb-2">
+                        {% with ''|center:5 as range %}
+                        {% for _ in range %}
+                            {% if forloop.counter <= expert.rating %}
+                                <i class="fas fa-star"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                        {% endwith %}
+                        <span class="ms-2">({{ expert.rating|floatformat:1 }})</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-center mb-3">
+                        <span class="category-badge">{{ expert.get_category_display }}</span>
+                    </div>
+                </div>
+                
+                <div class="expert-bio mb-4">
+                    <h5>专家简介</h5>
+                    <p>{{ expert.bio }}</p>
+                </div>
+                
+                <div class="text-center">
+                    <a href="{% url 'expert_qa:expert_detail' expert.id %}" class="btn btn-outline-primary">
+                        查看专家详情
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+        {% else %}
+        <div class="col-md-12">
+        {% endif %}
+            <div class="card">
+                <div class="card-header">
+                    <h3>
+                        {% if expert %}
+                        向 {{ expert.user.username }} 提问
+                        {% else %}
+                        提出新问题
+                        {% endif %}
+                    </h3>
+                </div>
+                
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="title" class="form-label">问题标题</label>
+                            <input type="text" class="form-control" id="title" name="title" required>
+                            <div class="form-text">请简明扼要地描述您的问题</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="content" class="form-label">问题详情</label>
+                            <textarea class="form-control" id="content" name="content" rows="8" required></textarea>
+                            <div class="form-text">详细描述您的问题，包括您已经尝试过的解决方法</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="category" class="form-label">问题类别</label>
+                            <select class="form-select" id="category" name="category" required>
+                                <option value="" selected disabled>请选择问题类别</option>
+                                {% for code, name in categories %}
+                                <option value="{{ code }}">{{ name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="tags" class="form-label">标签</label>
+                            <input type="text" class="form-control" id="tags" name="tags">
+                            <div class="form-text">多个标签用逗号分隔，如：种植技巧,有机肥料</div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">提交问题</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- 可以添加富文本编辑器等脚本 -->
+{% endblock %}
