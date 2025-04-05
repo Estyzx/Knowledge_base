@@ -233,6 +233,22 @@ class VarietyDetail(DetailView):
             obj.last_approved = get_last_approved_version(Variety, obj.id)
         return obj
     
+    def get_context_data(self, **kwargs):
+        # 调用父类的get_context_data方法
+        context = super().get_context_data(**kwargs)
+        # 获取HTTP_REFERER，如果没有则使用默认的URL
+        referer = self.request.META.get('HTTP_REFERER')
+        # 安全地处理referer
+        if referer:
+            # 如果referer包含'edit'，那么返回列表页面
+            if 'edit' in referer:
+                referer = reverse('orange:list')
+        else:
+            # 如果没有referer，则返回列表页面
+            referer = reverse('orange:list')
+        context['referer'] = referer
+        return context
+    
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         user = request.user
@@ -378,9 +394,13 @@ class PlantingTechDetail(DetailView):
         context = super().get_context_data(**kwargs)
         # 获取HTTP_REFERER，如果没有则使用默认的URL:
         referer = self.request.META.get('HTTP_REFERER')
-        if 'edit' in referer:
-            referer = reverse('orange:soil_list')
-        if not referer:
+        # 安全地处理referer
+        if referer:
+            # 如果referer包含'edit'，那么返回列表页面
+            if 'edit' in referer:
+                referer = reverse('orange:tech_list')
+        else:
+            # 如果没有referer，则返回列表页面
             referer = reverse('orange:tech_list')
         context['referer'] = referer
         return context
@@ -493,10 +513,13 @@ class SoilTypeDetail(DetailView):
         context = super().get_context_data(**kwargs)
         # 获取HTTP_REFERER，如果没有则使用默认的URL
         referer = self.request.META.get('HTTP_REFERER')
-        # 如果是从编辑页面返回的，则返回列表页面
-        if 'edit' in referer:
-            referer = reverse('orange:soil_list')
-        if not referer:
+        # 安全地处理referer
+        if referer:
+            # 如果referer包含'edit'，那么返回列表页面
+            if 'edit' in referer:
+                referer = reverse('orange:soil_list')
+        else:
+            # 如果没有referer，则返回列表页面
             referer = reverse('orange:soil_list')
         context['referer'] = referer
         return context
@@ -612,9 +635,13 @@ class PestDetail(DetailView):
         context = super().get_context_data(**kwargs)
         # 获取HTTP_REFERER，如果没有则使用默认的URL
         referer = self.request.META.get('HTTP_REFERER')
-        if 'edit' in referer:
-            referer = reverse('orange:soil_list')
-        if not referer:
+        # 安全地处理referer
+        if referer:
+            # 如果referer包含'edit'，那么返回列表页面
+            if 'edit' in referer:
+                referer = reverse('orange:pest_list')
+        else:
+            # 如果没有referer，则返回列表页面
             referer = reverse('orange:pest_list')
         context['referer'] = referer
         return context

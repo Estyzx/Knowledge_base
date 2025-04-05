@@ -49,6 +49,18 @@ class PlantingTechDetailView(DetailView):
         context['comments'] = Comment.objects.filter(article=self.object, parent=None).order_by('-create_time')
         context['comment_form'] = CommentForm()
         
+        # 获取HTTP_REFERER，如果没有则使用默认的URL
+        referer = self.request.META.get('HTTP_REFERER')
+        # 安全地处理referer
+        if referer:
+            # 如果referer包含'edit'，那么返回列表页面
+            if 'edit' in referer:
+                referer = reverse('article:list')
+        else:
+            # 如果没有referer，则返回列表页面
+            referer = reverse('article:list')
+        context['referer'] = referer
+        
         # 记录用户浏览历史
         if self.request.user.is_authenticated:
             user = self.request.user

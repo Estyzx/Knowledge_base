@@ -268,9 +268,12 @@
                                 </span>
                             </div>
                             <div class="d-flex gap-2">
-                                <a href="{% url 'orange:list' %}"
-                                   class="btn btn-outline-secondary btn-sm rounded-pill px-3 shadow-hover">
-                                    <i class="fas fa-arrow-left me-1"></i>返回列表
+                                <a href="{{ referer }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 shadow-hover">
+                                    <i class="fas fa-arrow-left me-1"></i>返回
+                                </a>
+                                
+                                <a href="{% url "orange:edit" variety.id %}" class="btn btn-primary btn-sm rounded-pill shadow-hover">
+                                    <i class="fas fa-edit me-1"></i>编辑
                                 </a>
                             </div>
                         </div>

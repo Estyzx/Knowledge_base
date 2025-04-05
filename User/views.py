@@ -73,12 +73,22 @@ def user_detail(request, pk):
     if hasattr(user, 'expert_profile'):
         expert_profile = user.expert_profile
     
+    # 获取HTTP_REFERER，如果没有则使用默认的URL
+    referer = request.META.get('HTTP_REFERER')
+    # 安全地处理referer
+    if referer:
+        pass  # 保留原始返回链接
+    else:
+        # 如果没有referer，则返回首页
+        referer = reverse('orange:home')
+    
     context = {
         'user_profile': user,
         'is_self': is_self,
         'favorite_varieties': favorite_varieties,
         'viewed_articles': viewed_articles,
         'expert_profile': expert_profile,
+        'referer': referer
     }
     
     return render(request, 'users/user_detail.html', context)

@@ -59,12 +59,24 @@ def question_detail(request, pk):
     if request.user.is_authenticated:
         user_voted = question.votes.filter(id=request.user.id).exists()
     
+    # 获取HTTP_REFERER，如果没有则使用默认的URL
+    referer = request.META.get('HTTP_REFERER')
+    # 安全地处理referer
+    if referer:
+        # 如果referer包含特定关键词，返回相应列表页面
+        if 'edit' in referer or 'answer' in referer:
+            referer = reverse('expert_qa:question_list')
+    else:
+        # 如果没有referer，则返回问题列表页面
+        referer = reverse('expert_qa:question_list')
+    
     return render(request, 'expert_qa/question_detail.html', {
         'question': question,
         'answers': answers,
         'related_questions': related_questions,
         'user_voted': user_voted,
-        'sort_by': sort_by
+        'sort_by': sort_by,
+        'referer': referer
     })
 
 @login_required
@@ -284,11 +296,21 @@ def expert_detail(request, expert_id):
     page = request.GET.get('page')
     answers_page = paginator.get_page(page)
     
+    # 获取HTTP_REFERER，如果没有则使用默认的URL
+    referer = request.META.get('HTTP_REFERER')
+    # 安全地处理referer
+    if referer:
+        pass  # 保留原始返回链接
+    else:
+        # 如果没有referer，则返回专家列表页面
+        referer = reverse('expert_qa:expert_list')
+    
     return render(request, 'expert_qa/expert_detail.html', {
         'expert': expert,
         'answers': answers_page,
         'questions': questions,
-        'total_questions': questions.count()
+        'total_questions': questions.count(),
+        'referer': referer
     })
 
 @login_required

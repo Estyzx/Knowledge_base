@@ -2,19 +2,16 @@
 {% load static %}
 
 {% block title %}
-    {{ tech.name }}
+    {{ tech.name }} - 种植技术详情
 {% endblock %}
 
 {% block head %}
     <link rel="stylesheet" href="/static/css/detail_pages.css">
-    <link rel="stylesheet" href="/static/css/collapsible.css">
-    <script src="/static/js/collapsible.js" defer></script>
-    <style>
-        /* 页面背景渐变 */
-        body {
-            background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
-        }
-    </style>
+    <!-- 使用更轻量级的FontAwesome方式 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- 引用外部CSS文件 -->
+    <link rel="stylesheet" href="{% static 'css/planting_tech_detail.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 {% endblock %}
 
 {% block main %}
@@ -38,257 +35,350 @@
         </ol>
     </nav>
 
-    <!-- 主卡片 -->
-    <div class="glass-card mb-4 animate-fadeInUp delay-1 overflow-hidden">
-        <div class="card-header bg-success-gradient text-white py-4">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <h1 class="detail-title mb-0">{{ tech.name }}</h1>
-                    <p class="text-white-50 mb-0 mt-1">{{ tech.get_category_display }} | {{ tech.get_difficulty_display }}</p>
-                </div>
-                <div class="icon-container">
-                    <i class="fas fa-cog fa-2x"></i>
+    <div class="row">
+        <!-- 左侧导航栏 -->
+        <div class="col-lg-3 d-none d-lg-block">
+            <div class="tech-nav scroll-fade">
+                <h5 class="mb-3 border-bottom pb-2"><i class="fas fa-list-ul me-2"></i>章节导航</h5>
+                <a href="#tech-basic-info" class="tech-nav-link active"><i class="fas fa-info-circle me-2"></i>基本信息</a>
+                <a href="#tech-description" class="tech-nav-link"><i class="fas fa-file-signature me-2"></i>技术描述</a>
+                <a href="#tech-conditions" class="tech-nav-link"><i class="fas fa-check-circle me-2"></i>适用条件</a>
+                <a href="#tech-steps" class="tech-nav-link"><i class="fas fa-list-ol me-2"></i>操作步骤</a>
+                <a href="#tech-notes" class="tech-nav-link"><i class="fas fa-exclamation-triangle me-2"></i>注意事项</a>
+                <a href="#tech-equipment" class="tech-nav-link"><i class="fas fa-tools me-2"></i>所需设备</a>
+                <a href="#tech-results" class="tech-nav-link"><i class="fas fa-chart-line me-2"></i>预期效果</a>
+            </div>
+            
+            <!-- 技术分类标签 -->
+            <div class="glass-card p-4 mt-4 scroll-fade">
+                <h5 class="mb-3 border-bottom pb-2"><i class="fas fa-tags me-2"></i>技术标签</h5>
+                <div class="d-flex flex-wrap">
+                    <span class="tech-label mb-2">
+                        <i class="fas fa-layer-group me-1 text-primary"></i>{{ tech.get_category_display }}
+                    </span>
+                    <span class="tech-label mb-2">
+                        <i class="fas fa-signal me-1 text-danger"></i>{{ tech.get_difficulty_display }}
+                    </span>
+                    <span class="tech-label mb-2">
+                        <i class="fas fa-calendar-alt me-1 text-success"></i>{{ tech.get_applicable_season_display|default:"所有季节" }}
+                    </span>
+                    <span class="tech-label mb-2">
+                        <i class="fas fa-dumbbell me-1 text-warning"></i>{{ tech.get_labor_intensity_display|default:"未知" }}
+                    </span>
                 </div>
             </div>
         </div>
+        
+        <!-- 主内容区域 -->
+        <div class="col-lg-9">
+            <!-- 主卡片 -->
+            <div class="glass-card mb-4 animate-fadeInUp delay-1 overflow-hidden">
+                <div class="card-header bg-success-gradient text-white py-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h1 class="detail-title mb-0">{{ tech.name }}</h1>
+                            <p class="text-white-50 mb-0 mt-1">
+                                <i class="fas fa-clock me-1"></i> {{ tech.create_time|date:"Y/m/d" }}
+                            </p>
+                        </div>
+                        <div class="icon-container">
+                            <i class="fas fa-cog fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
 
-        <div class="card-body p-4">
-            <!-- 基本信息 -->
-            <div class="collapsible-section collapsible-primary" id="tech-basic-info">
-                <div class="collapsible-header" aria-expanded="true">
-                    <h5>
-                        <div class="icon-container">
-                            <i class="fas fa-info-circle"></i>
+                <div class="card-body p-4">
+                    <!-- 基本信息 -->
+                    <div class="collapsible-section collapsible-primary scroll-fade" id="tech-basic-info">
+                        <div class="collapsible-header" aria-expanded="true">
+                            <h5>
+                                <div class="icon-container">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                基本信息
+                            </h5>
+                            <i class="fas fa-chevron-down toggle-icon"></i>
                         </div>
-                        基本信息
-                    </h5>
-                    <i class="fas fa-chevron-down toggle-icon"></i>
-                </div>
-                <div class="collapsible-body show">
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <div class="info-card bg-light-20 stat-item">
-                                <div class="d-flex align-items-center">
-                                    <div class="icon-container" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-light))">
-                                        <i class="fas fa-calendar-alt"></i>
+                        <div class="collapsible-body show">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="info-card bg-light-20 stat-item">
+                                        <div class="d-flex align-items-center">
+                                            <div class="icon-container" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-light))">
+                                                <i class="fas fa-calendar-alt"></i>
+                                            </div>
+                                            <div>
+                                                <span class="data-label">适用季节</span>
+                                                <h4 class="data-value">{{ tech.get_applicable_season_display|default:"-" }}</h4>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <span class="data-label">适用季节</span>
-                                        <h4 class="data-value">{{ tech.get_applicable_season_display|default:"-" }}</h4>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-card bg-light-20 stat-item">
+                                        <div class="d-flex align-items-center">
+                                            <div class="icon-container" style="background: linear-gradient(135deg, var(--warning-color), var(--accent-light))">
+                                                <i class="fas fa-coins"></i>
+                                            </div>
+                                            <div>
+                                                <span class="data-label">预估成本</span>
+                                                <h4 class="data-value">{{ tech.estimated_cost|default:"-" }}</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mt-3">
+                                    <div class="info-card bg-light-20 stat-item">
+                                        <div class="d-flex align-items-center">
+                                            <div class="icon-container" style="background: linear-gradient(135deg, var(--danger-color), var(--primary-orange))">
+                                                <i class="fas fa-dumbbell"></i>
+                                            </div>
+                                            <div>
+                                                <span class="data-label">劳动强度</span>
+                                                <h4 class="data-value">{{ tech.get_labor_intensity_display|default:"-" }}</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mt-3">
+                                    <div class="info-card bg-light-20 stat-item">
+                                        <div class="d-flex align-items-center">
+                                            <div class="icon-container" style="background: linear-gradient(135deg, var(--primary-green), var(--primary-teal))">
+                                                <i class="fas fa-signal"></i>
+                                            </div>
+                                            <div>
+                                                <span class="data-label">难易程度</span>
+                                                <h4 class="data-value">{{ tech.get_difficulty_display|default:"-" }}</h4>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="info-card bg-light-20 stat-item">
-                                <div class="d-flex align-items-center">
-                                    <div class="icon-container" style="background: linear-gradient(135deg, var(--warning-color), var(--accent-light))">
-                                        <i class="fas fa-coins"></i>
-                                    </div>
-                                    <div>
-                                        <span class="data-label">预估成本</span>
-                                        <h4 class="data-value">{{ tech.estimated_cost|default:"-" }}</h4>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mt-3">
-                            <div class="info-card bg-light-20 stat-item">
-                                <div class="d-flex align-items-center">
-                                    <div class="icon-container" style="background: linear-gradient(135deg, var(--danger-color), var(--primary-orange))">
-                                        <i class="fas fa-dumbbell"></i>
-                                    </div>
-                                    <div>
-                                        <span class="data-label">劳动强度</span>
-                                        <h4 class="data-value">{{ tech.get_labor_intensity_display|default:"-" }}</h4>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
-                </div>
-            </div>
-            
-            <!-- 技术描述 -->
-            <div class="collapsible-section collapsible-success" id="tech-description">
-                <div class="collapsible-header" aria-expanded="true">
-                    <h5>
-                        <div class="icon-container">
-                            <i class="fas fa-file-signature"></i>
-                        </div>
-                        技术描述
-                    </h5>
-                    <i class="fas fa-chevron-down toggle-icon"></i>
-                </div>
-                <div class="collapsible-body show">
-                    {% if tech.description %}
-                    <div class="desc-content" style="text-indent: 2em; line-height: 1.8; font-size: 1.05rem;">
-                        {{ tech.description|linebreaks }}
-                    </div>
-                    {% else %}
-                    <div class="alert alert-warning d-flex align-items-center mb-0">
-                        <i class="fas fa-exclamation-triangle me-2 fs-4"></i>
-                        <span class="fs-5">暂无详细描述</span>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <!-- 适用条件 -->
-            <div class="collapsible-section collapsible-primary mt-4" id="tech-conditions">
-                <div class="collapsible-header" aria-expanded="false">
-                    <h5>
-                        <div class="icon-container">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        适用条件
-                    </h5>
-                    <i class="fas fa-chevron-down toggle-icon"></i>
-                </div>
-                <div class="collapsible-body">
-                    {% if tech.applicable_conditions %}
-                    <div class="desc-content" style="text-indent: 2em; line-height: 1.8; font-size: 1.05rem;">
-                        {{ tech.applicable_conditions|linebreaks }}
-                    </div>
-                    {% else %}
-                    <div class="alert alert-warning d-flex align-items-center mb-0">
-                        <i class="fas fa-exclamation-triangle me-2 fs-4"></i>
-                        <span class="fs-5">暂无适用条件信息</span>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <!-- 操作步骤 -->
-            <div class="collapsible-section collapsible-info mt-4" id="tech-steps">
-                <div class="collapsible-header" aria-expanded="false">
-                    <h5>
-                        <div class="icon-container">
-                            <i class="fas fa-list-ol"></i>
-                        </div>
-                        操作步骤
-                    </h5>
-                    <i class="fas fa-chevron-down toggle-icon"></i>
-                </div>
-                <div class="collapsible-body">
-                    {% if tech.implementation_steps %}
-                    <div class="desc-content" style="text-indent: 2em; line-height: 1.8; font-size: 1.05rem;">
-                        {{ tech.implementation_steps|linebreaks }}
-                    </div>
-                    {% else %}
-                    <div class="alert alert-warning d-flex align-items-center mb-0">
-                        <i class="fas fa-exclamation-triangle me-2 fs-4"></i>
-                        <span class="fs-5">暂无操作步骤信息</span>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <!-- 注意事项 -->
-            <div class="collapsible-section collapsible-warning mt-4" id="tech-notes">
-                <div class="collapsible-header" aria-expanded="false">
-                    <h5>
-                        <div class="icon-container">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        注意事项
-                    </h5>
-                    <i class="fas fa-chevron-down toggle-icon"></i>
-                </div>
-                <div class="collapsible-body">
-                    {% if tech.precautions %}
-                    <div class="desc-content" style="text-indent: 2em; line-height: 1.8; font-size: 1.05rem;">
-                        {{ tech.precautions|linebreaks }}
-                    </div>
-                    {% else %}
-                    <div class="alert alert-warning d-flex align-items-center mb-0">
-                        <i class="fas fa-exclamation-triangle me-2 fs-4"></i>
-                        <span class="fs-5">暂无注意事项信息</span>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <!-- 所需设备工具 -->
-            <div class="collapsible-section collapsible-primary mt-4" id="tech-equipment">
-                <div class="collapsible-header" aria-expanded="false">
-                    <h5>
-                        <div class="icon-container">
-                            <i class="fas fa-tools"></i>
-                        </div>
-                        所需设备工具
-                    </h5>
-                    <i class="fas fa-chevron-down toggle-icon"></i>
-                </div>
-                <div class="collapsible-body">
-                    {% if tech.equipment_needed %}
-                    <div class="desc-content" style="text-indent: 2em; line-height: 1.8; font-size: 1.05rem;">
-                        {{ tech.equipment_needed|linebreaks }}
-                    </div>
-                    {% else %}
-                    <div class="alert alert-warning d-flex align-items-center mb-0">
-                        <i class="fas fa-exclamation-triangle me-2 fs-4"></i>
-                        <span class="fs-5">暂无设备工具信息</span>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <!-- 预期效果 -->
-            <div class="collapsible-section collapsible-success mt-4" id="tech-results">
-                <div class="collapsible-header" aria-expanded="false">
-                    <h5>
-                        <div class="icon-container">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        预期效果
-                    </h5>
-                    <i class="fas fa-chevron-down toggle-icon"></i>
-                </div>
-                <div class="collapsible-body">
-                    {% if tech.expected_outcome %}
-                    <div class="desc-content" style="text-indent: 2em; line-height: 1.8; font-size: 1.05rem;">
-                        {{ tech.expected_outcome|linebreaks }}
-                    </div>
-                    {% else %}
-                    <div class="alert alert-warning d-flex align-items-center mb-0">
-                        <i class="fas fa-exclamation-triangle me-2 fs-4"></i>
-                        <span class="fs-5">暂无预期效果信息</span>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- 操作按钮 -->
-        <div class="card-footer glass-card border-top-0 p-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center">
-                    <span class="badge bg-light text-dark me-2 p-2 shadow-sm">
-                        <i class="fas fa-history me-1 text-primary"></i>{{ tech.create_time|date:"Y/m/d H:i" }}
-                    </span>
-                    <span class="badge bg-light text-dark p-2 shadow-sm">
-                        <i class="fas fa-cog me-1 text-success"></i>种植技术
-                    </span>
-                </div>
-                
-                <div class="d-flex gap-2">
-                    <a href="{{referer}}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 shadow-hover">
-                        <i class="fas fa-arrow-left me-1"></i>返回列表
-                    </a>
                     
-                    <a href="{% url "orange:tech_edit" tech.id %}" class="btn btn-primary btn-sm rounded-pill shadow-hover">
-                        <i class="fas fa-edit me-1"></i>编辑
-                    </a>
-                    <form action="{% url "orange:tech_delete" tech.id%}" method="post" class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger btn-sm rounded-pill shadow-hover">
-                            <i class="fas fa-trash me-1"></i>删除
-                        </button>
-                    </form>
+                    <!-- 技术描述 -->
+                    <div class="collapsible-section collapsible-success scroll-fade" id="tech-description">
+                        <div class="collapsible-header" aria-expanded="true">
+                            <h5>
+                                <div class="icon-container">
+                                    <i class="fas fa-file-signature"></i>
+                                </div>
+                                技术描述
+                            </h5>
+                            <i class="fas fa-chevron-down toggle-icon"></i>
+                        </div>
+                        <div class="collapsible-body show">
+                            {% if tech.description %}
+                            <div class="desc-content">
+                                {{ tech.description|linebreaks }}
+                            </div>
+                            {% else %}
+                            <div class="alert alert-warning d-flex align-items-center mb-0">
+                                <i class="fas fa-exclamation-triangle me-2 fs-4"></i>
+                                <span class="fs-5">暂无详细描述</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- 适用条件 -->
+                    <div class="collapsible-section collapsible-primary mt-4 scroll-fade" id="tech-conditions">
+                        <div class="collapsible-header" aria-expanded="false">
+                            <h5>
+                                <div class="icon-container">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                适用条件
+                            </h5>
+                            <i class="fas fa-chevron-down toggle-icon"></i>
+                        </div>
+                        <div class="collapsible-body">
+                            {% if tech.applicable_conditions %}
+                            <div class="desc-content">
+                                {{ tech.applicable_conditions|linebreaks }}
+                            </div>
+                            {% else %}
+                            <div class="alert alert-warning d-flex align-items-center mb-0">
+                                <i class="fas fa-exclamation-triangle me-2 fs-4"></i>
+                                <span class="fs-5">暂无适用条件信息</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- 操作步骤 -->
+                    <div class="collapsible-section collapsible-info mt-4 scroll-fade" id="tech-steps">
+                        <div class="collapsible-header" aria-expanded="false">
+                            <h5>
+                                <div class="icon-container">
+                                    <i class="fas fa-list-ol"></i>
+                                </div>
+                                操作步骤
+                            </h5>
+                            <i class="fas fa-chevron-down toggle-icon"></i>
+                        </div>
+                        <div class="collapsible-body">
+                            {% if tech.implementation_steps %}
+                            <div class="desc-content">
+                                {{ tech.implementation_steps|linebreaks }}
+                            </div>
+                            {% else %}
+                            <div class="alert alert-warning d-flex align-items-center mb-0">
+                                <i class="fas fa-exclamation-triangle me-2 fs-4"></i>
+                                <span class="fs-5">暂无操作步骤信息</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- 注意事项 -->
+                    <div class="collapsible-section collapsible-warning mt-4 scroll-fade" id="tech-notes">
+                        <div class="collapsible-header" aria-expanded="false">
+                            <h5>
+                                <div class="icon-container">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                注意事项
+                            </h5>
+                            <i class="fas fa-chevron-down toggle-icon"></i>
+                        </div>
+                        <div class="collapsible-body">
+                            {% if tech.precautions %}
+                            <div class="desc-content">
+                                {{ tech.precautions|linebreaks }}
+                            </div>
+                            {% else %}
+                            <div class="alert alert-warning d-flex align-items-center mb-0">
+                                <i class="fas fa-exclamation-triangle me-2 fs-4"></i>
+                                <span class="fs-5">暂无注意事项信息</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- 所需设备工具 -->
+                    <div class="collapsible-section collapsible-primary mt-4 scroll-fade" id="tech-equipment">
+                        <div class="collapsible-header" aria-expanded="false">
+                            <h5>
+                                <div class="icon-container">
+                                    <i class="fas fa-tools"></i>
+                                </div>
+                                所需设备工具
+                            </h5>
+                            <i class="fas fa-chevron-down toggle-icon"></i>
+                        </div>
+                        <div class="collapsible-body">
+                            {% if tech.equipment_needed %}
+                            <div class="desc-content">
+                                {{ tech.equipment_needed|linebreaks }}
+                            </div>
+                            {% else %}
+                            <div class="alert alert-warning d-flex align-items-center mb-0">
+                                <i class="fas fa-exclamation-triangle me-2 fs-4"></i>
+                                <span class="fs-5">暂无设备工具信息</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- 预期效果 -->
+                    <div class="collapsible-section collapsible-success mt-4 scroll-fade" id="tech-results">
+                        <div class="collapsible-header" aria-expanded="false">
+                            <h5>
+                                <div class="icon-container">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                预期效果
+                            </h5>
+                            <i class="fas fa-chevron-down toggle-icon"></i>
+                        </div>
+                        <div class="collapsible-body">
+                            {% if tech.expected_outcome %}
+                            <div class="desc-content">
+                                {{ tech.expected_outcome|linebreaks }}
+                            </div>
+                            {% else %}
+                            <div class="alert alert-warning d-flex align-items-center mb-0">
+                                <i class="fas fa-exclamation-triangle me-2 fs-4"></i>
+                                <span class="fs-5">暂无预期效果信息</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="card-footer glass-card border-top-0 p-3">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap">
+                        <div class="d-flex align-items-center mb-2 mb-md-0">
+                            <span class="badge bg-light text-dark me-2 p-2 shadow-sm">
+                                <i class="fas fa-history me-1 text-primary"></i>{{ tech.create_time|date:"Y/m/d H:i" }}
+                            </span>
+                            <span class="badge bg-light text-dark p-2 shadow-sm">
+                                <i class="fas fa-cog me-1 text-success"></i>种植技术
+                            </span>
+                            <!-- 添加收藏功能 -->
+                            <form method="post" action="#" id="favorite-form" class="ms-2 d-inline">
+                                {% csrf_token %}
+                                {% if user.is_authenticated %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill favorite-btn" id="favorite-btn">
+                                        <i class="far fa-heart me-1"></i> 收藏
+                                    </button>
+                                {% else %}
+                                    <a href="{% url 'user:login' %}" class="btn btn-sm btn-outline-danger rounded-pill">
+                                        <i class="far fa-heart me-1"></i> 收藏
+                                    </a>
+                                {% endif %}
+                            </form>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <a href="{{ referer }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 shadow-hover">
+                                <i class="fas fa-arrow-left me-1"></i>返回
+                            </a>
+                            
+                            <a href="{% url "orange:tech_edit" tech.id %}" class="btn btn-primary btn-sm rounded-pill shadow-hover">
+                                <i class="fas fa-edit me-1"></i>编辑
+                            </a>
+                            <form action="{% url "orange:tech_delete" tech.id%}" method="post" class="d-inline" id="delete-form">
+                                {% csrf_token %}
+                                <button type="button" class="btn btn-danger btn-sm rounded-pill shadow-hover" id="delete-btn">
+                                    <i class="fas fa-trash me-1"></i>删除
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- 返回顶部按钮 -->
+<div id="backToTop">
+    <i class="fas fa-arrow-up"></i>
+</div>
+
+<!-- 确认删除的模态框 -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteConfirmModalLabel"><i class="fas fa-exclamation-triangle me-2"></i>确认删除</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>您确定要删除 <strong>{{ tech.name }}</strong> 这个种植技术吗？此操作不可恢复。</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i>取消</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete"><i class="fas fa-trash me-1"></i>确认删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 引用外部JS文件 -->
+<script src="{% static 'js/planting_tech_detail.js' %}"></script>
 {% endblock %}

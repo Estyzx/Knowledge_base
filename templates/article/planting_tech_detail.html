@@ -215,7 +215,19 @@
             </ol>
         </nav>
 
-
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <a href="{{ referer }}" class="btn btn-outline-secondary rounded-pill">
+                <i class="fas fa-arrow-left me-2"></i>返回
+            </a>
+            
+            {% if user == article.author %}
+            <div>
+                <a href="{% url 'article:edit' article.pk %}" class="btn btn-outline-primary rounded-pill">
+                    <i class="fas fa-edit me-2"></i>编辑
+                </a>
+            </div>
+            {% endif %}
+        </div>
 
         <div class="row g-4">
             <div class="col-lg-8">
@@ -318,8 +330,10 @@
                                         </button>
                                     {% endif %}
                                 {% else %}
-                                    <a href="{% url 'user:login' %}" class="btn btn-outline-danger rounded-pill"></a>
-                                    <i class="far fa-heart me-1"></i>
+                                    <a href="{% url 'user:login' %}" class="btn btn-outline-danger rounded-pill">
+                                        <i class="far fa-heart me-1"></i>
+                                    </a>
+                                    
                                 {% endif %}
                             </form>
                         </div>

@@ -706,7 +706,7 @@ function createCommentElement(comment) {
                 textarea.classList.remove('is-invalid');
             }
         });
-    }
+   }
 
     return commentDiv;
 }

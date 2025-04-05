@@ -145,3 +145,11 @@ __pycache__/
 *.swn
 *.bak
 *.save
+
+# 调试和测试文件
+debug.log
+test_output/
+pytest-report/
+.pytest_cache/
+.coverage
+htmlcov/

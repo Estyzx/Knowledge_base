@@ -1,0 +1,224 @@
+/* 页面背景渐变 */
+body {
+    background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+}
+
+/* 简化动画效果，减少性能消耗 */
+.scroll-fade {
+    opacity: 0.8;
+    transform: translateY(10px);
+    transition: all 0.5s ease-out;
+}
+
+.scroll-fade.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 毛玻璃标签 */
+.tech-label {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(5px);
+    padding: 0.3rem 0.8rem;
+    border-radius: 30px;
+    margin-right: 0.5rem;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+}
+
+.tech-label:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* 收藏按钮动画 */
+.favorite-btn {
+    transition: all 0.3s ease;
+}
+
+.favorite-btn:hover {
+    transform: scale(1.05);
+}
+
+.favorite-btn i {
+    transition: all 0.3s ease;
+}
+
+.favorite-btn:hover i {
+    transform: scale(1.2);
+}
+
+.favorite-animation {
+    animation: heartBeat 1.3s ease-in-out;
+}
+
+@keyframes heartBeat {
+    0% { transform: scale(1); }
+    14% { transform: scale(1.3); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.3); }
+    70% { transform: scale(1); }
+}
+
+/* 技术详情章节导航 */
+.tech-nav {
+    position: sticky;
+    top: 90px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    z-index: 10;
+}
+
+.tech-nav-link {
+    display: block;
+    padding: 0.5rem 1rem;
+    margin: 0.3rem 0;
+    border-radius: 8px;
+    color: #333;
+    transition: all 0.3s;
+}
+
+.tech-nav-link:hover, .tech-nav-link.active {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: var(--primary-green);
+    transform: translateX(5px);
+}
+
+/* 优化信息卡片 */
+.info-card {
+    border-radius: 1rem;
+    transition: all 0.4s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* 优化内容展示 */
+.desc-content {
+    text-indent: 2em;
+    line-height: 1.9;
+    font-size: 1.05rem;
+    color: #333;
+}
+
+/* 返回顶部按钮 */
+#backToTop {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--primary-green);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.3s;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+#backToTop:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+#backToTop.visible {
+    opacity: 1;
+}
+
+/* 折叠面板样式 */
+.collapsible-section {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    margin-bottom: 1rem;
+    background: white;
+}
+
+.collapsible-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: rgba(255,255,255,0.9);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.collapsible-header:hover {
+    background-color: rgba(248,249,250,0.95);
+}
+
+.collapsible-header h5 {
+    display: flex;
+    align-items: center;
+    margin: 0;
+}
+
+.collapsible-body {
+    padding: 20px;
+    background-color: rgba(255,255,255,0.7);
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.toggle-icon {
+    transition: transform 0.3s ease;
+    position: absolute;
+    right: 20px;
+    font-size: 1.2rem;
+    color: #666;
+}
+
+/* 给不同类型的折叠面板设置不同的颜色 */
+.collapsible-primary .collapsible-header {
+    border-left: 4px solid var(--primary-color);
+}
+
+.collapsible-success .collapsible-header {
+    border-left: 4px solid var(--success-color);
+}
+
+.collapsible-info .collapsible-header {
+    border-left: 4px solid var(--info-color);
+}
+
+.collapsible-warning .collapsible-header {
+    border-left: 4px solid var(--warning-color);
+}
+
+.collapsible-danger .collapsible-header {
+    border-left: 4px solid var(--danger-color);
+}
+
+/* 图标容器样式优化 */
+.icon-container {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    color: white;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 确保折叠面板中的图标正确显示 */
+.collapsible-header .icon-container {
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--primary-green), var(--primary-teal));
+}

@@ -199,7 +199,16 @@
         {{ question.content|safe }}
     </div>
 
-
+    <div class="question-actions">
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="{{ referer }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>返回
+            </a>
+            
+            <div class="d-flex gap-2">
+            </div>
+        </div>
+    </div>
 
     {% if user.is_authenticated %}
     <div class="answer-editor">
