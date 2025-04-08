@@ -2,12 +2,13 @@
 {% load static %}
 
 {% block head %}
-<script>
-    const isAuthenticated = {% if user.is_authenticated %}true{% else %}false{% endif %};
-</script>
 <script src="https://cdn.ckeditor.com/ckeditor5/40.1.0/classic/ckeditor.js"></script>
 <script src="https://cdn.ckeditor.com/ckeditor5/40.1.0/classic/translations/zh-cn.js"></script>
-<script src="{% static 'js/question_detail.js' %}"></script>
+<script>
+    // 使用data属性传递认证状态
+    document.documentElement.setAttribute('data-authenticated', '{{ user.is_authenticated|yesno:"true,false" }}');
+</script>
+<script src="{% static 'js/question_detail.js' %}" defer></script>
 <script src="{% static 'js/ckeditor_init.js' %}"></script>
 <link rel="stylesheet" href="{% static 'css/follow_up.css' %}">
 <style>
@@ -176,6 +177,40 @@
         margin-bottom: 1rem;
         padding: 0.5rem 0;
     }
+
+    /* 美化富文本内容显示 */
+    .question-content, .answer-text {
+        line-height: 1.8;
+        font-size: 1.1rem;
+    }
+
+    .question-content img, .answer-text img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin: 1rem 0;
+    }
+
+    .question-content table, .answer-text table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+    }
+
+    .question-content table th,
+    .question-content table td,
+    .answer-text table th,
+    .answer-text table td {
+        border: 1px solid #dee2e6;
+        padding: 0.75rem;
+    }
+
+    .question-content blockquote, .answer-text blockquote {
+        border-left: 4px solid #28a745;
+        padding-left: 1rem;
+        margin: 1rem 0;
+        color: #6c757d;
+    }
 </style>
 {% endblock %}
 
@@ -196,7 +231,7 @@
     </div>
 
     <div class="question-content">
-        {{ question.content|safe }}
+        {{ question.content|safe }}  <!-- 使用safe过滤器显示富文本内容 -->
     </div>
 
     <div class="question-actions">
@@ -210,19 +245,34 @@
         </div>
     </div>
 
-    {% if user.is_authenticated %}
+    {% if user.is_authenticated and user.expert_profile %}
     <div class="answer-editor">
         <div class="answer-editor-header">
-            <h3>撰写回答</h3>
+            <h3>撰写专家回答</h3>
+            <small class="text-muted">请以专业的角度提供详细的解答</small>
         </div>
-        <form method="post" action="{% url 'expert_qa:post_answer' question.id %}">
+        <form method="post" action="{% url 'expert_qa:post_answer' question.id %}" id="answer-form">
             {% csrf_token %}
-            <textarea name="content" class="rich-editor"></textarea>
-            <div class="form-text text-muted mb-2">支持富文本编辑，可以添加图片、链接等内容</div>
+            <textarea name="content" id="answer-content" class="rich-editor" required></textarea>
+            <div class="form-text text-muted mb-2">支持富文本编辑，可以添加图片、表格等内容</div>
             <div class="text-end mt-3">
-                <button type="submit" class="btn btn-primary">提交回答</button>
+                <button type="submit" class="btn btn-primary" id="submit-answer">
+                    <i class="fas fa-paper-plane me-1"></i>提交回答
+                </button>
             </div>
         </form>
+    </div>
+    {% elif user.is_authenticated %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>只有认证专家可以回答问题
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center">
+        <i class="fas fa-user-lock fa-2x mb-2"></i>
+        <h5>请登录后回答问题</h5>
+        <a href="{% url 'user:login' %}" class="btn btn-primary mt-2">
+            <i class="fas fa-sign-in-alt me-1"></i>立即登录
+        </a>
     </div>
     {% endif %}
 
@@ -236,8 +286,10 @@
                     <span class="author-title">{% if answer.expert.expert_profile %}{{ answer.expert.expert_profile.title }}{% endif %}</span>
                 </div>
             </div>
-            <div class="answer-content">
-                {{ answer.content|safe }}
+            <div class="answer-content my-3">
+                <div class="answer-text">
+                    {{ answer.content|safe }}  <!-- 使用safe过滤器显示富文本内容 -->
+                </div>
             </div>
             <div class="answer-actions">
                 {% if user == question.author and not question.accepted_answer and not answer.is_accepted %}
@@ -269,4 +321,40 @@
         {% endfor %}
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 初始化富文本编辑器
+    if (document.querySelector('#answer-content')) {
+        ClassicEditor
+            .create(document.querySelector('#answer-content'), {
+                language: 'zh-cn',
+                toolbar: [
+                    'heading',
+                    '|',
+                    'bold',
+                    'italic',
+                    'link',
+                    'bulletedList',
+                    'numberedList',
+                    '|',
+                    'indent',
+                    'outdent',
+                    '|',
+                    'imageUpload',
+                    'blockQuote',
+                    'insertTable',
+                    'mediaEmbed',
+                    'undo',
+                    'redo'
+                ]
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
+});
+</script>
 {% endblock %}

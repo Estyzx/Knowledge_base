@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.contrib import messages
 from django.db.models import Q
+from django.urls import reverse  # 添加缺失的reverse导入
 from .models import Question, Answer, ExpertProfile
 
 def question_list(request):
@@ -114,7 +115,8 @@ def ask_question(request, expert_id=None):
     
     return render(request, 'expert_qa/ask_question.html', {
         'expert': expert,
-        'categories': QUESTION_CATEGORIES
+        'categories': QUESTION_CATEGORIES,
+        'use_rich_editor': True  # 添加标记，表示需要使用富文本编辑器
     })
 
 @login_required
@@ -344,6 +346,7 @@ def follow_up_question(request, pk):
         tags = request.POST.get('tags', '')
         
         if title and content:
+            # 不需要修改，因为富文本编辑器的内容已经包含HTML
             follow_up = Question.objects.create(
                 title=title,
                 content=content,
@@ -364,5 +367,6 @@ def follow_up_question(request, pk):
     
     return render(request, 'expert_qa/follow_up_question.html', {
         'parent_question': parent_question,
-        'categories': QUESTION_CATEGORIES
+        'categories': QUESTION_CATEGORIES,
+        'use_rich_editor': True  # 添加标记，表示需要使用富文本编辑器
     })

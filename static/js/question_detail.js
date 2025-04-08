@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // 获取认证状态
+    const isAuthenticated = document.documentElement.getAttribute('data-authenticated') === 'true';
+
     // 投票功能
     const voteButton = document.querySelector('.vote-button');
     if (voteButton) {
@@ -105,53 +108,51 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // 采纳回答功能
-    const acceptButtons = document.querySelectorAll('.accept-answer');
-    acceptButtons.forEach(button => {
-        button.addEventListener('click', async function() {
+    // 处理采纳答案
+    document.querySelectorAll('.accept-answer').forEach(button => {
+        button.addEventListener('click', function() {
             if (!isAuthenticated) {
-                window.location.href = '/user/login/';
+                alert('请先登录');
                 return;
             }
 
             const answerId = this.dataset.answerId;
-            const button = this;
-
-            try {
-                const response = await fetch(`/expert_qa/accept/${answerId}/`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': getCookie('csrftoken'),
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                const data = await response.json();
-                if (data.success) {
-                    // 更新按钮状态
-                    button.style.display = 'none';
-                    const acceptedSpan = document.createElement('span');
-                    acceptedSpan.className = 'text-success';
-                    acceptedSpan.innerHTML = '<i class="fas fa-check-circle"></i> 已采纳';
-                    button.parentNode.appendChild(acceptedSpan);
-
-                    // 移除其他答案的采纳按钮
-                    acceptButtons.forEach(otherButton => {
-                        if (otherButton !== button) {
-                            otherButton.style.display = 'none';
-                        }
-                    });
-
-                    alert('回答已成功采纳！');
-                } else {
-                    throw new Error(data.message || '操作失败');
+            fetch(`/expert_qa/accept_answer/${answerId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCsrfToken(),
+                    'Content-Type': 'application/json'
                 }
-            } catch (error) {
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.message || '操作失败');
+                }
+            })
+            .catch(error => {
                 console.error('Error:', error);
-                alert('操作失败：' + error.message);
-            }
+                alert('操作失败，请稍后重试');
+            });
         });
     });
+
+    // 获取CSRF Token
+    function getCsrfToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    }
+
+    // 处理回答表单提交
+    const answerForm = document.getElementById('answer-form');
+    if (answerForm) {
+        answerForm.addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('submit-answer');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>提交中...';
+        });
+    }
 
     // 辅助函数
     function getCookie(name) {

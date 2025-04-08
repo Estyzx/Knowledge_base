@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block head %}
+<script src="https://cdn.ckeditor.com/ckeditor5/40.1.0/classic/ckeditor.js"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/40.1.0/classic/translations/zh-cn.js"></script>
+{% endblock %}
+
 {% block main %}
 <div class="ask-question-container">
     <div class="row">
@@ -82,7 +87,7 @@
                         
                         <div class="mb-3">
                             <label for="content" class="form-label">问题详情</label>
-                            <textarea class="form-control" id="content" name="content" rows="8" required></textarea>
+                            <textarea class="form-control rich-editor" id="content" name="content" rows="8" required></textarea>
                             <div class="form-text">详细描述您的问题，包括您已经尝试过的解决方法</div>
                         </div>
                         
@@ -114,5 +119,33 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- 可以添加富文本编辑器等脚本 -->
+<script>
+    ClassicEditor
+        .create(document.querySelector('.rich-editor'), {
+            language: 'zh-cn',
+            toolbar: {
+                items: [
+                    'heading',
+                    '|',
+                    'bold',
+                    'italic',
+                    'link',
+                    'bulletedList',
+                    'numberedList',
+                    '|',
+                    'outdent',
+                    'indent',
+                    '|',
+                    'imageUpload',
+                    'blockQuote',
+                    'insertTable',
+                    'undo',
+                    'redo'
+                ]
+            }
+        })
+        .catch(error => {
+            console.error(error);
+        });
+</script>
 {% endblock %}
