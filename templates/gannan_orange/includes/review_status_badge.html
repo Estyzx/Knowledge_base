@@ -1,0 +1,13 @@
+{% if status == 'pending' %}
+<span class="badge bg-warning" title="待审核">
+    <i class="fas fa-clock me-1"></i>待审核
+</span>
+{% elif status == 'approved' %}
+<span class="badge bg-success" title="已通过">
+    <i class="fas fa-check me-1"></i>已通过
+</span>
+{% elif status == 'rejected' %}
+<span class="badge bg-danger" title="已拒绝">
+    <i class="fas fa-times me-1"></i>已拒绝
+</span>
+{% endif %}

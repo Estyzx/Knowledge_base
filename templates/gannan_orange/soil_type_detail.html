@@ -14,6 +14,11 @@
     <!-- 引用外部CSS文件 -->
     <link rel="stylesheet" href="{% static 'css/soil_detail.css' %}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="{% static 'css/collapsible.css' %}">
+    <!-- 使用本地jQuery -->
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <!-- 引入折叠面板脚本 -->
+    <script src="{% static 'js/collapsible.js' %}" defer></script>
 {% endblock %}
 
 {% block main %}
@@ -263,7 +268,7 @@
                             </h5>
                             <i class="fas fa-chevron-down toggle-icon"></i>
                         </div>
-                        <div class="collapsible-body" style="overflow: visible !important; height: auto !重要;">
+                        <div class="collapsible-body" style="overflow: visible !important; height: auto !important;">
                             {% if soil.management_recommendations %}
                             <div class="desc-content">
                                 {{ soil.management_recommendations|linebreaks }}
@@ -433,6 +438,20 @@
             // 触发窗口大小调整，确保布局重新计算
             $(window).trigger('resize');
         }, 300);
+    });
+
+    // 确保折叠面板正常工作的额外脚本
+    $(document).ready(function() {
+        // 如果全局初始化函数存在则调用
+        if (typeof window.initializeCollapsiblePanels === 'function') {
+            window.initializeCollapsiblePanels();
+        }
+        
+        // 确保折叠面板能够正确显示内容
+        $('.collapsible-body').css({
+            'overflow': 'visible !important',
+            'max-height': 'none !important'
+        });
     });
 </script>
 {% endblock %}

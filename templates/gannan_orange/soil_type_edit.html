@@ -98,7 +98,7 @@
                     {% endif %}
 
                     <!-- 审核操作 -->
-                    {% if user.is_staff %}
+                    {% if user.is_staff or user.is_expert %}
                     <div class="form-section">
                         <h3><i class="fas fa-gavel form-icon"></i>审核操作</h3>
                         <div class="row g-4">

@@ -1,0 +1,40 @@
+/* 性能优化样式 - 减少不必要的动画和过渡效果 */
+
+/* 禁用动画类 */
+.no-animation {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+}
+
+/* 表单元素优化 */
+form input, form textarea, form select, form button {
+    transition-duration: 0.1s !important;
+    animation-duration: 0.1s !important;
+    will-change: auto !important;
+}
+
+/* 减少滚动动画和过渡效果 */
+.scroll-fade {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+}
+
+/* 禁用延迟 */
+.delay-1, .delay-2, .delay-3, .delay-4, .delay-5, .delay-6,
+.delay-100, .delay-200, .delay-300, .delay-400, .delay-500 {
+    animation-delay: 0s !important;
+}
+
+/* 降低骨架屏动画性能消耗 */
+.skeleton, .skeleton-text, .skeleton-circle {
+    animation-duration: 2s !important;
+    animation-timing-function: linear !important;
+}
+
+/* 优化页面首次加载 */
+body {
+    will-change: auto;
+    content-visibility: auto;
+}

@@ -34,6 +34,183 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // 格式化时间工具函数 - 保证时间格式一致性
+    const formatTime = (timeStr) => {
+        if (!timeStr) return '刚刚';
+        
+        // 统一时间格式为 "MM-DD HH:MM" 或 "X分钟前"
+        try {
+            const date = new Date(timeStr);
+            if (isNaN(date.getTime())) {
+                // 如果不是有效日期，直接返回原始字符串
+                return timeStr;
+            }
+            
+            const now = new Date();
+            
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            
+            // 如果是当前年份，不显示年份
+            const currentYear = new Date().getFullYear();
+            return `${month}-${day} ${hours}:${minutes}`;
+        } catch (error) {
+            console.warn('时间格式化错误:', error);
+            return timeStr;
+        }
+    };
+
+    // 创建评论元素的函数
+    function createCommentElement(comment) {
+        if (!comment || typeof comment !== 'object') {
+            console.error('Invalid comment object');
+            return null;
+        }
+
+        // 确保所有必需的属性都存在
+        const defaultComment = {
+            id: Date.now(), // 如果没有ID，使用时间戳作为临时ID
+            author_name: '匿名用户',
+            content: '',
+            created_time: '刚刚',
+            is_author: false,
+            can_delete: false,
+            parent_id: null,  // 添加父评论ID属性，用于判断是否为回复
+            parent_author_name: null  // 添加父评论作者名称
+        };
+        
+        // 合并默认值和实际评论数据
+        comment = { ...defaultComment, ...comment };
+        
+        // 格式化时间 - 使用新增的格式化函数确保一致性
+        const formattedTime = formatTime(comment.created_time);
+        
+        // 判断是否为回复
+        const isReply = comment.parent_id !== null;
+        
+        if (isReply) {
+            // 创建回复元素 - 使用与模板相同的结构
+            const replyDiv = document.createElement('div');
+            replyDiv.className = 'reply mb-3';
+            replyDiv.id = `comment-${comment.id}`;
+            
+            // 确保parent_author_name存在
+            if (!comment.parent_author_name && comment.parent_id) {
+                // 尝试从DOM中获取父评论作者名称
+                const parentComment = document.getElementById(`comment-${comment.parent_id}`);
+                if (parentComment) {
+                    const parentAuthorElement = parentComment.querySelector('strong');
+                    comment.parent_author_name = parentAuthorElement ? parentAuthorElement.textContent : '用户';
+                } else {
+                    comment.parent_author_name = '用户';
+                }
+            }
+            
+            replyDiv.innerHTML = `
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <strong class="text-success">${comment.author_name || '匿名用户'}</strong>
+                        ${comment.is_author ? '<span class="badge bg-success ms-1">作者</span>' : ''}
+                        <span class="text-muted">回复了</span>
+                        <strong>${comment.parent_author_name || '用户'}</strong>
+                    </div>
+                    <small class="text-muted">${formattedTime}</small>
+                </div>
+                <div class="mt-2">${comment.content || ''}</div>
+            `;
+            
+            return replyDiv;
+        }
+        
+        // 以下是普通评论的创建逻辑
+        const commentDiv = document.createElement('div');
+        commentDiv.className = 'comment-card mb-4'; // 添加底部间距
+        commentDiv.id = `comment-${comment.id}`;
+    
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'comment-header';
+    
+        const headerContent = `
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-user-circle me-2 text-success"></i>
+                    <strong>${comment.author_name || '匿名用户'}</strong>
+                    ${comment.is_author ? '<span class="badge bg-success ms-2">作者</span>' : ''}
+                </div>
+                <div class="text-muted small">
+                    <i class="fas fa-clock me-1"></i>
+                    ${formattedTime}
+                </div>
+            </div>
+        `;
+        headerDiv.innerHTML = headerContent;
+    
+        // 创建评论内容和操作按钮的容器
+        const bodyDiv = document.createElement('div');
+        bodyDiv.className = 'comment-body';
+    
+        // 添加评论内容
+        bodyDiv.innerHTML = `
+            <div class="mb-3">${comment.content || ''}</div>
+        `;
+    
+    
+        // 添加操作按钮
+        bodyDiv.innerHTML += `
+            <div class="mt-3 text-end">
+                <button class="btn btn-sm btn-outline-secondary rounded-pill reply-btn" data-comment-id="${comment.id}">
+                    <i class="fas fa-reply me-1"></i>回复
+                </button>
+                ${comment.can_delete ? `
+                    <button class="btn btn-sm btn-outline-danger rounded-pill delete-comment-btn ms-2" data-comment-id="${comment.id}">
+                        <i class="fas fa-trash-alt me-1"></i>删除
+                    </button>
+                ` : ''}
+            </div>
+        `;
+    
+        // 获取CSRF token，添加错误处理
+        let csrfToken = '';
+        try {
+            const csrfElement = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (csrfElement) {
+                csrfToken = csrfElement.value;
+            } else {
+                console.warn('CSRF token element not found');
+            }
+        } catch (error) {
+            console.error('Error getting CSRF token:', error);
+        }
+    
+        // 添加回复表单 - 移除事件监听器绑定
+        bodyDiv.innerHTML += `
+            <div class="reply-form mt-3" id="reply-form-${comment.id}" style="display: none;">
+                <form method="post" action="" class="needs-validation" novalidate>
+                    <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
+                    <input type="hidden" name="parent_id" value="${comment.id}">
+                    <div class="form-group mb-2">
+                        <textarea name="content" class="form-control" placeholder="回复 ${comment.author_name || ''}..." style="height: 80px; border-radius: 10px;"></textarea>
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill me-2 cancel-reply-btn" data-comment-id="${comment.id}">
+                            取消
+                        </button>
+                        <button type="submit" class="btn btn-sm btn-success rounded-pill">
+                            <i class="fas fa-paper-plane me-1"></i>提交回复
+                        </button>
+                    </div>
+                </form>
+            </div>
+        `;
+    
+        commentDiv.appendChild(headerDiv);
+        commentDiv.appendChild(bodyDiv);
+    
+        return commentDiv;
+    }
+
     // 评论表单异步提交
     const commentForm = document.getElementById('comment-form');
     if (commentForm) {
@@ -201,76 +378,91 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // 评论回复功能
-    const replyBtns = document.querySelectorAll('.reply-btn');
-    const cancelReplyBtns = document.querySelectorAll('.cancel-reply-btn');
-
-    replyBtns.forEach(btn => {
-        btn.addEventListener('click', function () {
-            const commentId = this.dataset.commentId;
+    // 使用事件委托处理所有回复按钮点击，包括动态添加的
+    document.addEventListener('click', function(e) {
+        // 回复按钮点击处理
+        if (e.target && (e.target.classList.contains('reply-btn') || e.target.closest('.reply-btn'))) {
+            const replyBtn = e.target.classList.contains('reply-btn') ? e.target : e.target.closest('.reply-btn');
+            const commentId = replyBtn.dataset.commentId;
             const replyForm = document.getElementById(`reply-form-${commentId}`);
             
-            // 隐藏其他所有回复表单
+            if (!replyForm) {
+                console.warn(`回复表单未找到，评论ID: ${commentId}`);
+                return;
+            }
+            
+            // 隐藏所有其他回复表单
             document.querySelectorAll('.reply-form').forEach(form => {
                 if (form && form !== replyForm) {
                     form.style.display = 'none';
                 }
             });
-
-            // 切换当前回复表单的显示状态
-            if (replyForm) {
-                replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
-            }
-        });
-    });
-
-    cancelReplyBtns.forEach(btn => {
-        btn.addEventListener('click', function () {
-            const commentId = this.dataset.commentId;
-            const replyForm = document.getElementById(`reply-form-${commentId}`);
-            if (!replyForm) {
-                console.warn(`Reply form not found for comment ${commentId}`);
-                return;
-            }
-            replyForm.style.display = 'none';
             
-            // 清空表单内容
-            if (replyForm) {
-                const textarea = replyForm.querySelector('textarea');
-                if (textarea) {
-                    textarea.value = '';
-                    textarea.classList.remove('is-invalid');
-                }
-            }
-        });
-    });
-
-    // 处理回复表单提交
-    const replyForms = document.querySelectorAll('.reply-form form');
-    replyForms.forEach(form => {
-        form.addEventListener('submit', function (e) {
-            e.preventDefault();
-            const textarea = this.querySelector('textarea');
-            const content = textarea.value.trim();
-
-            if (!content) {
-                textarea.classList.add('is-invalid');
+            // 切换当前回复表单显示状态
+            replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        // 取消回复按钮点击处理
+        if (e.target && (e.target.classList.contains('cancel-reply-btn') || e.target.closest('.cancel-reply-btn'))) {
+            const cancelBtn = e.target.classList.contains('cancel-reply-btn') ? e.target : e.target.closest('.cancel-reply-btn');
+            const commentId = cancelBtn.dataset.commentId;
+            const replyForm = document.getElementById(`reply-form-${commentId}`);
+            
+            if (!replyForm) {
+                console.warn(`回复表单未找到，评论ID: ${commentId}`);
                 return;
             }
+            
+            // 隐藏回复表单并清空内容
+            replyForm.style.display = 'none';
+            const textarea = replyForm.querySelector('textarea');
+            if (textarea) {
+                textarea.value = '';
+                textarea.classList.remove('is-invalid');
+            }
+        }
+    });
 
+    // 使用事件委托处理所有回复表单提交，包括动态添加的
+    document.addEventListener('submit', function(e) {
+        // 检查是否是回复表单
+        if (e.target && e.target.closest('.reply-form')) {
+            e.preventDefault();
+            const form = e.target;
+            const textarea = form.querySelector('textarea');
+            const content = textarea ? textarea.value.trim() : '';
+            
+            if (!content) {
+                if (textarea) textarea.classList.add('is-invalid');
+                return;
+            }
+            
+            const parentId = form.querySelector('input[name="parent_id"]').value;
+            if (!parentId) {
+                console.error('找不到父评论ID');
+                return;
+            }
+            
             const csrfToken = getCsrfToken();
             if (!csrfToken) {
                 handleError(new Error('CSRF Token not found'), '无法获取CSRF Token', {autoClose: true});
                 return;
             }
-
+            
+            // 显示加载状态
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>提交中...';
+            }
+            
             fetch(window.location.href, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': csrfToken,
                     'X-Requested-With': 'XMLHttpRequest'
                 },
-                body: new FormData(this)
+                body: new FormData(form)
             })
             .then(response => {
                 if (!response.ok) {
@@ -279,89 +471,61 @@ document.addEventListener('DOMContentLoaded', function () {
                 return response.json();
             })
             .then(data => {
-                if (data.status === 'success') {
+                // 恢复按钮状态
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>提交回复';
+                }
+                
+                if (data.status === 'success' && data.comment) {
+                    console.log('收到回复数据:', data.comment);
+                    
                     // 清空表单并隐藏
-                    textarea.value = '';
-                    textarea.classList.remove('is-invalid');
-                    form.parentElement.style.display = 'none';
-
+                    if (textarea) {
+                        textarea.value = '';
+                        textarea.classList.remove('is-invalid');
+                    }
+                    const replyFormContainer = form.closest('.reply-form');
+                    if (replyFormContainer) {
+                        replyFormContainer.style.display = 'none';
+                    }
+                    
                     // 创建新回复元素
                     const newReply = createCommentElement(data.comment);
-                    
-                    // 检查新回复元素是否成功创建
                     if (!newReply) {
-                        console.error('创建回复元素失败');
-                        alert('创建回复失败，请刷新页面或稍后再试。');
-                        return;
+                        throw new Error('创建回复元素失败');
                     }
                     
-                    try {
-                        // 获取父评论ID，确保从正确的位置获取
-                        const parentId = data.comment && data.comment.parent_id ? data.comment.parent_id : data.parent_id;
+                    // 查找父评论容器
+                    const parentComment = document.getElementById(`comment-${parentId}`);
+                    if (!parentComment) {
+                        throw new Error(`找不到父评论元素: ${parentId}`);
+                    }
+                    
+                    // 查找父评论的comment-body元素
+                    const commentBody = parentComment.querySelector('.comment-body');
+                    if (!commentBody) {
+                        throw new Error(`找不到父评论的body元素: ${parentId}`);
+                    }
+                    
+                    // 查找或创建回复容器
+                    let repliesContainer = commentBody.querySelector('.replies');
+                    if (!repliesContainer) {
+                        repliesContainer = document.createElement('div');
+                        repliesContainer.className = 'replies mt-3 border-start ps-3';
                         
-                        if (!parentId) {
-                            throw new Error('父评论ID不存在');
-                        }
-                        
-                        const parentComment = document.getElementById(`comment-${parentId}`);
-                        
-                        // 检查父评论元素是否存在
-                        if (!parentComment) {
-                            throw new Error(`父评论元素不存在，ID: ${parentId}`);
-                        }
-                        
-                        // 获取父评论作者名称
-                        const parentAuthorElement = parentComment.querySelector('strong');
-                        const parentAuthorName = parentAuthorElement ? parentAuthorElement.textContent : '用户';
-                        
-                        // 确保回复数据包含父评论信息
-                        if (data.comment) {
-                            data.comment.parent_id = parentId;
-                            data.comment.parent_author_name = parentAuthorName;
-                        }
-                        
-                        // 重新创建回复元素，确保使用更新后的数据
-                        const newReply = createCommentElement(data.comment);
-                        
-                        // 安全地获取回复容器
-                        const repliesContainer = parentComment.querySelector('.replies');
-                        
-                        if (repliesContainer) {
-                            // 将新回复插入到回复容器的最前面
-                            const firstReply = repliesContainer.querySelector('.reply');
-                            if (firstReply) {
-                                // 如果已有回复，将新回复插入到第一条回复前面
-                                repliesContainer.insertBefore(newReply, firstReply);
-                            } else {
-                                // 如果没有回复，将新回复添加到容器的末尾
-                                repliesContainer.appendChild(newReply);
-                            }
+                        // 将回复容器插入到评论体内，但在回复表单之前
+                        const replyForm = commentBody.querySelector('.reply-form');
+                        if (replyForm) {
+                            commentBody.insertBefore(repliesContainer, replyForm);
                         } else {
-                            // 如果还没有回复容器，创建一个
-                            const newRepliesContainer = document.createElement('div');
-                            newRepliesContainer.className = 'replies mt-3 ms-4 border-start ps-3';
-                            newRepliesContainer.appendChild(newReply);
-                            parentComment.appendChild(newRepliesContainer);
-                        }
-                    } catch (error) {
-                        console.error('处理回复时出错:', error.message);
-                        // 出错时，将回复作为普通评论添加到评论列表
-                        const commentsContainer = document.querySelector('.article-container .mt-5');
-                        if (commentsContainer) {
-                            // 将新回复作为普通评论添加到评论列表的最前面
-                            const firstComment = commentsContainer.querySelector('.comment-card');
-                            if (firstComment) {
-                                // 如果已有评论，将新回复插入到第一条评论前面
-                                commentsContainer.insertBefore(newReply, firstComment);
-                            } else {
-                                // 如果没有评论，将新回复添加到容器的末尾
-                                commentsContainer.appendChild(newReply);
-                            }
-                        } else {
-                            console.error('无法找到评论容器，无法添加回复');
+                            commentBody.appendChild(repliesContainer);
                         }
                     }
-
+                    
+                    // 添加新回复到容器
+                    repliesContainer.appendChild(newReply);
+                    
                     // 显示成功提示
                     Swal.fire({
                         icon: 'success',
@@ -375,6 +539,13 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .catch(error => {
                 console.error('Error:', error);
+                
+                // 恢复按钮状态
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>提交回复';
+                }
+                
                 Swal.fire({
                     icon: 'error',
                     title: '回复发表失败',
@@ -382,7 +553,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     confirmButtonText: '确定'
                 });
             });
-        });
+        }
     });
 
     // 标签和分类筛选动画
@@ -526,215 +697,3 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
-
-
-// 创建评论元素的函数
-function createCommentElement(comment) {
-    if (!comment || typeof comment !== 'object') {
-        console.error('Invalid comment object');
-        return null;
-    }
-
-    // 确保所有必需的属性都存在
-    const defaultComment = {
-        id: Date.now(), // 如果没有ID，使用时间戳作为临时ID
-        author_name: '匿名用户',
-        content: '',
-        created_time: '刚刚',
-        is_author: false,
-        can_delete: false,
-        parent_id: null,  // 添加父评论ID属性，用于判断是否为回复
-        parent_author_name: null  // 添加父评论作者名称
-    };
-    
-    // 合并默认值和实际评论数据
-    comment = { ...defaultComment, ...comment };
-    
-    // 格式化时间 - 使用新增的格式化函数确保一致性
-    const formattedTime = formatTime(comment.created_time);
-    
-    // 判断是否为回复
-    const isReply = comment.parent_id !== null;
-    
-    if (isReply) {
-        // 创建回复元素 - 使用与模板相同的结构
-        const replyDiv = document.createElement('div');
-        replyDiv.className = 'reply mb-3';
-        replyDiv.id = `comment-${comment.id}`;
-        
-        replyDiv.innerHTML = `
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <strong class="text-success">${comment.author_name || '匿名用户'}</strong>
-                    ${comment.is_author ? '<span class="badge bg-success ms-1">作者</span>' : ''}
-                    <span class="text-muted">回复了</span>
-                    <strong>${comment.parent_author_name || '用户'}</strong>
-                </div>
-                <small class="text-muted">${formattedTime}</small>
-            </div>
-            <div class="mt-2">${comment.content || ''}</div>
-        `;
-        
-        return replyDiv;
-    }
-    
-    // 以下是普通评论的创建逻辑
-    const commentDiv = document.createElement('div');
-    commentDiv.className = 'comment-card mb-4'; // 添加底部间距
-    commentDiv.id = `comment-${comment.id}`;
-
-    const headerDiv = document.createElement('div');
-    headerDiv.className = 'comment-header';
-
-    const headerContent = `
-        <div class="d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center">
-                <i class="fas fa-user-circle me-2 text-success"></i>
-                <strong>${comment.author_name || '匿名用户'}</strong>
-                ${comment.is_author ? '<span class="badge bg-success ms-2">作者</span>' : ''}
-            </div>
-            <div class="text-muted small">
-                <i class="fas fa-clock me-1"></i>
-                ${formattedTime}
-            </div>
-        </div>
-    `;
-    headerDiv.innerHTML = headerContent;
-
-    // 创建评论内容和操作按钮的容器
-    const bodyDiv = document.createElement('div');
-    bodyDiv.className = 'comment-body';
-
-    // 添加评论内容
-    bodyDiv.innerHTML = `
-        <div class="mb-3">${comment.content || ''}</div>
-    `;
-
-
-    // 添加操作按钮
-    bodyDiv.innerHTML += `
-        <div class="mt-3 text-end">
-            <button class="btn btn-sm btn-outline-secondary rounded-pill reply-btn" data-comment-id="${comment.id}">
-                <i class="fas fa-reply me-1"></i>回复
-            </button>
-            ${comment.can_delete ? `
-                <button class="btn btn-sm btn-outline-danger rounded-pill delete-comment-btn ms-2" data-comment-id="${comment.id}">
-                    <i class="fas fa-trash-alt me-1"></i>删除
-                </button>
-            ` : ''}
-        </div>
-    `;
-
-    // 获取CSRF token，添加错误处理
-    let csrfToken = '';
-    try {
-        const csrfElement = document.querySelector('[name=csrfmiddlewaretoken]');
-        if (csrfElement) {
-            csrfToken = csrfElement.value;
-        } else {
-            console.warn('CSRF token element not found');
-        }
-    } catch (error) {
-        console.error('Error getting CSRF token:', error);
-    }
-
-    // 添加回复表单
-    bodyDiv.innerHTML += `
-        <div class="reply-form mt-3" id="reply-form-${comment.id}" style="display: none;">
-            <form method="post" action="" class="needs-validation" novalidate>
-                <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
-                <input type="hidden" name="parent_id" value="${comment.id}">
-                <div class="form-group mb-2">
-                    <textarea name="content" class="form-control" placeholder="回复 ${comment.author_name || ''}..." style="height: 80px; border-radius: 10px;"></textarea>
-                </div>
-                <div class="text-end">
-                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill me-2 cancel-reply-btn" data-comment-id="${comment.id}">
-                        取消
-                    </button>
-                    <button type="submit" class="btn btn-sm btn-success rounded-pill">
-                        <i class="fas fa-paper-plane me-1"></i>提交回复
-                    </button>
-                </div>
-            </form>
-        </div>
-    `;
-
-    commentDiv.appendChild(headerDiv);
-    commentDiv.appendChild(bodyDiv);
-
-    // 为新创建的回复按钮添加事件监听器，添加错误处理
-    const replyBtn = bodyDiv.querySelector('.reply-btn');
-    if (replyBtn) {
-        replyBtn.addEventListener('click', function() {
-            try {
-                const replyForm = document.getElementById(`reply-form-${comment.id}`);
-                if (!replyForm) {
-                    console.warn(`Reply form not found for comment ${comment.id}`);
-                    return;
-                }
-                
-                // 隐藏其他所有回复表单
-                document.querySelectorAll('.reply-form').forEach(form => {
-                    if (form && form !== replyForm) {
-                        form.style.display = 'none';
-                    }
-                });
-
-                // 切换当前回复表单的显示状态
-                replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
-            } catch (error) {
-                console.error(`处理回复按钮点击时出错: ${error.message}`);
-            }
-        });
-    }
-
-    // 为新创建的取消回复按钮添加事件监听器
-    const cancelReplyBtn = bodyDiv.querySelector('.cancel-reply-btn');
-    if (cancelReplyBtn) {
-        cancelReplyBtn.addEventListener('click', function() {
-            const replyForm = document.getElementById(`reply-form-${comment.id}`);
-            if (!replyForm) {
-                console.warn(`Reply form not found for comment ${comment.id}`);
-                return;
-            }
-            replyForm.style.display = 'none';
-            
-            // 清空表单内容
-            const textarea = replyForm.querySelector('textarea');
-            if (textarea) {
-                textarea.value = '';
-                textarea.classList.remove('is-invalid');
-            }
-        });
-   }
-
-    return commentDiv;
-}
-
-// 格式化时间工具函数 - 保证时间格式一致性
-const formatTime = (timeStr) => {
-    if (!timeStr) return '刚刚';
-    
-    // 统一时间格式为 "MM-DD HH:MM" 或 "X分钟前"
-    try {
-        const date = new Date(timeStr);
-        if (isNaN(date.getTime())) {
-            // 如果不是有效日期，直接返回原始字符串
-            return timeStr;
-        }
-        
-        const now = new Date();
-        
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        
-        // 如果是当前年份，不显示年份
-        const currentYear = new Date().getFullYear();
-        return `${month}-${day} ${hours}:${minutes}`;
-    } catch (error) {
-        console.warn('时间格式化错误:', error);
-        return timeStr;
-    }
-};

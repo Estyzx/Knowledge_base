@@ -83,29 +83,50 @@ $(document).ready(function() {
     ensureIconsVisible();
     setTimeout(ensureIconsVisible, 500);
     
-    // 折叠面板实现
-    $('.collapsible-header').on('click', function() {
-        const $header = $(this);
-        const $body = $header.next('.collapsible-body');
-        const $icon = $header.find('.toggle-icon');
-        const isExpanded = $header.hasClass('expanded');
+    // 防止重复绑定折叠面板事件
+    if(!window.collapsibleInitialized) {
+        // 折叠面板实现 - 移除原有的点击事件绑定
+        $('.collapsible-header').off('click');
         
-        if (isExpanded) {
-            $body.slideUp(200);
-            $header.removeClass('expanded');
-            $icon.css('transform', 'rotate(0deg)');
-        } else {
-            $body.slideDown(200);
-            $header.addClass('expanded');
-            $icon.css('transform', 'rotate(180deg)');
-        }
-    });
+        // 重新绑定点击事件
+        $('.collapsible-header').on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const $header = $(this);
+            const $body = $header.next('.collapsible-body');
+            const $icon = $header.find('.toggle-icon');
+            const isExpanded = $header.hasClass('expanded');
+            
+            if (isExpanded) {
+                $body.slideUp(200);
+                $header.removeClass('expanded');
+                $icon.css('transform', 'rotate(0deg)');
+                $header.attr('aria-expanded', 'false');
+            } else {
+                $body.slideDown(200);
+                $header.addClass('expanded');
+                $icon.css('transform', 'rotate(180deg)');
+                $header.attr('aria-expanded', 'true');
+            }
+        });
+        
+        // 标记已初始化状态
+        window.collapsibleInitialized = true;
+    }
     
     // 改进初始化折叠面板状态的代码以确保正确显示
     $('.collapsible-section').each(function() {
         const $header = $(this).find('.collapsible-header');
         const $body = $(this).find('.collapsible-body');
         const isExpanded = $header.attr('aria-expanded') === 'true';
+        
+        // 确保内容可见性属性正确
+        $body.css({
+            'overflow': 'visible',
+            'height': 'auto',
+            'max-height': 'none'
+        });
         
         if (isExpanded) {
             $body.show();

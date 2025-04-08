@@ -32,6 +32,10 @@ urlpatterns = [
     path('review/pest/<int:id>', views.PestReviewView.as_view(), name='review_pest'),
     path('review/soil/<int:id>', views.SoilTypeReviewView.as_view(), name='review_soil'),
     
+    # 审核相关API端点
+    path('api/review-history/<str:content_type>/<int:content_id>/', api_views.review_history_api, name='review_history_api'),
+    path('api/review/<str:content_type>/<int:content_id>/', api_views.quick_review_api, name='quick_review_api'),
+    
     # 添加天气API端点
     path('api/weather/', api_views.weather_api, name='weather_api'),
 ]

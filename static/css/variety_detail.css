@@ -1,32 +1,38 @@
 /* 品种详情页面专用样式 */
 
+/* 背景渐变 */
+body {
+    background: linear-gradient(135deg, #ecf0f1 0%, #d6eaf8 100%);
+    background-attachment: fixed;
+    background-size: cover;
+}
+
 /* 毛玻璃效果卡片 */
 .glass-card {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    border-radius: var(--border-radius-lg);
-    transition: all 0.4s ease;
+    background: #ffffff; /* 完全不透明 */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    backdrop-filter: none; /* 移除模糊效果 */
 }
 
 .glass-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
     border-left: 3px solid var(--primary-color);
 }
 
 /* 品种名称标题样式 */
 .variety-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    background: linear-gradient(120deg, #fff, #fff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 1rem;
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: white; /* 使用纯色而非渐变 */
     letter-spacing: -0.5px;
-    line-height: 1.2;
+    line-height: 1.1;
+    -webkit-background-clip: initial;
+    background-clip: initial;
+    background: none;
+    text-shadow: none;
 }
+
 /* 品种信息卡片 */
 .info-card {
     border-radius: var(--border-radius-md);
@@ -48,6 +54,7 @@
     background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
     z-index: -1;
     transition: all 0.4s ease;
+    opacity: 0; /* 移除透明度效果 */
 }
 
 .info-card:hover::before {
@@ -57,22 +64,25 @@
 
 /* 特性指标样式 */
 .stat-item {
-    position: relative;
-    overflow: hidden;
-    border-radius: var(--border-radius-md);
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
     transition: all 0.3s ease;
 }
 
 .stat-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    border-left: 3px solid var(--primary-color);
 }
 
 /* 进度条样式 */
 .tolerance-bar {
-    height: 8px;
+    height: 10px;
     border-radius: 4px;
-    background-color: rgba(0, 0, 0, 0.1);
+    background: #ecf0f1;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
     margin-top: 0.5rem;
     overflow: hidden;
 }
@@ -80,7 +90,7 @@
 .tolerance-bar .progress {
     height: 100%;
     border-radius: 4px;
-    transition: width 1s ease-in-out;
+    transition: width 1.5s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 .tolerance-low .progress { width: 33%; background-color: var(--danger-color); }
@@ -89,21 +99,31 @@
 
 /* 图标容器 */
 .icon-container {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-right: 1rem;
-    background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.icon-container:hover {
+    transform: rotate(10deg) scale(1.15);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
 }
 
 .icon-container i {
-    font-size: 1.5rem;
+    font-size: 1.7rem;
     color: white;
+}
+
+/* 基础信息图标颜色 */
+.icon-container[style*="background"] {
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* 标签样式 */
@@ -115,19 +135,22 @@
 }
 
 .feature-tag {
-    padding: 0.5rem 1rem;
-    border-radius: var(--border-radius-pill);
-    font-size: 0.85rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 0.7rem 1.4rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
     display: inline-flex;
     align-items: center;
+    color: white;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 }
 
 .feature-tag:hover {
-    transform: translateY(-2px) scale(1.05);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    transform: translateY(-5px) scale(1.08);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
 }
 
 .feature-tag i {
@@ -138,7 +161,7 @@
 @keyframes fadeInUp {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(40px);
     }
     to {
         opacity: 1;
@@ -147,20 +170,20 @@
 }
 
 .animate-fadeInUp {
-    animation: fadeInUp 0.5s ease-out forwards;
+    animation: fadeInUp 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
 }
 
 /* 延迟动画 */
 .delay-1 { animation-delay: 0.1s; }
 .delay-2 { animation-delay: 0.2s; }
-.delay-3 { animation-delay: 0.3s; }
-.delay-4 { animation-delay: 0.4s; }
-.delay-5 { animation-delay: 0.5s; }
+.delay-3 { animation-delay: 0.4s; }
+.delay-4 { animation-delay: 0.6s; }
+.delay-5 { animation-delay: 0.8s; }
 
 /* 响应式调整 */
 @media (max-width: 768px) {
     .variety-title {
-        font-size: 1.8rem;
+        font-size: 2rem;
     }
     
     .icon-container {
@@ -171,23 +194,64 @@
     .icon-container i {
         font-size: 1.2rem;
     }
+    
+    .data-value {
+        font-size: 1.5rem;
+    }
+    
+    .stat-item {
+        padding: 1rem;
+    }
 }
 
 /* 特殊背景渐变 */
 .bg-orange-gradient {
-    background: linear-gradient(135deg, var(--primary-orange), var(--accent-light));
+    background: var(--primary-orange);
 }
 
 .bg-teal-gradient {
-    background: linear-gradient(135deg, var(--primary-teal), var(--info-color));
+    background: var(--primary-teal);
 }
 
 .bg-purple-gradient {
-    background: linear-gradient(135deg, var(--primary-purple), #9c8fff);
+    background: var(--primary-purple);
 }
 
 .bg-danger-gradient {
-    background: linear-gradient(135deg, var(--danger-color), #ff6b6b);
+    background: var(--danger-color);
+}
+
+/* 重新定义图标渐变色 */
+[style*="--primary-color"] {
+    background: var(--primary-color) !important;
+}
+
+[style*="--primary-teal"] {
+    background: var(--primary-teal) !important;
+}
+
+[style*="--primary-purple"] {
+    background: var(--primary-purple) !important;
+}
+
+[style*="--primary-orange"] {
+    background: var(--primary-orange) !important;
+}
+
+[style*="--info-color"] {
+    background: var(--info-color) !important;
+}
+
+[style*="--warning-color"] {
+    background: var(--warning-color) !important;
+}
+
+[style*="--success-color"] {
+    background: var(--success-color) !important;
+}
+
+[style*="--danger-color"] {
+    background: var(--danger-color) !important;
 }
 
 /* 图片展示区域 */
@@ -223,31 +287,181 @@
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
 }
 
+/* 更新数据值字体颜色 */
 .data-value {
-    font-size: 2rem;
+    font-size: 1.8rem;
     font-weight: 700;
+    color: black; /* 使用纯深色 */
     margin: 0.5rem 0;
-    color: var(--primary-color);
+    letter-spacing: -0.5px;
+    text-shadow: none;
 }
 
+/* 更新数据标签颜色 */
 .data-label {
     font-size: 0.9rem;
-    color: var(--secondary-color);
+    color: var(--text-secondary); /* 灰色文本 */
     text-transform: uppercase;
     letter-spacing: 1px;
+    font-weight: 600;
+    text-shadow: none;
 }
 
 :root {
-    --primary-color: #ff5733; /* 主色调 */
-    --primary-light: #ff6e40; /* 主色调的浅色版本 */
-    --primary-teal: #008080; /* 深绿色 */
-    --info-color: #00bfff; /* 信息色 */
-    --primary-orange: #ff8000; /* 橙色 */
-    --accent-light: #ffcc80; /* 强调色浅版 */
-    --primary-purple: #800080; /* 紫色 */
-    --primary-cyan: #00ffff; /* 青色 */
-    --danger-color: #ff0000; /* 危险色（红色） */
-    --accent-color: #ffcc80; /* 强调色 */
-    --warning-color: #ffc107; /* 黄色 */
-    --success-color: #28a745; /* 绿色 */
+    --primary-color: #2c8ac9; /* 主蓝色 */
+    --primary-light: #5eb7f0;
+    --primary-dark: #1a6ca5;
+    --primary-teal: #1abc9c; /* 浅绿松石色 */
+    --info-color: #3498db; /* 亮蓝色 */
+    --primary-orange: #f39c12; /* 温暖橙色 */
+    --accent-light: #f1c40f; /* 亮黄色 */
+    --soil-color: #d35400; /* 红棕色 */
+    --primary-purple: #9b59b6; /* 紫色 */
+    --primary-cyan: #34d0eb; /* 天蓝色 */
+    --danger-color: #e74c3c; /* 红色 */
+    --warning-color: #f39c12; /* 橙黄色 */
+    --success-color: #2ecc71; /* 绿色 */
+    --text-primary: #2c3e50; /* 深蓝灰色文本 */
+    --text-secondary: #7f8c8d; /* 灰色文本 */
+    --bg-gradient-start: #ecf0f1; /* 浅灰白色背景起始 */
+    --bg-gradient-end: #d6eaf8; /* 浅蓝色背景结束 */
+    --card-bg: #ffffff; /* 白色卡片背景 */
+    --sidebar-bg: #2c3e50; /* 侧栏深色背景 */
+}
+
+/* 卡片页脚样式 */
+.card-footer {
+    background: #ffffff;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* 现代化折叠面板头部 */
+.collapsible-header {
+    padding: 1.25rem 1.75rem;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+/* 增加页面加载动画效果 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeInUp {
+    animation: fadeInUp 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+}
+
+/* 增加交错动画延迟 */
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.4s; }
+.delay-4 { animation-delay: 0.6s; }
+.delay-5 { animation-delay: 0.8s; }
+
+/* 添加卡片悬停时微妙的缩放效果 */
+.card-body, .collapsible-body {
+    background: rgba(255, 255, 255, 0.95);
+    transition: all 0.4s ease;
+}
+
+.card-body:hover, .collapsible-body:hover {
+    transform: scale(1.005);
+}
+
+/* 添加滚动触发动画 */
+.scroll-reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+.scroll-reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 添加脉冲动画效果用于重要元素 */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.pulse-animation {
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+/* 统一卡片标题样式 */
+.collapsible-header h5 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: white; /* 头部文字使用白色 */
+}
+
+/* 分类特定颜色逻辑设置 */
+
+
+/* 果实特性 - 橙色系 */
+[data-section="fruit"] .icon-container {
+    background: var(--primary-orange) !important;
+}
+
+/* 土壤适应性 - 棕色系 */
+[data-section="soil"] .icon-container {
+    background: var(--soil-color) !important;
+}
+
+/* 病虫害 - 红色系 */
+[data-section="pest"] .icon-container {
+    background: var(--danger-color) !important;
+}
+
+/* 特征标签颜色逻辑优化 */
+.feature-tag[data-type="soil"] {
+    background: var(--soil-color);
+    color: white;
+}
+
+.feature-tag[data-type="tech"] {
+    background: var(--primary-color);
+    color: white;
+}
+
+.feature-tag[data-type="pest"] {
+    background: var(--danger-color);
+    color: white;
+}
+
+/* 重新定义常用UI元素的颜色 */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+.badge.bg-info {
+    background-color: var(--info-color) !important;
+}
+
+.badge.bg-warning {
+    background-color: var(--warning-color) !important;
+}
+
+/* 更新描述文本颜色 */
+.desc-content {
+    color: var(--text-primary);
+    line-height: 1.8;
+    font-size: 1.05rem;
+    text-shadow: none;
 }

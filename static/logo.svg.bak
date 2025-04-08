@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <!-- 背景圆形 -->
+  <circle cx="100" cy="100" r="90" fill="#2c7a47" />
+  
+  <!-- 知识元素 - 书本 -->
+  <path d="M70,70 L70,130 L130,130 L130,70 Z" fill="#f8f9fa" />
+  <path d="M70,70 L70,130 L75,130 L75,70 Z" fill="#e0e0e0" />
+  <path d="M100,70 L100,130" stroke="#e0e0e0" stroke-width="1" />
+  
+  <!-- 农业元素 - 麦穗 -->
+  <path d="M100,50 L100,90" stroke="#ffc107" stroke-width="3" stroke-linecap="round" />
+  
+  <!-- 麦穗左侧 -->
+  <path d="M100,55 L85,45" stroke="#ffc107" stroke-width="2" stroke-linecap="round" />
+  <path d="M100,60 L85,50" stroke="#ffc107" stroke-width="2" stroke-linecap="round" />
+  <path d="M100,65 L85,55" stroke="#ffc107" stroke-width="2" stroke-linecap="round" />
+  <path d="M100,70 L85,60" stroke="#ffc107" stroke-width="2" stroke-linecap="round" />
+  <path d="M100,75 L85,65" stroke="#ffc107" stroke-width="2" stroke-linecap="round" />
+  
+  <!-- 麦穗右侧 -->
+  <path d="M100,55 L115,45" stroke="#ffc107" stroke-width="2" stroke-linecap="round" />
+  <path d="M100,60 L115,50" stroke="#ffc107" stroke-width="2" stroke-linecap="round" />
+  <path d="M100,65 L115,55" stroke="#ffc107" stroke-width="2" stroke-linecap="round" />
+  <path d="M100,70 L115,60" stroke="#ffc107" stroke-width="2" stroke-linecap="round" />
+  <path d="M100,75 L115,65" stroke="#ffc107" stroke-width="2" stroke-linecap="round" />
+  
+  <!-- 叶子元素 -->
+  <path d="M85,90 Q70,80 75,65 Q90,75 85,90" fill="#4CAF50" />
+  <path d="M115,90 Q130,80 125,65 Q110,75 115,90" fill="#4CAF50" />
+  
+  <!-- 文字 -->
+  <text x="100" y="110" font-family="'Microsoft YaHei', sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="white">农业知识</text>
+  <text x="100" y="130" font-family="'Microsoft YaHei', sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="white">平台</text>
+</svg>

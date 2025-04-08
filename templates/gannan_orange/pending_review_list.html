@@ -50,7 +50,53 @@
             color: #ccc;
             margin-bottom: 1rem;
         }
+        
+        .review-summary {
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .summary-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .summary-label {
+            font-size: 0.9rem;
+            color: #777;
+        }
+        
+        .quick-review-btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+        
+        .review-card:hover .quick-review-btn {
+            opacity: 1;
+        }
+        
+        .quick-review-btn {
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+        }
+        
+        .review-card {
+            position: relative;
+        }
+        
+        .review-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            z-index: 1;
+        }
     </style>
+    
+    <script src="{% static 'js/review.js' %}" defer></script>
 {% endblock %}
 
 {% block main %}
@@ -62,38 +108,24 @@
             </a>
         </div>
         
-        <!-- 审核统计 -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title text-success">{{ pending_varieties.count }}</h5>
-                        <p class="card-text">待审核品种</p>
-                    </div>
+        <!-- 审核汇总信息 -->
+        <div class="review-summary">
+            <div class="row text-center">
+                <div class="col-md-3">
+                    <div class="summary-number">{{ pending_varieties|length }}</div>
+                    <div class="summary-label">待审核品种</div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title text-info">{{ pending_planting_techs.count }}</h5>
-                        <p class="card-text">待审核种植技术</p>
-                    </div>
+                <div class="col-md-3">
+                    <div class="summary-number">{{ pending_planting_techs|length }}</div>
+                    <div class="summary-label">待审核种植技术</div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title text-warning">{{ pending_pests.count }}</h5>
-                        <p class="card-text">待审核病虫害</p>
-                    </div>
+                <div class="col-md-3">
+                    <div class="summary-number">{{ pending_pests|length }}</div>
+                    <div class="summary-label">待审核病虫害</div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title text-danger">{{ pending_soil_types.count }}</h5>
-                        <p class="card-text">待审核土壤类型</p>
-                    </div>
+                <div class="col-md-3">
+                    <div class="summary-number">{{ pending_soil_types|length }}</div>
+                    <div class="summary-label">待审核土壤类型</div>
                 </div>
             </div>
         </div>
@@ -106,14 +138,19 @@
                     {% for variety in pending_varieties %}
                         <div class="col-md-6">
                             <div class="review-card">
+                                <div class="review-badge">
+                                    <span class="badge bg-warning rounded-pill">
+                                        <i class="fas fa-clock me-1"></i>待审核
+                                    </span>
+                                </div>
                                 <div class="review-header">
                                     <h5 class="mb-0">{{ variety.name }}</h5>
                                 </div>
                                 <div class="review-body">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <p><strong>学名：</strong> {{ variety.scientific_name|default:"暂无" }}</p>
-                                            <p><strong>原产地：</strong> {{ variety.origin }}</p>
+                                            <p><strong>分类：</strong> {{ variety.get_category_display }}</p>
+                                            <p><strong>成熟期：</strong> {{ variety.get_maturity_type_display|default:"不详" }}</p>
                                         </div>
                                         <div class="col-md-6">
                                             <p><strong>提交时间：</strong> {{ variety.create_time|date:"Y-m-d H:i" }}</p>
@@ -144,14 +181,19 @@
         
         <!-- 待审核种植技术 -->
         <div class="review-section mb-5">
-            <h2 class="section-title"><i class="fas fa-book-open me-2"></i>待审核种植技术</h2>
+            <h2 class="section-title"><i class="fas fa-tractor me-2"></i>待审核种植技术</h2>
             {% if pending_planting_techs %}
                 <div class="row">
                     {% for tech in pending_planting_techs %}
                         <div class="col-md-6">
                             <div class="review-card">
+                                <div class="review-badge">
+                                    <span class="badge bg-warning rounded-pill">
+                                        <i class="fas fa-clock me-1"></i>待审核
+                                    </span>
+                                </div>
                                 <div class="review-header">
-                                    <h5 class="mb-0">{{ tech.title }}</h5>
+                                    <h5 class="mb-0">{{ tech.name }}</h5>
                                 </div>
                                 <div class="review-body">
                                     <div class="row">
@@ -194,14 +236,19 @@
                     {% for pest in pending_pests %}
                         <div class="col-md-6">
                             <div class="review-card">
+                                <div class="review-badge">
+                                    <span class="badge bg-warning rounded-pill">
+                                        <i class="fas fa-clock me-1"></i>待审核
+                                    </span>
+                                </div>
                                 <div class="review-header">
                                     <h5 class="mb-0">{{ pest.name }}</h5>
                                 </div>
                                 <div class="review-body">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <p><strong>学名：</strong> {{ pest.scientific_name|default:"暂无" }}</p>
-                                            <p><strong>类型：</strong> {{ pest.get_pest_type_display }}</p>
+                                            <p><strong>类型：</strong> {{ pest.get_type_display }}</p>
+                                            <p><strong>严重程度：</strong> {{ pest.get_severity_display|default:"不详" }}</p>
                                         </div>
                                         <div class="col-md-6">
                                             <p><strong>提交时间：</strong> {{ pest.create_time|date:"Y-m-d H:i" }}</p>
@@ -231,21 +278,26 @@
         </div>
         
         <!-- 待审核土壤类型 -->
-        <div class="review-section mb-5">
+        <div class="review-section">
             <h2 class="section-title"><i class="fas fa-mountain me-2"></i>待审核土壤类型</h2>
             {% if pending_soil_types %}
                 <div class="row">
                     {% for soil in pending_soil_types %}
                         <div class="col-md-6">
                             <div class="review-card">
+                                <div class="review-badge">
+                                    <span class="badge bg-warning rounded-pill">
+                                        <i class="fas fa-clock me-1"></i>待审核
+                                    </span>
+                                </div>
                                 <div class="review-header">
                                     <h5 class="mb-0">{{ soil.name }}</h5>
                                 </div>
                                 <div class="review-body">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <p><strong>pH值：</strong> {{ soil.ph_value }}</p>
-                                            <p><strong>有机质含量：</strong> {{ soil.organic_matter_content }}%</p>
+                                            <p><strong>土壤质地：</strong> {{ soil.get_texture_display }}</p>
+                                            <p><strong>pH值范围：</strong> {{ soil.ph_range }}</p>
                                         </div>
                                         <div class="col-md-6">
                                             <p><strong>提交时间：</strong> {{ soil.create_time|date:"Y-m-d H:i" }}</p>
@@ -274,4 +326,9 @@
             {% endif %}
         </div>
     </div>
+    
+    {% csrf_token %}
+    
+    <!-- 引入审核历史模态框 -->
+    {% include 'gannan_orange/includes/review_history_modal.html' %}
 {% endblock %}

@@ -275,7 +275,8 @@ class VarietyEdit(LoginRequiredMixin, UpdateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.request.user.is_staff:
+        # 修改：对所有管理员和专家用户提供审核表单，而不仅是管理员
+        if self.request.user.is_staff or getattr(self.request.user, 'is_expert', False):
             context['review_form'] = ReviewForm()
         return context
     
@@ -293,7 +294,7 @@ class VarietyEdit(LoginRequiredMixin, UpdateView):
                 self.object.review_date = timezone.now()
                 self.object.save()
                 # 创建审核历史记录
-                ReviewHistory.objects.create(
+                create_review_history(
                     content_type='variety',
                     content_id=self.object.id,
                     reviewer=request.user,
@@ -417,7 +418,8 @@ class PlantingTechEdit(LoginRequiredMixin, UpdateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.request.user.is_staff:
+        # 修改：对所有管理员和专家用户提供审核表单，而不仅是管理员
+        if self.request.user.is_staff or getattr(self.request.user, 'is_expert', False):
             context['review_form'] = ReviewForm()
         return context
     
@@ -435,7 +437,7 @@ class PlantingTechEdit(LoginRequiredMixin, UpdateView):
                 self.object.review_date = timezone.now()
                 self.object.save()
                 # 创建审核历史记录
-                ReviewHistory.objects.create(
+                create_review_history(
                     content_type='planting_tech',
                     content_id=self.object.id,
                     reviewer=request.user,
@@ -536,7 +538,8 @@ class SoilTypeEdit(LoginRequiredMixin, UpdateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.request.user.is_staff:
+        # 修改：对所有管理员和专家用户提供审核表单，而不仅是管理员
+        if self.request.user.is_staff or getattr(self.request.user, 'is_expert', False):
             context['review_form'] = ReviewForm()
         return context
     
@@ -554,7 +557,7 @@ class SoilTypeEdit(LoginRequiredMixin, UpdateView):
                 self.object.review_date = timezone.now()
                 self.object.save()
                 # 创建审核历史记录
-                ReviewHistory.objects.create(
+                create_review_history(
                     content_type='soil_type',
                     content_id=self.object.id,
                     reviewer=request.user,
@@ -679,7 +682,8 @@ class PestEdit(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.request.user.is_staff:
+        # 修改：对所有管理员和专家用户提供审核表单，而不仅是管理员
+        if self.request.user.is_staff or getattr(self.request.user, 'is_expert', False):
             context['review_form'] = ReviewForm()
         return context
     
@@ -697,7 +701,7 @@ class PestEdit(LoginRequiredMixin, UpdateView):
                 self.object.review_date = timezone.now()
                 self.object.save()
                 # 创建审核历史记录
-                ReviewHistory.objects.create(
+                create_review_history(
                     content_type='pest',
                     content_id=self.object.id,
                     reviewer=request.user,
@@ -768,227 +772,166 @@ class PendingReviewListView(ExpertReviewMixin, TemplateView):
 
 # 审核历史记录
 class ReviewHistoryListView(ExpertReviewMixin, ListView):
-    model = ReviewHistory
     template_name = 'gannan_orange/review_history.html'
     context_object_name = 'review_histories'
-    paginate_by = 20
+    paginate_by = 10
     
     def get_queryset(self):
-        return ReviewHistory.objects.filter(reviewer=self.request.user).order_by('-review_date')
+        histories = ReviewHistory.objects.select_related('reviewer').order_by('-review_date')
+        
+        # 尝试为每条历史记录添加内容名称（如果数据库中已有该字段）
+        for history in histories:
+            try:
+                # 获取对应的内容对象
+                content_object = self.get_content_object(history.content_type, history.content_id)
+                if content_object and hasattr(content_object, 'name'):
+                    # 使用安全的方式设置内容名称
+                    try:
+                        if hasattr(history, 'content_name'):
+                            if not history.content_name:  # 如果字段存在但为空
+                                history.content_name = content_object.name
+                        else:
+                            # 字段不存在时，我们使用一个临时属性（不会保存到数据库）
+                            history.temp_content_name = content_object.name
+                    except Exception as e:
+                        print(f"设置内容名称时出错: {e}")
+            except Exception as e:
+                print(f"获取内容对象时出错: {e}")
+                
+        return histories
+    
+    def get_content_object(self, content_type, content_id):
+        """获取对应的内容对象"""
+        model_map = {
+            'variety': Variety,
+            'planting_tech': PlantingTech,
+            'pest': Pest,
+            'soil_type': SoilType,
+        }
+        
+        if content_type in model_map:
+            Model = model_map[content_type]
+            try:
+                return Model.objects.get(id=content_id)
+            except Model.DoesNotExist:
+                return None
+        return None
+
+# 在 ExpertReviewMixin 中添加更多检查
+class ExpertReviewMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        # 检查用户是否有审核权限(管理员或专家)
+        return self.request.user.is_staff or getattr(self.request.user, 'is_expert', False)
+    
+    def handle_no_permission(self):
+        messages.error(self.request, '您没有审核权限')
+        return redirect('orange:home')
+
+# 统一审核功能基类
+class BaseReviewView(ExpertReviewMixin, UpdateView):
+    template_name = 'gannan_orange/review_form.html'
+    form_class = ReviewForm
+    
+    def get_content_type_display(self):
+        """返回内容类型的中文显示名称"""
+        raise NotImplementedError("Subclass must implement this method")
+    
+    def get_success_url(self):
+        return reverse('orange:pending_review')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['content'] = self.object
+        context['content_type'] = self.get_content_type_display()
+        return context
+    
+    def form_valid(self, form):
+        obj = self.object
+        action = form.cleaned_data['action']
+        comment = form.cleaned_data['comment']
+        
+        # 检查操作是否合理
+        if action == 'reject' and not comment:
+            messages.error(self.request, '拒绝操作必须填写审核意见')
+            return self.form_invalid(form)
+        
+        # 更新审核状态
+        if action == 'approve':
+            obj.review_status = 'approved'
+            success_message = f'"{obj.name}" 审核已通过'
+        else:
+            obj.review_status = 'rejected'
+            success_message = f'"{obj.name}" 已被拒绝'
+        
+        obj.reviewer = self.request.user
+        obj.review_comment = comment
+        obj.review_date = timezone.now()
+        obj.save()
+        
+        # 记录审核历史
+        self.create_review_history(action, comment)
+        
+        messages.success(self.request, success_message)
+        return redirect(self.get_success_url())
+    
+    def create_review_history(self, action, comment):
+        """创建审核历史记录"""
+        create_review_history(
+            content_type=self.get_content_type(),
+            content_id=self.object.id,
+            reviewer=self.request.user,
+            action=action,
+            comment=comment,
+            content_name=self.object.name  # 添加内容名称
+        )
+    
+    def get_content_type(self):
+        """返回内容类型的代码"""
+        raise NotImplementedError("Subclass must implement this method")
 
 # 品种审核视图
-class VarietyReviewView(ExpertReviewMixin, UpdateView):
+class VarietyReviewView(BaseReviewView):
     model = Variety
-    template_name = 'gannan_orange/review_form.html'
-    form_class = ReviewForm
-    context_object_name = 'content'
+    pk_url_kwarg = 'id'
     
-    def get_object(self, queryset=None):
-        vid = self.kwargs.get('id')
-        return get_object_or_404(Variety, id=vid)
+    def get_content_type_display(self):
+        return '品种'
     
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        # 移除instance参数，因为ReviewForm是普通Form而不是ModelForm
-        if 'instance' in kwargs:
-            del kwargs['instance']
-        return kwargs
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['content_type'] = '品种'
-        return context
-    
-    def form_valid(self, form):
-        variety = self.object
-        action = form.cleaned_data['action']
-        comment = form.cleaned_data['comment']
-        
-        # 更新审核状态
-        if action == 'approve':
-            variety.review_status = 'approved'
-        else:
-            variety.review_status = 'rejected'
-            # 如果是拒绝，可以添加快捷恢复到上一个通过的版本的功能
-            messages.warning(self.request, f'您已拒绝"{variety.name}"的内容修改。该内容将不会对普通用户可见，直到再次审核通过。')
-        
-        variety.reviewer = self.request.user
-        variety.review_comment = comment
-        variety.review_date = timezone.now()
-        variety.save()
-        
-        # 创建审核历史记录
-        ReviewHistory.objects.create(
-            content_type='variety',
-            content_id=variety.id,
-            reviewer=self.request.user,
-            action=action,
-            comment=comment
-        )
-        
-        messages.success(self.request, f'"{variety.name}" 审核操作已完成')
-        return redirect('orange:pending_review')
+    def get_content_type(self):
+        return 'variety'
 
 # 种植技术审核视图
-class PlantingTechReviewView(ExpertReviewMixin, UpdateView):
+class PlantingTechReviewView(BaseReviewView):
     model = PlantingTech
-    template_name = 'gannan_orange/review_form.html'
-    form_class = ReviewForm
-    context_object_name = 'content'
+    pk_url_kwarg = 'id'
     
-    def get_object(self, queryset=None):
-        vid = self.kwargs.get('id')
-        return get_object_or_404(PlantingTech, id=vid)
+    def get_content_type_display(self):
+        return '种植技术'
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['content_type'] = '种植技术'
-        return context
-    
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        # 移除instance参数，因为ReviewForm是普通Form而不是ModelForm
-        if 'instance' in kwargs:
-            del kwargs['instance']
-        return kwargs
-    
-    def form_valid(self, form):
-        tech = self.object
-        action = form.cleaned_data['action']
-        comment = form.cleaned_data['comment']
-        
-        # 更新审核状态
-        if action == 'approve':
-            tech.review_status = 'approved'
-        else:
-            tech.review_status = 'rejected'
-            # 如果是拒绝，可以添加快捷恢复到上一个通过的版本的功能
-            messages.warning(self.request, f'您已拒绝"{tech.name}"的内容修改。该内容将不会对普通用户可见，直到再次审核通过。')
-        
-        tech.reviewer = self.request.user
-        tech.review_comment = comment
-        tech.review_date = timezone.now()
-        tech.save()
-        
-        # 创建审核历史记录
-        ReviewHistory.objects.create(
-            content_type='planting_tech',
-            content_id=tech.id,
-            reviewer=self.request.user,
-            action=action,
-            comment=comment
-        )
-        
-        messages.success(self.request, f'"{tech.name}" 审核操作已完成')
-        return redirect('orange:pending_review')
+    def get_content_type(self):
+        return 'planting_tech'
 
 # 病虫害审核视图
-class PestReviewView(ExpertReviewMixin, UpdateView):
+class PestReviewView(BaseReviewView):
     model = Pest
-    template_name = 'gannan_orange/review_form.html'
-    form_class = ReviewForm
-    context_object_name = 'content'
+    pk_url_kwarg = 'id'
     
-    def get_object(self, queryset=None):
-        vid = self.kwargs.get('id')
-        return get_object_or_404(Pest, id=vid)
+    def get_content_type_display(self):
+        return '病虫害'
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['content_type'] = '病虫害'
-        return context
-    
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        # 移除instance参数，因为ReviewForm是普通Form而不是ModelForm
-        if 'instance' in kwargs:
-            del kwargs['instance']
-        return kwargs
-    
-    def form_valid(self, form):
-        pest = self.object
-        action = form.cleaned_data['action']
-        comment = form.cleaned_data['comment']
-        
-        # 更新审核状态
-        if action == 'approve':
-            pest.review_status = 'approved'
-        else:
-            pest.review_status = 'rejected'
-            # 如果是拒绝，可以添加快捷恢复到上一个通过的版本的功能
-            messages.warning(self.request, f'您已拒绝"{pest.name}"的内容修改。该内容将不会对普通用户可见，直到再次审核通过。')
-        
-        pest.reviewer = self.request.user
-        pest.review_comment = comment
-        pest.review_date = timezone.now()
-        pest.save()
-        
-        # 创建审核历史记录
-        ReviewHistory.objects.create(
-            content_type='pest',
-            content_id=pest.id,
-            reviewer=self.request.user,
-            action=action,
-            comment=comment
-        )
-        
-        messages.success(self.request, f'"{pest.name}" 审核操作已完成')
-        return redirect('orange:pending_review')
+    def get_content_type(self):
+        return 'pest'
 
 # 土壤类型审核视图
-class SoilTypeReviewView(ExpertReviewMixin, UpdateView):
+class SoilTypeReviewView(BaseReviewView):
     model = SoilType
-    template_name = 'gannan_orange/review_form.html'
-    form_class = ReviewForm
-    context_object_name = 'content'
+    pk_url_kwarg = 'id'
     
-    def get_object(self, queryset=None):
-        vid = self.kwargs.get('id')
-        return get_object_or_404(SoilType, id=vid)
+    def get_content_type_display(self):
+        return '土壤类型'
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['content_type'] = '土壤类型'
-        return context
-    
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        # 移除instance参数，因为ReviewForm是普通Form而不是ModelForm
-        if 'instance' in kwargs:
-            del kwargs['instance']
-        return kwargs
-    
-    def form_valid(self, form):
-        soil = self.object
-        action = form.cleaned_data['action']
-        comment = form.cleaned_data['comment']
-        
-        # 更新审核状态
-        if action == 'approve':
-            soil.review_status = 'approved'
-        else:
-            soil.review_status = 'rejected'
-            # 如果是拒绝，可以添加快捷恢复到上一个通过的版本的功能
-            messages.warning(self.request, f'您已拒绝"{soil.name}"的内容修改。该内容将不会对普通用户可见，直到再次审核通过。')
-        
-        soil.reviewer = self.request.user
-        soil.review_comment = comment
-        soil.review_date = timezone.now()
-        soil.save()
-        
-        # 创建审核历史记录
-        ReviewHistory.objects.create(
-            content_type='soil_type',
-            content_id=soil.id,
-            reviewer=self.request.user,
-            action=action,
-            comment=comment
-        )
-        
-        messages.success(self.request, f'"{soil.name}" 审核操作已完成')
-        return redirect('orange:pending_review')
-
-
+    def get_content_type(self):
+        return 'soil_type'
 
 # 创建一个API视图函数来异步获取天气数据
 def weather_api(request):
@@ -1050,3 +993,28 @@ def weather_api(request):
         'weather_data': weather_data,
         'current_weather': current_weather
     })
+
+def create_review_history(content_type, content_id, reviewer, action, comment, content_name=None):
+    """创建审核历史记录"""
+    try:
+        history = ReviewHistory(
+            content_type=content_type,
+            content_id=content_id,
+            reviewer=reviewer,
+            action=action,
+            comment=comment
+        )
+        
+        # 尝试设置内容名称（如果字段存在）
+        if content_name:
+            try:
+                if hasattr(history, 'content_name'):
+                    history.content_name = content_name
+            except:
+                pass
+                
+        history.save()
+        return history
+    except Exception as e:
+        print(f"创建审核历史记录失败: {e}")
+        return None

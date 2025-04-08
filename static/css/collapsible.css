@@ -1,9 +1,13 @@
-/* 折叠面板样式 */
+/* 折叠面板样式 - 参考技术详细页面 */
 .collapsible-section {
     margin-bottom: 1.5rem;
-    border-radius: 8px;
+    border-radius: 10px;
     overflow: hidden;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    background: #ffffff; /* 完全不透明的白色背景 */
+    color: #2c3e50 !important;
+    border: 1px solid rgba(0, 0, 0, 0.1); /* 更明显的边框 */
 }
 
 .collapsible-header {
@@ -13,39 +17,53 @@
     justify-content: space-between;
     align-items: center;
     transition: all 0.3s ease;
+    position: relative;
+    /*background-color: #f8fafb; /* 完全不透明的背景 */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .collapsible-header:hover {
-    filter: brightness(1.05);
+    background: #f0f8ff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .collapsible-header h5 {
     margin-bottom: 0;
     display: flex;
     align-items: center;
+    color: white; 
 }
 
 .collapsible-header .icon-container {
     margin-right: 0.75rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .collapsible-body {
-    padding: 0;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.5s ease, padding 0.3s ease;
-}
-
-.collapsible-body.show {
     padding: 1.5rem;
-    max-height: 2000px; /* 足够大的值以容纳内容 */
+    background-color: #ffffff; /* 完全不透明的白色背景 */
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    color: #34495e; /* 深蓝色文本 */
+    overflow: visible !important; /* 确保内容溢出时可见 */
+    max-height: none !important; /* 移除最大高度限制 */
+    height: auto !important; /* 确保高度自适应 */
+    transition: height 0.3s ease, padding 0.3s ease;
 }
 
 .toggle-icon {
     transition: transform 0.3s ease;
+    position: absolute;
+    right: 20px;
+    font-size: 1.2rem;
+    color: #7f8c8d; /* 中灰色图标 */
 }
 
-.collapsible-header[aria-expanded="true"] .toggle-icon {
+.collapsible-header.expanded .toggle-icon {
     transform: rotate(180deg);
 }
 
@@ -58,52 +76,52 @@
 
 /* 不同类型的折叠面板头部样式 */
 .collapsible-primary .collapsible-header {
-    background: linear-gradient(135deg, var(--primary-color), #4e7cff);
-    color: white;
+    border-left: 4px solid #3498db;
+    background-color: #3498db; /* 完全不透明 */
 }
 
 .collapsible-success .collapsible-header {
-    background: linear-gradient(135deg, var(--success-color), #66bb6a);
-    color: white;
+    border-left: 4px solid #2ecc71;
+    background-color: #2ecc71;
 }
 
 .collapsible-danger .collapsible-header {
-    background: linear-gradient(135deg, var(--danger-color), #ff6b6b);
-    color: white;
+    border-left: 4px solid #e74c3c;
+    background-color: #e74c3c;
 }
 
 .collapsible-warning .collapsible-header {
-    background: linear-gradient(135deg, var(--warning-color), #ffb347);
-    color: white;
+    border-left: 4px solid #f39c12;
+    background-color: #f39c12;
 }
 
 .collapsible-info .collapsible-header {
-    background: linear-gradient(135deg, var(--info-color), #5dceeb);
-    color: white;
+    border-left: 4px solid #3498db;
+    background-color: #3498db;
 }
 
 .collapsible-teal .collapsible-header {
-    background: linear-gradient(135deg, var(--primary-teal), #4ecdc4);
-    color: white;
+    border-left: 4px solid #1abc9c;
+    background-color: #1abc9c;
 }
 
 .collapsible-purple .collapsible-header {
-    background: linear-gradient(135deg, var(--primary-purple), #9c8fff);
-    color: white;
+    border-left: 4px solid #9b59b6;
+    background-color: #9b59b6;
 }
 
 .collapsible-orange .collapsible-header {
-    background: linear-gradient(135deg, var(--primary-orange), var(--accent-light));
-    color: white;
+    border-left: 4px solid #f39c12;
+    background-color: #f39c12;
 }
 
 /* 响应式调整 */
 @media (max-width: 768px) {
     .collapsible-header {
-        padding: 0.75rem 1rem;
+        padding: 0.8rem 1rem;
     }
     
-    .collapsible-body.show {
+    .collapsible-body {
         padding: 1rem;
     }
 }

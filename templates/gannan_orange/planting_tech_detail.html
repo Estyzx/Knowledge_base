@@ -11,7 +11,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- 引用外部CSS文件 -->
     <link rel="stylesheet" href="{% static 'css/planting_tech_detail.css' %}">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="{% static 'css/collapsible.css' %}">
+    <!-- 使用本地jQuery -->
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <!-- 引入折叠面板脚本 -->
+    <script src="{% static 'js/collapsible.js' %}" defer></script>
 {% endblock %}
 
 {% block main %}
@@ -381,4 +385,46 @@
 
 <!-- 引用外部JS文件 -->
 <script src="{% static 'js/planting_tech_detail.js' %}"></script>
+
+<!-- 确保折叠面板正常工作的额外脚本 -->
+<script>
+    $(document).ready(function() {
+        // 初始化折叠面板
+        $('.collapsible-header').each(function() {
+            const $header = $(this);
+            const $body = $header.next('.collapsible-body');
+            const $icon = $header.find('.toggle-icon');
+            const isExpanded = $header.attr('aria-expanded') === 'true';
+            
+            if (isExpanded) {
+                $body.show();
+                $header.addClass('expanded');
+                $icon.css('transform', 'rotate(180deg)');
+            } else {
+                $body.hide();
+                $header.removeClass('expanded');
+            }
+        });
+        
+        // 点击事件处理
+        $('.collapsible-header').on('click', function() {
+            const $header = $(this);
+            const $body = $header.next('.collapsible-body');
+            const $icon = $header.find('.toggle-icon');
+            const isExpanded = $header.hasClass('expanded');
+            
+            if (isExpanded) {
+                $header.removeClass('expanded');
+                $icon.css('transform', 'rotate(0deg)');
+                $body.slideUp(300);
+                $header.attr('aria-expanded', 'false');
+            } else {
+                $header.addClass('expanded');
+                $icon.css('transform', 'rotate(180deg)');
+                $body.slideDown(300);
+                $header.attr('aria-expanded', 'true');
+            }
+        });
+    });
+</script>
 {% endblock %}

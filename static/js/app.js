@@ -3,6 +3,24 @@
  * 用于性能优化与用户体验提升
  */
 
+// 更新Service Worker注册 - 将移至base.html中统一处理
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    // 检查是否已注册过SW，避免重复注册
+    navigator.serviceWorker.getRegistrations().then(registrations => {
+      if (registrations.length === 0) {
+        navigator.serviceWorker.register('/static/service-worker.js')
+          .then(registration => {
+            console.log('服务工作器注册成功:', registration.scope);
+          })
+          .catch(error => {
+            console.warn('服务工作器注册失败，将使用标准浏览器缓存:', error.message);
+          });
+      }
+    });
+  });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // 性能计时开始
     const startTime = performance.now();

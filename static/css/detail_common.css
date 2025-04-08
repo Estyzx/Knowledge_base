@@ -200,5 +200,5 @@ body {
 
 .collapsible-header .icon-container {
     flex-shrink: 0;
-    background: linear-gradient(135deg, var(--primary-green), var(--primary-teal));
+
 }

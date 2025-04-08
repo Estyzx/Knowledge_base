@@ -1,0 +1,371 @@
+/* 全局样式 */
+:root {
+    --primary-orange: #FF6B35;
+    --primary-teal: #2A9D8F;
+    --primary-purple: #6C63FF;
+    --primary-cyan: #00B4D8;
+    --soil-color: #8D6E63;
+    --primary-green: #28a745;
+    --primary-dark-green: #218838;
+    --transition-normal: all 0.3s ease;
+    --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 6px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.12);
+    --border-radius-sm: 8px;
+    --border-radius-md: 12px;
+    --border-radius-lg: 20px;
+    --primary-color: #ff5733; /* 主色调 */
+    --primary-light: #ff6e40; /* 主色调的浅色版本 */
+    --info-color: #00bfff; /* 信息色 */
+    --accent-light: #ffcc80; /* 强调色浅版 */
+    --danger-color: #ff0000; /* 危险色（红色） */
+    --accent-color: #ffcc80; /* 强调色 */
+    --warning-color: #ffc107; /* 黄色 */
+    --success-color: #28a745; /* 绿色 */
+}
+
+/* 背景优化 */
+body {
+    background: linear-gradient(135deg, #f3f4f9, #dfe7fd);
+    min-height: 100vh;
+    font-family: 'Noto Sans CJK SC';
+    color: #333;
+    line-height: 1.6;
+}
+
+/* 导航栏优化 - 毛玻璃效果 */
+.navbar {
+    background: rgba(40, 167, 69, 0.85) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: var(--transition-normal);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-brand {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.navbar-brand img {
+    height: 40px;
+    transition: var(--transition-normal);
+}
+
+.navbar-brand:hover img {
+    transform: scale(1.05);
+}
+
+.navbar-nav .nav-link {
+    font-size: 16px;
+    font-weight: 500;
+    padding: 8px 16px;
+    margin: 0 4px;
+    border-radius: var(--border-radius-sm);
+    transition: var(--transition-normal);
+}
+
+.navbar-nav .nav-link:hover {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.dropdown-menu {
+    border: none;
+    border-radius: var(--border-radius-sm);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-item {
+    padding: 8px 16px;
+    transition: var(--transition-normal);
+}
+
+.dropdown-item:hover {
+    background-color: rgba(40, 167, 69, 0.1);
+    transform: translateX(5px);
+}
+
+/* 卡片式内容 */
+.content-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-md);
+    padding: 25px;
+    transition: var(--transition-normal);
+    border-left: 4px solid var(--primary-green);
+}
+
+.content-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-5px);
+}
+
+/* 毛玻璃效果 */
+.glassmorphism {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: var(--border-radius-md);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+/* 按钮优化 */
+.btn-custom {
+    border-radius: var(--border-radius-lg);
+    padding: 10px 24px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transition: var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+/* 列表页卡片优化 */
+.hover-card {
+    transition: all 0.4s ease;
+    border: none;
+    overflow: hidden;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+.hover-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1) !important;
+    border-bottom: 3px solid var(--primary-green);
+}
+
+.hover-card .card-title {
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.hover-card:hover .card-title {
+    color: var(--primary-green) !important;
+    transform: translateX(5px);
+}
+
+.hover-card .btn {
+    transition: all 0.3s ease;
+}
+
+.hover-card:hover .btn {
+    background-color: var(--primary-green);
+    color: white;
+    transform: scale(1.05);
+}
+
+.btn-custom::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    transition: var(--transition-normal);
+    z-index: -1;
+}
+
+.btn-custom:hover::after {
+    height: 100%;
+}
+
+.btn-custom:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+.bg-orange-gradient {
+    background: linear-gradient(135deg, var(--primary-orange) 0%, #FF9F1C 100%) !important;
+}
+
+.bg-soil {
+    background-color: var(--soil-color) !important;
+    color: white !important;
+}
+
+.bg-success {
+    color: white !important;
+}
+
+.text-orange {
+    color: var(--primary-orange) !important;
+}
+
+.bg-teal {
+    background-color: var(--primary-teal) !important;
+}
+
+.text-teal {
+    color: var(--primary-teal) !important;
+}
+
+.bg-purple {
+    background-color: var(--primary-purple) !important;
+}
+
+.text-purple {
+    color: var(--primary-purple) !important;
+}
+
+.shadow-hover {
+    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, .15);
+}
+
+.shadow-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, .15) !important;
+}
+
+.icon-lg {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+}
+
+.bg-light-20 {
+    background-color: rgba(248, 249, 250, 0.2);
+}
+
+.bg-orange-20 {
+    background-color: rgba(255, 107, 53, 0.15);
+}
+
+.bg-purple-20 {
+    background-color: rgba(108, 99, 255, 0.15);
+}
+
+.bg-cyan-20 {
+    background-color: rgba(0, 180, 216, 0.15);
+}
+
+.fruit-stats h3 small {
+    font-size: 0.6em;
+}
+
+.breadcrumb {
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.breadcrumb .breadcrumb-item a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.breadcrumb .breadcrumb-item.active {
+    color: #6c757d;
+}
+
+/* 分页控件美化 */
+.pagination .page-link {
+    color: var(--primary-green);
+    background-color: rgba(255, 255, 255, 0.8);
+    border-color: rgba(40, 167, 69, 0.2);
+    margin: 0 3px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.pagination .page-link:hover {
+    background-color: rgba(40, 167, 69, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary-green);
+    border-color: var(--primary-green);
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+}
+
+/* 搜索框美化 */
+.input-group .form-control {
+    border: 2px solid rgba(40, 167, 69, 0.2);
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.input-group .form-control:focus {
+    border-color: var(--primary-green);
+    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.2);
+}
+
+.input-group .btn-success {
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.input-group .btn-success:hover {
+    transform: translateX(3px);
+    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+}
+
+/* 添加页面过渡动画 */
+.page-transition-in {
+    opacity: 0;
+    animation: fadeIn 0.5s forwards;
+}
+
+.page-transition-out {
+    opacity: 1;
+    animation: fadeOut 0.3s forwards;
+}
+
+@keyframes fadeOut {
+    to { opacity: 0; }
+}
+
+/* 输入焦点动画 */
+.input-focused .form-control {
+    box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
+    border-color: var(--primary-green);
+}
+
+/* 添加骨架屏样式 */
+.skeleton-text {
+    height: 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.skeleton-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}

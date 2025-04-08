@@ -92,17 +92,25 @@ class PlantingTechDetailView(DetailView):
             # 返回完整的评论数据，使用更一致的时间格式
             from django.utils.timezone import localtime
             
+            # 构建评论数据字典
+            comment_data = {
+                'id': new_comment.id,
+                'content': new_comment.content,
+                'author_name': new_comment.author.username,
+                'created_time': localtime(new_comment.create_time).strftime('%Y-%m-%d %H:%M'),
+                'is_author': new_comment.author == self.object.author,
+                'can_delete': True,  # 新评论的作者就是当前用户
+                'parent_id': new_comment.parent.id if new_comment.parent else None
+            }
+            
+            # 如果是回复评论，添加父评论作者名称
+            if new_comment.parent:
+                parent_author_name = new_comment.parent.author.username
+                comment_data['parent_author_name'] = parent_author_name
+            
             return JsonResponse({
                 'status': 'success',
-                'comment': {
-                    'id': new_comment.id,
-                    'content': new_comment.content,
-                    'author_name': new_comment.author.username,
-                    'created_time': localtime(new_comment.create_time).strftime('%Y-%m-%d %H:%M'),
-                    'is_author': new_comment.author == self.object.author,
-                    'can_delete': True,  # 新评论的作者就是当前用户
-                    'parent_id': new_comment.parent.id if new_comment.parent else None
-                }
+                'comment': comment_data
             })
         else:
             

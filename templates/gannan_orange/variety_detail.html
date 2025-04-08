@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}
     {{ variety.name }}
 {% endblock %}
@@ -7,7 +7,39 @@
 {% block head %}
     <link rel="stylesheet" href="/static/css/variety_detail.css">
     <link rel="stylesheet" href="/static/css/collapsible.css">
+    
+    <!-- 使用本地jQuery替代CDN -->
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    
+    <!-- 确保折叠面板正常显示 -->
+    <style>
+        /* 确保折叠面板内容正常显示 */
+        .collapsible-body {
+            display: block;
+            overflow: visible !important;
+            height: auto !important;
+            max-height: none !important;
+            transition: all 0.3s ease;
+        }
+        
+        /* 初始隐藏非展开的面板 */
+        .collapsible-header:not([aria-expanded="true"]) + .collapsible-body {
+            display: none;
+        }
+        
+        /* 改进折叠图标的过渡效果 */
+        .toggle-icon {
+            transition: transform 0.3s ease;
+        }
+        
+        .collapsible-header.expanded .toggle-icon {
+            transform: rotate(180deg);
+        }
+    </style>
+    
     <script src="/static/js/collapsible.js" defer></script>
+
+
 {% endblock %}
 
 
@@ -74,7 +106,7 @@
 
                     <div class="card-body p-4">
                         <!-- 基础信息行 -->
-                        <div class="collapsible-section collapsible-primary" id="basic-info">
+                        <div class="collapsible-section collapsible-primary" id="basic-info" data-section="basic-info">
                             <div class="collapsible-header" aria-expanded="true">
                                 <h5>
                                     <div class="icon-container">
@@ -156,7 +188,7 @@
                         </div>
 
                         <!-- 生长特性详情 -->
-                        <div class="collapsible-section collapsible-warning mt-4" id="growth-details">
+                        <div class="collapsible-section collapsible-warning mt-4" id="growth-details" data-section="growth">
                             <div class="collapsible-header" aria-expanded="false">
                                 <h5>
                                     <div class="icon-container">
@@ -297,7 +329,7 @@
                             <div class="tag-container">
                                 {% for soil in variety.soil_preference.all %}
                                     <a href="{% url 'orange:soil_detail' soil.id %}?next={{ request.get_full_path|urlencode }}" class="text-decoration-none">
-                                        <span class="feature-tag" style="background-color: var(--soil-color); color: white;">
+                                        <span class="feature-tag" data-type="soil" style="background-color: var(--soil-color); color: white;">
                                             <i class="fas fa-seedling"></i>{{ soil.name }}
                                         </span>
                                     </a>
@@ -325,7 +357,7 @@
                             <div class="tag-container">
                                 {% for tech in variety.planting_tech.all %}
                                     <a href="{% url 'orange:tech_detail' tech.id %}" class="text-decoration-none">
-                                        <span class="feature-tag" style="background: linear-gradient(135deg, var(--primary-green), #6dd5a1); color: white;">
+                                        <span class="feature-tag" data-type="tech" style="background: linear-gradient(135deg, var(--primary-green), #6dd5a1); color: white;">
                                             <i class="fas fa-cog"></i>{{ tech.name }}
                                         </span>
                                     </a>
@@ -353,7 +385,7 @@
                             <div class="tag-container">
                                 {% for disease in variety.pest.all %}
                                     <a href="{% url 'orange:pest_detail' disease.id %}" class="text-decoration-none">
-                                        <span class="feature-tag" style="background: linear-gradient(135deg, var(--danger-color), #ff6b6b); color: white;">
+                                        <span class="feature-tag" data-type="pest" style="background: linear-gradient(135deg, var(--danger-color), #ff6b6b); color: white;">
                                             <i class="fas fa-skull-crossbones"></i>{{ disease.name }}
                                         </span>
                                     </a>
@@ -570,4 +602,6 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 {% endblock %}

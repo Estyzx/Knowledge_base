@@ -3,10 +3,15 @@
 /venv/
 /env/
 /virtualenv/
+
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
+*.pyd
+
+# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -23,6 +28,14 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written into a temporary folder during processing, but the folder is not
+#  deleted automatically.
+#  https://github.com/pyinstaller/pyinstaller/blob/4fa5a05a3699858496623a77a1a03c7a5b5dd591/bootloader/src/pyi_global.h#L98C1-L104
+/_MEIPASS*
+/tmp/_MEI*
 
 # IDE 配置文件
 /.idea/
@@ -56,6 +69,7 @@ local_settings.py
 .env.development.local
 .env.test.local
 .env.production.local
+settings_local.py
 
 # 缓存文件
 .pytest_cache/
@@ -89,8 +103,6 @@ credentials.json
 migrations/*.py
 !migrations/__init__.py
 !migrations/0*.py
-local_settings.py
-settings_local.py
 
 # 媒体上传文件
 /media/uploads/
@@ -109,47 +121,11 @@ yarn-error.log
 package-lock.json
 
 # 项目特定文件
-# gannan_orange应用相关
 gannan_orange/temp/
 gannan_orange/cached_data/
-
-# expert_qa应用相关
 expert_qa/temp/
-
-# article应用相关
 article/backups/
 
-# 临时备份文件
-*.bak
-*.backup
-*~
-*.tmp
-
 # 系统生成文件
-Thumbs.db
-.DS_Store
 .directory
 desktop.ini
-
-# Python编译缓存
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-
-# 文本编辑器临时文件
-*~
-*.swp
-*.swo
-*.swn
-*.bak
-*.save
-
-# 调试和测试文件
-debug.log
-test_output/
-pytest-report/
-.pytest_cache/
-.coverage
-htmlcov/

@@ -1,4 +1,4 @@
-(document).ready(function() {
+$(document).ready(function() {
     /* 简化的滚动动画 - 优化性能 */
     function checkScrollFade() {
         $('.scroll-fade').each(function() {
@@ -8,29 +8,35 @@
         });
     }
     
-    // 初始检查和窗口滚动时的检查
+    // 初始检查和窗口滚动时的检查 - 使用节流函数减少调用频率
     checkScrollFade();
+    var scrollThrottleTimer;
     $(window).on('scroll', function() {
-        // 返回顶部按钮可见性
-        $('#backToTop').toggleClass('visible', $(this).scrollTop() > 300);
-        
-        // 仅在需要时执行滚动动画检查
-        if ($('.scroll-fade:not(.visible)').length) {
-            checkScrollFade();
+        if (!scrollThrottleTimer) {
+            scrollThrottleTimer = setTimeout(function() {
+                // 返回顶部按钮可见性
+                $('#backToTop').toggleClass('visible', $(window).scrollTop() > 300);
+                
+                // 仅在需要时执行滚动动画检查
+                if ($('.scroll-fade:not(.visible)').length) {
+                    checkScrollFade();
+                }
+                scrollThrottleTimer = null;
+            }, 100);
         }
     });
     
-    // 返回顶部按钮
+    // 返回顶部按钮 - 使用平滑滚动
     $('#backToTop').click(function() {
-        $('html, body').animate({scrollTop: 0}, 600);
+        $('html, body').animate({scrollTop: 0}, 300);
         return false;
     });
     
-    // 导航链接简化
+    // 导航链接简化和性能优化
     $('.tech-nav-link').click(function(e) {
         e.preventDefault();
         var target = $($(this).attr('href'));
-        $('html, body').animate({scrollTop: target.offset().top - 80}, 600);
+        $('html, body').animate({scrollTop: target.offset().top - 80}, 300);
         $('.tech-nav-link').removeClass('active');
         $(this).addClass('active');
     });

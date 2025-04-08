@@ -27,6 +27,9 @@ class ReviewHistory(models.Model):
     comment = models.TextField('审核意见', blank=True)
     review_date = models.DateTimeField('审核时间', auto_now_add=True)
     
+    # 添加一个新字段用于存储内容名称
+    content_name = models.CharField('内容名称', max_length=100, blank=True, null=True)
+    
     class Meta:
         verbose_name = '审核历史'
         verbose_name_plural = verbose_name
@@ -35,6 +38,47 @@ class ReviewHistory(models.Model):
     def __str__(self):
         return f"{self.get_content_type_display()}({self.content_id}) - {self.get_action_display()} by {self.reviewer.username}"
 
+    def get_content_type_display(self):
+        """获取内容类型的显示名称"""
+        for code, name in self.CONTENT_TYPE_CHOICES:
+            if code == self.content_type:
+                return name
+        return self.content_type
+    
+    def get_action_display(self):
+        """获取审核操作的显示名称"""
+        for code, name in self.REVIEW_ACTION_CHOICES:
+            if code == self.action:
+                return name
+        return self.action
+    
+    def get_content_object(self):
+        """获取对应的内容对象"""
+        from django.apps import apps
+        
+        model_map = {
+            'variety': 'gannan_orange.Variety',
+            'planting_tech': 'gannan_orange.PlantingTech',
+            'pest': 'gannan_orange.Pest',
+            'soil_type': 'gannan_orange.SoilType',
+        }
+        
+        if self.content_type in model_map:
+            model = apps.get_model(model_map[self.content_type])
+            try:
+                return model.objects.get(id=self.content_id)
+            except model.DoesNotExist:
+                return None
+        return None
+    
+    def save(self, *args, **kwargs):
+        # 如果 content_name 为空，尝试获取对应内容的名称
+        if not self.content_name:
+            content_object = self.get_content_object()
+            if content_object and hasattr(content_object, 'name'):
+                self.content_name = content_object.name
+        
+        super().save(*args, **kwargs)
 
 # Create your models here.
 
