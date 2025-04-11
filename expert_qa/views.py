@@ -3,12 +3,12 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.urls import reverse  # 添加缺失的reverse导入
 from .models import Question, Answer, ExpertProfile
 
 def question_list(request):
-    questions = Question.objects.all().order_by('-created_at')
+    questions = Question.objects.all()
     
     # 搜索功能
     query = request.GET.get('q')
@@ -24,6 +24,37 @@ def question_list(request):
     if category:
         questions = questions.filter(category=category)
     
+    # 标签筛选
+    tag = request.GET.get('tag')
+    if tag:
+        questions = questions.filter(tags__icontains=tag)
+    
+    # 状态筛选
+    answered = request.GET.get('answered')
+    unanswered = request.GET.get('unanswered')
+    
+    if answered and not unanswered:
+        questions = questions.filter(is_answered=True)
+    elif unanswered and not answered:
+        questions = questions.filter(is_answered=False)
+    # 如果两者都选或都不选，则不筛选
+    
+    # 添加回答数量注解，用于排序
+    questions = questions.annotate(answers_count=Count('answers'))
+    
+    # 排序功能
+    sort = request.GET.get('sort', 'latest')
+    if sort == 'latest':
+        questions = questions.order_by('-created_at')
+    elif sort == 'votes':
+        questions = questions.order_by('-vote_count', '-created_at')
+    elif sort == 'views':
+        questions = questions.order_by('-views', '-created_at')
+    elif sort == 'answers':
+        questions = questions.order_by('-answers_count', '-created_at')
+    else:
+        questions = questions.order_by('-created_at')  # 默认按创建时间排序
+    
     # 分页
     paginator = Paginator(questions, 10)
     page = request.GET.get('page')
@@ -32,7 +63,11 @@ def question_list(request):
     return render(request, 'expert_qa/question_list.html', {
         'questions': questions,
         'query': query,
-        'category': category
+        'category': category,
+        'tag': tag,
+        'sort': sort,
+        'answered': answered,
+        'unanswered': unanswered
     })
 
 def question_detail(request, pk):
@@ -94,7 +129,15 @@ def ask_question(request, expert_id=None):
         title = request.POST.get('title')
         content = request.POST.get('content')
         category = request.POST.get('category')
-        tags = request.POST.get('tags', '')
+        
+        # 处理标签 - 可能是列表或字符串
+        tags = request.POST.getlist('tags')
+        if tags:
+            # 如果是列表，转换为逗号分隔的字符串
+            tags = ','.join([tag.strip() for tag in tags if tag.strip()])
+        else:
+            # 如果是单个字符串输入
+            tags = request.POST.get('tags', '').strip()
         
         if title and content and category:
             question = Question.objects.create(
@@ -343,7 +386,15 @@ def follow_up_question(request, pk):
         title = request.POST.get('title')
         content = request.POST.get('content')
         category = request.POST.get('category')
-        tags = request.POST.get('tags', '')
+        
+        # 处理标签 - 可能是列表或字符串
+        tags = request.POST.getlist('tags')
+        if tags:
+            # 如果是列表，转换为逗号分隔的字符串
+            tags = ','.join([tag.strip() for tag in tags if tag.strip()])
+        else:
+            # 如果是单个字符串输入
+            tags = request.POST.get('tags', '').strip()
         
         if title and content:
             # 不需要修改，因为富文本编辑器的内容已经包含HTML

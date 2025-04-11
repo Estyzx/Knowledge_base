@@ -2,8 +2,43 @@
 {% load static %}
 
 {% block head %}
-<script src="https://cdn.ckeditor.com/ckeditor5/40.1.0/classic/ckeditor.js"></script>
-<script src="https://cdn.ckeditor.com/ckeditor5/40.1.0/classic/translations/zh-cn.js"></script>
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<style>
+    /* Customize the CKEditor container */
+    .cke_editable {
+        background-color: #ffffff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        font-size: 16px;
+    }
+
+    .cke_chrome {
+        border: 1px solid #ced4da !important;
+        border-radius: 0.25rem !important;
+    }
+
+    #editor-container {
+        margin-bottom: 1rem;
+    }
+    
+    /* 标签选择器样式 */
+    .select2-container--default .select2-selection--multiple {
+        border: 1px solid #ced4da;
+    }
+
+    .select2-container--default.select2-container--focus .select2-selection--multiple {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+</style>
 {% endblock %}
 
 {% block main %}
@@ -86,8 +121,10 @@
                         </div>
                         
                         <div class="mb-3">
-                            <label for="content" class="form-label">问题详情</label>
-                            <textarea class="form-control rich-editor" id="content" name="content" rows="8" required></textarea>
+                            <label for="editor" class="form-label">问题详情</label>
+                            <div id="editor-container">
+                                <textarea id="editor" name="content" required></textarea>
+                            </div>
                             <div class="form-text">详细描述您的问题，包括您已经尝试过的解决方法</div>
                         </div>
                         
@@ -103,8 +140,9 @@
                         
                         <div class="mb-3">
                             <label for="tags" class="form-label">标签</label>
-                            <input type="text" class="form-control" id="tags" name="tags">
-                            <div class="form-text">多个标签用逗号分隔，如：种植技巧,有机肥料</div>
+                            <select id="tags" name="tags" class="form-control" multiple="multiple">
+                            </select>
+                            <div class="form-text">添加标签，使您的问题更容易被搜索到（可选，多个标签用逗号分隔）</div>
                         </div>
                         
                         <div class="d-grid">
@@ -116,36 +154,42 @@
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block scripts %}
 <script>
-    ClassicEditor
-        .create(document.querySelector('.rich-editor'), {
-            language: 'zh-cn',
-            toolbar: {
-                items: [
-                    'heading',
-                    '|',
-                    'bold',
-                    'italic',
-                    'link',
-                    'bulletedList',
-                    'numberedList',
-                    '|',
-                    'outdent',
-                    'indent',
-                    '|',
-                    'imageUpload',
-                    'blockQuote',
-                    'insertTable',
-                    'undo',
-                    'redo'
-                ]
-            }
-        })
-        .catch(error => {
-            console.error(error);
-        });
+$(document).ready(function() {
+    // 初始化标签选择器
+    $('#tags').select2({
+        tags: true,
+        tokenSeparators: [',', ' '],
+        placeholder: '输入标签...',
+        allowClear: true
+    });
+
+    // 初始化CKEditor
+    const editor = CKEDITOR.replace('editor', {
+        versionCheck: false,
+        extraPlugins: 'image2',
+        removePlugins: 'image',
+        height: '400px',
+        width: '100%',
+        filebrowserImageUploadUrl: "{% url 'ckeditor_upload' %}",
+        filebrowserUploadMethod: 'formdata',
+        toolbar: [
+            { name: 'document', items: ['Source'] },
+            { name: 'clipboard', items: ['Cut', 'Copy', 'Paste', 'Undo', 'Redo'] },
+            { name: 'editing', items: ['Find', 'Replace', 'SelectAll'] },
+            { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript'] },
+            { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'] },
+            { name: 'links', items: ['Link', 'Unlink'] },
+            { name: 'insert', items: ['Image', 'Table', 'HorizontalRule', 'Smiley'] },
+            { name: 'styles', items: ['Styles', 'Format', 'Font', 'FontSize'] }
+        ]
+    });
+
+    // 表单提交时同步编辑器内容
+    document.querySelector('form').addEventListener('submit', function() {
+        editor.updateElement();
+    });
+});
 </script>
 {% endblock %}

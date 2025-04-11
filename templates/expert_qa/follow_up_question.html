@@ -2,8 +2,7 @@
 {% load static %}
 
 {% block head %}
-<script src="https://cdn.ckeditor.com/ckeditor5/40.1.0/classic/ckeditor.js"></script>
-<script src="https://cdn.ckeditor.com/ckeditor5/40.1.0/classic/translations/zh-cn.js"></script>
+<script src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
 {% endblock %}
 
 {% block main %}
@@ -75,32 +74,27 @@
 
 {% block scripts %}
 <script>
-    ClassicEditor
-        .create(document.querySelector('.rich-editor'), {
-            language: 'zh-cn',
-            toolbar: {
-                items: [
-                    'heading',
-                    '|',
-                    'bold',
-                    'italic',
-                    'link',
-                    'bulletedList',
-                    'numberedList',
-                    '|',
-                    'outdent',
-                    'indent',
-                    '|',
-                    'imageUpload',
-                    'blockQuote',
-                    'insertTable',
-                    'undo',
-                    'redo'
-                ]
-            }
-        })
-        .catch(error => {
-            console.error(error);
-        });
+    CKEDITOR.replace('content', {
+        language: 'zh-cn',
+        height: '300px',
+        toolbar: [
+            ['Styles', 'Format', 'Font', 'FontSize'],
+            ['Bold', 'Italic', 'Underline', 'Strike'],
+            ['TextColor', 'BGColor'],
+            ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent'],
+            ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+            ['Link', 'Unlink'],
+            ['Image', 'Table'],
+            ['Maximize', 'Source']
+        ],
+        removePlugins: 'elementspath',
+        resize_enabled: false,
+        autoGrow_onStartup: true,
+        autoGrow_minHeight: 300,
+        autoGrow_maxHeight: 600,
+        filebrowserUploadUrl: '/upload/image/?type=Images',
+        filebrowserBrowseUrl: '/browse/images/',
+        allowedContent: true
+    });
 </script>
 {% endblock %}
