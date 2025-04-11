@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'article',
     'ckeditor',
     'ckeditor_uploader',
+    'expert_qa',
 ]
 
 MIDDLEWARE = [
@@ -61,9 +62,8 @@ ROOT_URLCONF = 'Knowledge_base.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
-        ,
-        'APP_DIRS': True,
+        'DIRS': [BASE_DIR / 'templates'],
+        'APP_DIRS': True,  # 使用简单的APP_DIRS=True配置
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -147,3 +147,17 @@ CKEDITOR_CONFIGS = {
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+
+LOGIN_URL = '/user/login'
+
+# 添加缓存配置
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+        'TIMEOUT': 3600,  # 默认缓存时间1小时
+    }
+}
+
+# 静态文件配置
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage' if not DEBUG else 'django.contrib.staticfiles.storage.StaticFilesStorage'

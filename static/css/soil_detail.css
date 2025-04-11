@@ -1,0 +1,120 @@
+/* 土壤详情页特定样式 */
+@import url('/static/css/detail_common.css');
+
+/* 土壤属性和特性风格 */
+.soil-property {
+    padding: 1rem;
+    border-radius: 0.8rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.property-name {
+    font-weight: 600;
+    color: var(--primary-green);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.property-name i {
+    margin-right: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.property-value {
+    font-size: 1.1rem;
+    color: #424242;
+}
+
+/* 土壤适宜度指示器 */
+.suitability-indicator {
+    height: 10px;
+    border-radius: 5px;
+    margin: 8px 0;
+    background: linear-gradient(90deg, 
+        #d32f2f 0%, 
+        #ff9800 25%, 
+        #ffc107 50%, 
+        #8bc34a 75%, 
+        #4caf50 100%);
+    position: relative;
+}
+
+.suitability-marker {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: white;
+    border: 3px solid #2e7d32;
+    top: -5px;
+    transform: translateX(-50%);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* 土壤颜色展示 */
+.soil-color-box {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    display: inline-block;
+    margin-right: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    vertical-align: middle;
+}
+
+/* 数据图表容器 */
+.chart-container {
+    height: 300px;
+    margin: 2rem 0;
+    border-radius: 0.8rem;
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+}
+
+/* 修复折叠内容显示不完全问题 */
+.collapsible-body {
+    overflow: visible !important; /* 确保内容溢出时可见 */
+    display: block; /* 默认显示，JS控制隐藏 */
+    height: auto !important; /* 防止高度被限制 */
+    max-height: none !important; /* 修复错误：!重要 -> !important */
+    padding: 20px; /* 保持内边距 */
+}
+
+/* 确保土壤特性部分完全展示 */
+#soil-properties .collapsible-body {
+    padding-bottom: 30px; /* 增加底部填充 */
+}
+
+/* 确保营养成分部分完全展示 */
+#soil-nutrition .collapsible-body .row {
+    margin-bottom: 20px; /* 增加行间距 */
+}
+
+/* 模仿病虫害详情页的样式 */
+.soil-image-container {
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.soil-image-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.soil-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    transition: all 0.5s ease;
+}
+
+.soil-image:hover {
+    transform: scale(1.03);
+}

@@ -22,6 +22,7 @@ urlpatterns = [
     path('orange/',include('gannan_orange.urls')),
     path('user/',include('User.urls')),
     path('ckeditor/', include('ckeditor_uploader.urls')),
-    path('article/',include('article.urls'))
+    path('article/',include('article.urls')),
+    path('expert_qa/',include('expert_qa.urls'))
 
 ]

@@ -5,8 +5,14 @@
 
 <!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
 <script src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <style>
 
@@ -78,14 +84,7 @@
         </div>
 
         <div class="card-body">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
+
 
             <form method="post" action="{% url 'article:create' %}" enctype="multipart/form-data" class="needs-validation" novalidate>
                 {% csrf_token %}
@@ -95,8 +94,13 @@
                     <h3><i class="fas fa-info-circle form-icon"></i>基础信息</h3>
                     <div class="row g-4">
                         <div class="col-md-12">
-                            <!-- 移除手动错误提示 -->
                             {{ form.title|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.category|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.tags|as_crispy_field }}
                         </div>
                     </div>
                 </div>
@@ -129,7 +133,7 @@
                     <button type="submit" class="btn btn-success btn-lg py-3">
                         <i class="fas fa-save me-2"></i>保存修改
                     </button>
-                    <a href="" class="btn btn-outline-secondary btn-lg py-3">
+                    <a href="{% url 'orange:home' %}" class="btn btn-outline-secondary btn-lg py-3">
                         <i class="fas fa-times me-2"></i>取消返回
                     </a>
                 </div>
@@ -139,6 +143,26 @@
 </div>
 
 <script>
+    $(document).ready(function() {
+        $('#id_tags').select2({
+            tags: true,
+            tokenSeparators: [','],
+            createTag: function(params) {
+                return {
+                    id: params.term,
+                    text: params.term,
+                    newTag: true
+                };
+            },
+            placeholder: '选择或创建标签',
+            allowClear: true,
+            language: {
+                noResults: function() {
+                    return '没有找到匹配的标签，按Enter创建新标签';
+                }
+            }
+        });
+    });
 
     const editor = CKEDITOR.replace('editor', {
         versionCheck: false,

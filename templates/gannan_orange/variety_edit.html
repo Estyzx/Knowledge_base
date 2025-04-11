@@ -33,20 +33,89 @@
             margin-right: 0.5rem;
         }
 
-        /* 错误星标 */
+        /* 错误星标和错误信息显示 */
         .is-invalid {
-            border-color: #dc3545;
+            border-color: #dc3545 !important;
         }
 
-        .is-invalid + .invalid-feedback {
-            display: block;
-            color: #dc3545;
+        /* 强制显示所有错误信息 */
+        .invalid-feedback {
+            display: block !important;
+            color: #dc3545 !important;
+            font-weight: 500 !important;
+            margin-top: 0.25rem !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            position: relative !important;
+            z-index: 5 !important;
+        }
+        
+        /* 确保错误信息不会被其他元素覆盖 */
+        .form-group {
+            position: relative;
+        }
+        
+        /* Django错误列表样式 */
+        .errorlist {
+            display: block !important;
+            color: #dc3545 !important;
+            list-style: none !important;
+            padding-left: 0 !important;
+            margin-top: 0.25rem !important;
+        }
+        
+        /* Crispy Forms错误信息 */
+        .has-error .help-block,
+        .has-error .control-label,
+        .has-error .radio,
+        .has-error .checkbox,
+        .has-error .radio-inline,
+        .has-error .checkbox-inline {
+            color: #dc3545 !important;
+            display: block !important;
+        }
+        
+        /* 确保所有表单错误信息显示 */
+        .alert-block,
+        .alert-error,
+        .error,
+        .help-inline {
+            color: #dc3545 !important;
+            display: block !important;
         }
 
         .required-star {
             color: red;
         }
     </style>
+    
+    <!-- 添加额外的JavaScript来确保错误信息显示 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 强制显示所有错误信息
+            document.querySelectorAll('.invalid-feedback, .errorlist, .help-block.error').forEach(function(el) {
+                el.style.display = 'block';
+                el.style.visibility = 'visible';
+                el.style.opacity = '1';
+            });
+            
+            // 为有错误的字段添加is-invalid类
+            document.querySelectorAll('.has-error .form-control').forEach(function(el) {
+                el.classList.add('is-invalid');
+            });
+            
+            // 确保crispy-forms错误信息显示
+            document.querySelectorAll('.help-block.error').forEach(function(el) {
+                const formGroup = el.closest('.form-group');
+                if (formGroup) {
+                    const input = formGroup.querySelector('.form-control');
+                    if (input) {
+                        input.classList.add('is-invalid');
+                    }
+                }
+            });
+        });
+    </script>
 {% endblock %}
 
 {% block main %}
@@ -57,8 +126,72 @@
             </div>
 
             <div class="card-body">
-                <form method="post" action="{% url 'orange:edit' variety.id %}" class="needs-validation" novalidate>
+                <form method="post" action="{% url 'orange:edit' variety.id %}" class="needs-validation was-validated" novalidate>
                     {% csrf_token %}
+
+                    <!-- 审核信息 -->
+                    {% if user.is_staff or user.is_expert %}
+                    <div class="form-section">
+                        <h3><i class="fas fa-check-circle form-icon"></i>审核信息</h3>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">当前状态</label>
+                                    <div class="form-control-static">
+                                        {% if variety.review_status == 'pending' %}
+                                            <span class="badge bg-warning">待审核</span>
+                                        {% elif variety.review_status == 'approved' %}
+                                            <span class="badge bg-success">已通过</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">已拒绝</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">审核人</label>
+                                    <div class="form-control-static">
+                                        {{ variety.reviewer.username|default:'暂无' }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-label">审核意见</label>
+                                    <div class="form-control-static">
+                                        {{ variety.review_comment|default:'暂无' }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 审核操作 -->
+                    {% if user.is_staff or user.is_expert %}
+                    <div class="form-section">
+                        <h3><i class="fas fa-gavel form-icon"></i>审核操作</h3>
+                        <div class="row g-4">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    {{ review_form.action|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    {{ review_form.comment|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" name="review" class="btn btn-primary">
+                                    <i class="fas fa-check-circle me-2"></i>提交审核
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    </div>
+                    {% endif %}
 
                     <!-- 基础信息 -->
                     <div class="form-section">
@@ -66,9 +199,21 @@
                         <div class="row g-4">
                             <div class="col-md-6">
                                 <div class="form-group">
+                                    {{ form.category|as_crispy_field }}
+                                    {% if form.category.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.category.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
                                     {{ form.name|as_crispy_field }}
                                     {% if form.name.errors %}
-                                        <div class="invalid-feedback">
+                                        <div class="invalid-feedback" style="display: block !important;">
                                             {% for error in form.name.errors %}
                                                 <p>{{ error }}</p>
                                             {% endfor %}
@@ -150,6 +295,66 @@
                                     {% endif %}
                                 </div>
                             </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {{ form.altitude_range|as_crispy_field }}
+                                    {% if form.altitude_range.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.altitude_range.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {{ form.maturity_type|as_crispy_field }}
+                                    {% if form.maturity_type.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.maturity_type.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {{ form.harvest_season|as_crispy_field }}
+                                    {% if form.harvest_season.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.harvest_season.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {{ form.tree_shape|as_crispy_field }}
+                                    {% if form.tree_shape.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.tree_shape.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {{ form.pollination_type|as_crispy_field }}
+                                    {% if form.pollination_type.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.pollination_type.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -187,6 +392,26 @@
                                     </div>
                                 {% endif %}
                             </div>
+                            <div class="col-md-4">
+                                {{ form.fruit_shape|as_crispy_field }}
+                                {% if form.fruit_shape.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.fruit_shape.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.fruit_color|as_crispy_field }}
+                                {% if form.fruit_color.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.fruit_color.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
 
@@ -219,6 +444,32 @@
                                     {% endif %}
                                 </div>
                             </div>
+                        </div>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.disease_resistance|as_crispy_field }}
+                                    {% if form.disease_resistance.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.disease_resistance.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.waterlogging_tolerance|as_crispy_field }}
+                                        {% if form.waterlogging_tolerance.errors %}
+                                            <div class="invalid-feedback">
+                                                {% for error in form.waterlogging_tolerance.errors %}
+                                                    <p>{{ error }}</p>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
                         </div>
                     </div>
 
@@ -264,7 +515,7 @@
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function () {

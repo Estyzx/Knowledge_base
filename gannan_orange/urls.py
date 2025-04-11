@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from . import views, api_views
 
 app_name = 'orange'
 urlpatterns = [
@@ -23,7 +23,19 @@ urlpatterns = [
     path('detail/pest/<int:id>/delete', views.PestDelete.as_view(), name='pest_delete'),
     path('list/pest', views.PestList.as_view(), name='pest_list'),
     path('favorite', views.FavoriteVariety.as_view(), name='favorite'),
-
-
-
+    
+    # 专家审核功能路由
+    path('review/pending', views.PendingReviewListView.as_view(), name='pending_review'),
+    path('review/history', views.ReviewHistoryListView.as_view(), name='review_history'),
+    path('review/variety/<int:id>', views.VarietyReviewView.as_view(), name='review_variety'),
+    path('review/tech/<int:id>', views.PlantingTechReviewView.as_view(), name='review_tech'),
+    path('review/pest/<int:id>', views.PestReviewView.as_view(), name='review_pest'),
+    path('review/soil/<int:id>', views.SoilTypeReviewView.as_view(), name='review_soil'),
+    
+    # 审核相关API端点
+    path('api/review-history/<str:content_type>/<int:content_id>/', api_views.review_history_api, name='review_history_api'),
+    path('api/review/<str:content_type>/<int:content_id>/', api_views.quick_review_api, name='quick_review_api'),
+    
+    # 添加天气API端点
+    path('api/weather/', api_views.weather_api, name='weather_api'),
 ]

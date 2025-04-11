@@ -1,0 +1,92 @@
+{% load static %}
+<form method="post" class="review-form needs-validation" novalidate>
+    {% csrf_token %}
+    
+    <div class="form-group mb-3">
+        <label class="form-label">{{ form.action.label }}</label>
+        <div class="form-check">
+            <input type="radio" id="id_action_0" name="action" value="approve" class="form-check-input" data-priority="high" autocomplete="off" required>
+            <label class="form-check-label" for="id_action_0">通过</label>
+        </div>
+        <div class="form-check">
+            <input type="radio" id="id_action_1" name="action" value="reject" class="form-check-input" data-priority="high" autocomplete="off">
+            <label class="form-check-label" for="id_action_1">拒绝</label>
+        </div>
+        {% if form.action.errors %}
+        <div class="invalid-feedback d-block">
+            {% for error in form.action.errors %}{{ error }}{% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="form-group mb-3">
+        <label for="id_comment" class="form-label">{{ form.comment.label }}</label>
+        <textarea name="comment" id="id_comment" rows="4" class="form-control lazy-render" 
+                  data-priority="medium" placeholder="请输入审核意见，拒绝时建议填写拒绝原因"></textarea>
+        {% if form.comment.errors %}
+        <div class="invalid-feedback d-block">
+            {% for error in form.comment.errors %}{{ error }}{% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">提交审核</button>
+    </div>
+</form>
+
+<!-- 内联脚本以避免额外的文件请求 -->
+<script>
+// 简化的表单处理逻辑
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.review-form');
+    if (form) {
+        // 优化拒绝情况下的评论验证
+        const rejectRadio = document.getElementById('id_action_1');
+        const commentField = document.getElementById('id_comment');
+        
+        rejectRadio.addEventListener('change', function() {
+            if (this.checked) {
+                commentField.setAttribute('required', '');
+                commentField.focus();
+            }
+        });
+        
+        document.getElementById('id_action_0').addEventListener('change', function() {
+            if (this.checked) {
+                commentField.removeAttribute('required');
+            }
+        });
+        
+        // 简化的表单验证
+        form.addEventListener('submit', function(e) {
+            if (rejectRadio.checked && !commentField.value.trim()) {
+                e.preventDefault();
+                commentField.classList.add('is-invalid');
+                
+                // 添加自定义错误消息
+                if (!commentField.nextElementSibling || !commentField.nextElementSibling.classList.contains('invalid-feedback')) {
+                    const errorMsg = document.createElement('div');
+                    errorMsg.className = 'invalid-feedback d-block';
+                    errorMsg.textContent = '拒绝时请填写审核意见，以便内容提交者了解原因并进行修改';
+                    commentField.after(errorMsg);
+                }
+                
+                commentField.focus();
+                return false;
+            }
+        });
+        
+        // 清除错误提示
+        commentField.addEventListener('input', function() {
+            if (this.value.trim()) {
+                this.classList.remove('is-invalid');
+                const errorMsg = this.nextElementSibling;
+                if (errorMsg && errorMsg.classList.contains('invalid-feedback')) {
+                    errorMsg.style.display = 'none';
+                }
+            }
+        });
+    }
+});
+</script>

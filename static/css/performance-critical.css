@@ -1,0 +1,62 @@
+/* 关键渲染路径样式 - 内联到head以减少阻塞 */
+
+/* 加载指示器样式 */
+#page-loader {
+    opacity: 0.8 !important;
+    transition: opacity 0.2s !important;
+}
+
+/* 禁用不必要的动画和过渡 */
+@media (prefers-reduced-motion: reduce), (max-width: 768px) {
+    /* 禁用所有非必要动画 */
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    
+    /* 保留必要的交互反馈 */
+    .btn:hover, .form-control:focus {
+        transition: all 0.1s ease !important;
+    }
+    
+    /* 禁用动画类 */
+    .animate-fadeInUp, .animate-fadeIn, .animate-pulse, 
+    .delay-1, .delay-2, .delay-3, .delay-4, .delay-5, .delay-6 {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
+
+/* 使用轻量级动画替代 */
+.fast-fade-in {
+    opacity: 0;
+    animation: fastFadeIn 0.2s forwards;
+}
+
+@keyframes fastFadeIn {
+    to { opacity: 1; }
+}
+
+/* 优化表单元素渲染 */
+.form-control, .form-select, .form-check-input {
+    transition: none !important;
+    will-change: auto !important;
+}
+
+/* 当JS加载失败时，确保内容显示 */
+.noscript-hidden {
+    display: none;
+}
+
+.js-loading {
+    opacity: 0;
+}
+
+/* 优化按钮交互样式 - 减少重绘 */
+.btn {
+    transform: translateZ(0); /* 启用GPU加速 */
+    backface-visibility: hidden;
+}

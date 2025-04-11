@@ -46,6 +46,69 @@
                       novalidate>
                     {% csrf_token %}
 
+                    <!-- 审核信息 -->
+                    {% if user.is_staff or user.is_expert %}
+                    <div class="form-section">
+                        <h3><i class="fas fa-check-circle form-icon"></i>审核信息</h3>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">当前状态</label>
+                                    <div class="form-control-static">
+                                        {% if plantingtech.review_status == 'pending' %}
+                                            <span class="badge bg-warning">待审核</span>
+                                        {% elif plantingtech.review_status == 'approved' %}
+                                            <span class="badge bg-success">已通过</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">已拒绝</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">审核人</label>
+                                    <div class="form-control-static">
+                                        {{ plantingtech.reviewer.username|default:'暂无' }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-label">审核意见</label>
+                                    <div class="form-control-static">
+                                        {{ plantingtech.review_comment|default:'暂无' }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- 审核操作 -->
+                    {% if user.is_staff or user.is_expert %}
+                    <div class="form-section">
+                        <h3><i class="fas fa-gavel form-icon"></i>审核操作</h3>
+                        <div class="row g-4">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    {{ review_form.action|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    {{ review_form.comment|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" name="review" class="btn btn-primary">
+                                    <i class="fas fa-check-circle me-2"></i>提交审核
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
                     <!-- 基础信息 -->
                     <div class="form-section">
                         <h3><i class="fas fa-info-circle form-icon"></i>基础信息</h3>
@@ -64,6 +127,61 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- 技术特性 -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-tools form-icon"></i>技术特性</h3>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.category|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.difficulty|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.applicable_season|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.labor_intensity|as_crispy_field }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 成本与效果 -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-chart-line form-icon"></i>成本与效果</h3>
+                        <div class="row g-4">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    {{ form.estimated_cost|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    {{ form.equipment_needed|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    {{ form.expected_outcome|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    {{ form.precautions|as_crispy_field }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
 
                     <!-- 技术描述 -->
                     <div class="form-section">

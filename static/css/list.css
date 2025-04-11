@@ -1,0 +1,106 @@
+
+/* 页面背景渐变 */
+body {
+    background: linear-gradient(135deg, #e0f7fa, #e8f5e9);
+}
+
+/* 页面标题 */
+.variety-page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    text-align: center;
+    background: linear-gradient(120deg, var(--primary-green), var(--info-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* 搜索框样式 */
+.input-group {
+    border-radius: 50px;
+    overflow: hidden;
+}
+
+.input-group-text {
+    font-size: 1.2rem;
+}
+
+/* 分页样式 */
+.pagination {
+    gap: 0.5rem;
+}
+
+.page-link {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.7);
+    color: var(--primary-green);
+}
+
+.page-link:hover {
+    background-color: var(--primary-green);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.page-item.active .page-link {
+    background: linear-gradient(135deg, var(--primary-green), var(--primary-teal));
+    color: white;
+    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+}
+
+/* Z-index 辅助类 */
+.z-index-1 {
+    z-index: 1;
+}
+
+/* 动画效果 - 优化性能 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 20px, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.animate-fadeInUp {
+    animation: fadeInUp 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+    will-change: transform, opacity;
+}
+
+/* 延迟动画 - 使用更高效的变量 */
+:root {
+    --delay-1: 0.1s;
+    --delay-2: 0.2s;
+    --delay-3: 0.3s;
+    --delay-4: 0.4s;
+    --delay-5: 0.5s;
+    --delay-6: 0.6s;
+}
+
+.delay-1 { animation-delay: var(--delay-1); }
+.delay-2 { animation-delay: var(--delay-2); }
+.delay-3 { animation-delay: var(--delay-3); }
+.delay-4 { animation-delay: var(--delay-4); }
+.delay-5 { animation-delay: var(--delay-5); }
+.delay-6 { animation-delay: var(--delay-6); }
+
+/* 添加淡入动画 */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.3s ease-in forwards;
+}

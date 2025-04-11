@@ -1,0 +1,134 @@
+.follow-up-container {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: 2rem;
+    margin: 2rem auto;
+    max-width: 800px;
+}
+
+.original-question {
+    background: rgba(248, 249, 250, 0.8);
+    border-left: 4px solid var(--primary-green);
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    border-radius: var(--border-radius-md);
+    transition: all 0.3s ease;
+}
+
+.original-question:hover {
+    transform: translateX(5px);
+    box-shadow: var(--shadow-sm);
+}
+
+.question-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--primary-green);
+    margin-bottom: 1rem;
+}
+
+.question-content {
+    color: #555;
+    line-height: 1.6;
+}
+
+.follow-up-form {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 1.5rem;
+    border-radius: var(--border-radius-md);
+    margin-top: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    display: block;
+    color: #444;
+}
+
+.form-control {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: var(--border-radius-md);
+    padding: 0.75rem;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--border-radius-md);
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary-green);
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
+}
+
+/* 追问列表样式优化 */
+.follow-up-questions {
+    background: rgba(248, 249, 250, 0.8);
+    padding: 1.5rem;
+    border-radius: var(--border-radius-md);
+    margin: 2rem 0;
+}
+
+.follow-up-item {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.follow-up-item:last-child {
+    border-bottom: none;
+}
+
+.follow-up-item:hover {
+    background: rgba(255, 255, 255, 0.5);
+    transform: translateX(5px);
+}
+
+.follow-up-item a {
+    color: #333;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.follow-up-item a:hover {
+    color: var(--primary-green);
+}
+
+.follow-up-time {
+    color: #666;
+    font-size: 0.9rem;
+    margin-left: 1rem;
+}
+

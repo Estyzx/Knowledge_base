@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block main %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="{{ referer }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>返回
+        </a>
+        
+        <h1 class="mb-0">{{ expert.user.username }} 的专家档案</h1>
+        
+        {% if perms.expert_qa.can_verify_expert and not expert.is_verified %}
+        <a href="{% url 'expert_qa:verify_expert' expert.id %}" class="btn btn-success">
+            <i class="fas fa-user-check me-2"></i>认定专家
+        </a>
+        {% endif %}
+    </div>
+    <div class="expert-detail-container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="expert-profile-card p-4">
+                    <div class="text-center mb-4">
+                        <div class="expert-avatar-lg mb-3">
+                            {% if expert.avatar %}
+                            <img src="{{ expert.avatar.url }}" alt="{{ expert.user.username }}" class="rounded-circle">
+                            {% else %}
+                            <i class="fas fa-user-tie fa-4x"></i>
+                            {% endif %}
+                        </div>
+                        
+                        <h3 class="mb-1">{{ expert.user.username }}</h3>
+                        <!-- 暂时注释掉 title 字段显示，直到迁移完成 -->
+                        {% comment %}
+                        {% if expert.title %}
+                        <p class="text-muted mb-1">{{ expert.title }}</p>
+                        {% endif %}
+                        {% endcomment %}
+                        
+                        {% if expert.is_verified %}
+                        <div class="verified-badge mb-2">
+                            <i class="fas fa-check-circle"></i> 已认证专家
+                            <small>({{ expert.verified_at|date:"Y-m-d" }})</small>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="expert-rating mb-2">
+                            {% with ''|center:5 as range %}
+                            {% for _ in range %}
+                                {% if forloop.counter <= expert.rating %}
+                                    <i class="fas fa-star"></i>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                            {% endwith %}
+                            <span class="ms-2">({{ expert.rating|floatformat:1 }})</span>
+                        </div>
+                    </div>
+                    
+                    <div class="expert-stats mb-4">
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <div class="stat-number">{{ expert.total_answers }}</div>
+                                <div class="stat-label">总回答</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-number">{{ expert.accepted_answers }}</div>
+                                <div class="stat-label">被采纳</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-number">{{ total_questions }}</div>
+                                <div class="stat-label">参与问题</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="expert-info mb-4">
+                        <h5>专家信息</h5>
+                        <p><strong>专业领域：</strong>{{ expert.expertise }}</p>
+                        <p><strong>专业类别：</strong>{{ expert.get_category_display }}</p>
+                        <p><strong>专家等级：</strong>{{ expert.get_level_display }}</p>
+                    </div>
+                    
+                    <div class="expert-bio mb-4">
+                        <h5>专家简介</h5>
+                        <p>{{ expert.bio }}</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <a href="{% url 'expert_qa:ask_expert' expert.id %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-question-circle"></i> 向TA提问
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-8">
+                <div class="expert-answers-section">
+                    <h4 class="mb-3">近期回答</h4>
+                    
+                    {% for answer in answers %}
+                    <div class="expert-answer-card mb-3">
+                        <div class="answer-question">
+                            <h5>
+                                <a href="{% url 'expert_qa:question_detail' answer.question.id %}" class="text-decoration-none">
+                                    {{ answer.question.title }}
+                                </a>
+                            </h5>
+                            <div class="small text-muted">
+                                <span>{{ answer.question.created_at|date:"Y-m-d H:i" }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="answer-content my-3">
+                            <div class="answer-preview">
+                                {{ answer.content|truncatewords:50|safe }}
+                                {% if answer.content|length > 200 %}
+                                <a href="{% url 'expert_qa:question_detail' answer.question.id %}" class="text-decoration-none">
+                                    查看完整回答
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="answer-footer">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <span class="me-3">
+                                        <i class="fas fa-thumbs-up"></i> {{ answer.vote_count }}
+                                    </span>
+                                    {% if answer.is_accepted %}
+                                    <span class="text-success">
+                                        <i class="fas fa-check-circle"></i> 已采纳
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <a href="{% url 'expert_qa:question_detail' answer.question.id %}" class="btn btn-sm btn-outline-primary">
+                                        查看讨论
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="alert alert-info">
+                        该专家还没有回答任何问题。
+                    </div>
+                    {% endfor %}
+                    
+                    <!-- 分页 -->
+                    {% if answers.has_other_pages %}
+                    <nav aria-label="Page navigation" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if answers.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ answers.previous_page_number }}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link" aria-hidden="true">&laquo;</span>
+                            </li>
+                            {% endif %}
+                            
+                            {% for num in answers.paginator.page_range %}
+                                {% if answers.number == num %}
+                                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                                {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if answers.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ answers.next_page_number }}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link" aria-hidden="true">&raquo;</span>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,188 +1,249 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}脐橙品种库 - 知识平台{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/list.css' %}">
+    <style>
+        /* 页面背景渐变 */
+        body {
+            background: linear-gradient(135deg, #e0f7fa, #e8f5e9);
+        }
+        
+        /* 页面标题 */
+        .variety-page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+            background: linear-gradient(120deg, var(--primary-green), var(--info-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* 搜索框样式 */
+        .input-group {
+            border-radius: 50px;
+            overflow: hidden;
+        }
+        
+        .input-group-text {
+            font-size: 1.2rem;
+        }
+        
+        /* 分页样式 */
+        .pagination {
+            gap: 0.5rem;
+        }
+        
+        .page-link {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.7);
+            color: var(--primary-green);
+        }
+        
+        .page-link:hover {
+            background-color: var(--primary-green);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .page-item.active .page-link {
+            background: linear-gradient(135deg, var(--primary-green), var(--primary-teal));
+            color: white;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+        
+        /* Z-index 辅助类 */
+        .z-index-1 {
+            z-index: 1;
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fadeInUp {
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+        
+        /* 延迟动画 */
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+        .delay-5 { animation-delay: 0.5s; }
+        .delay-6 { animation-delay: 0.6s; }
+        .filter-section {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .filter-title {
+        color: #28a745;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid #28a745;
+        padding-bottom: 0.5rem;
+    }
+    </style>
+{% endblock %}
 
 {% block main %}
-    <div class="container">
-        <h1 class="text-center my-4 text-success">脐橙品种列表</h1>
+    <div class="container my-4 animate-fadeInUp">
+        <h1 class="variety-page-title mb-5">品种库</h1>
 
         <!-- 搜索框 -->
-        <div class="row mb-4">
+        <div class="row mb-5 animate-fadeInUp delay-1">
             <div class="col-md-8 offset-md-2">
-                <form method="get" action="{% url 'orange:list' %}">
-                    <div class="input-group">
-                        <input type="text" name="q" class="form-control rounded-pill" placeholder="搜索品种名称或描述"
-                               value="{% if search_key %}{{ search_key }}{% endif %}">
-                        <button type="submit" class="btn btn-success rounded-pill">
-                            <i class="bi bi-search"></i> 搜索
-                        </button>
-                    </div>
-                </form>
+                <div class="glass-card p-4">
+                    <form method="get" action="{% url 'orange:list' %}">
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-0">
+                                <i class="fas fa-search text-success"></i>
+                            </span>
+                            <input type="text" name="q" class="form-control border-0 shadow-none" 
+                                placeholder="搜索品种名称或描述..."
+                                value="{% if search_key %}{{ search_key }}{% endif %}">
+                            <button type="submit" class="btn btn-success rounded-pill px-4">
+                                <i class="fas fa-search me-2"></i> 搜索
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
 
         <!-- 卡片式列表 -->
         <div class="row">
+        <div class="col-lg-3">
+            <div class="filter-section sticky-top" style="top: 100px;">
+                <h5 class="filter-title"><i class="fas fa-filter me-2"></i>品种分类</h5>
+
+                <!-- 分类筛选 -->
+                <div class="mb-4">
+                    <!--<h6 class="text-success mb-3">品种分类</h6>-->
+                    <div class="list-group">
+                        <a href="{% url 'orange:list' %}" class="list-group-item list-group-item-action {% if not category_id %}active{% endif %}">
+                            全部分类
+                        </a>
+                        {% for category in categories %}
+                        <a href="{% url 'orange:list' %}?category={{ category.id }}{% if search_key %}&q={{ search_key }}{% endif %}"
+                           class="list-group-item list-group-item-action {% if category_id == category.id|stringformat:'i' %}active{% endif %}">
+                            {{ category.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    <div class="col-lg-9">
+             <div class="row g-4">
             {% for variety in variety_list %}
-                <div class="col-md-4 mb-4">
-                    <div class="card shadow-lg border-light rounded-lg hover-card">
-                        <div class="card-body">
-                            <h5 class="card-title text-success">{{ variety.name }}</h5>
-                            <p class="card-text text-muted">{{ variety.description|truncatechars:45 }}</p>
-                            <a href="{% url 'orange:detail' id=variety.id %}" class="btn btn-outline-success btn-sm stretched-link">
-                                <i class="bi bi-eye"></i> 查看详情
-                            </a>
-                            <p class="mt-2 text-muted">更新时间：{{ variety.update_time|date:"Y-m-d H:i:s" }}</p>
+                <div class="col-md-4 mb-4 animate-fadeInUp delay-{{ forloop.counter|add:"1" }}">
+                    <div class="glass-card h-100 position-relative overflow-hidden">
+                        <!-- 渐变背景装饰 -->
+                        <div class="position-absolute top-0 end-0 w-50 h-50 opacity-25 rounded-circle" 
+                             style="background: linear-gradient(135deg, var(--primary-green), var(--primary-teal)); transform: translate(25%, -25%);"></div>
+                        
+                        <div class="card-body position-relative z-index-1 p-4">
+                            <h5 class="card-title fw-bold mb-3">{{ variety.name }}</h5>
+                            <p class="card-text text-muted mb-4">{{ variety.description|truncatechars:60 }}</p>
+                            
+                            <div class="d-flex justify-content-between align-items-center mt-auto">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i> {{ variety.update_time|date:"Y-m-d" }}
+                                </small>
+                                <a href="{% url 'orange:detail' id=variety.id %}" class="btn btn-sm btn-success rounded-pill px-3">
+                                    <i class="fas fa-eye me-1"></i> 查看详情
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             {% empty %}
-                <div class="col-12">
-                    <div class="alert alert-info text-center">没有找到相关品种。</div>
+                <div class="col-12 animate-fadeInUp delay-2">
+                    <div class="glass-card p-4 text-center">
+                        <i class="fas fa-info-circle text-info fa-2x mb-3"></i>
+                        <p class="mb-0">没有找到相关品种。</p>
+                    </div>
                 </div>
             {% endfor %}
+             </div>
+    </div>
         </div>
 
         <!-- 分页 -->
         {% if is_paginated %}
-            <nav aria-label="Page navigation" class="mt-4">
-                <ul class="pagination justify-content-center">
-                    {% if page_obj.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page=1{% if search_key %}&q={{ search_key }}{% endif %}"
-                               aria-label="First">
-                                <span aria-hidden="true">&laquo;&laquo;</span>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_key %}&q={{ search_key }}{% endif %}"
-                               aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-                    {% endif %}
-                    {% for num in page_obj.paginator.page_range %}
-                        {% if page_obj.number == num %}
-                            <li class="page-item active" aria-current="page">
-                                <span class="page-link">{{ num }}</span>
-                            </li>
-                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <nav aria-label="Page navigation" class="mt-5 animate-fadeInUp delay-5">
+                <div class="glass-card p-3">
+                    <ul class="pagination justify-content-center mb-0">
+                        {% if page_obj.has_previous %}
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ num }}{% if search_key %}&q={{ search_key }}{% endif %}">{{ num }}</a>
+                                <a class="page-link" href="?page=1{% if search_key %}&q={{ search_key }}{% endif %}"
+                                aria-label="First">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_key %}&q={{ search_key }}{% endif %}"
+                                aria-label="Previous">
+                                    <i class="fas fa-angle-left"></i>
+                                </a>
                             </li>
                         {% endif %}
-                    {% endfor %}
-                    {% if page_obj.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_key %}&q={{ search_key }}{% endif %}"
-                               aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_key %}&q={{ search_key }}{% endif %}"
-                               aria-label="Last">
-                                <span aria-hidden="true">&raquo;&raquo;</span>
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active" aria-current="page">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if search_key %}&q={{ search_key }}{% endif %}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_key %}&q={{ search_key }}{% endif %}"
+                                aria-label="Next">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_key %}&q={{ search_key }}{% endif %}"
+                                aria-label="Last">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
             </nav>
         {% endif %}
     </div>
-{% endblock %}
-{% block head %}
-<style>
-
-
-/* 卡片样式 */
-.card {
-    height: 250px; /* 让卡片保持相同高度 */
-    display: flex;
-    flex-direction: column;
-}
-
-.card-body {
-    flex-grow: 1; /* 让内容区填充可用空间 */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; /* 让按钮和文字均匀分布 */
-}
-
-.card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border-radius: 20px;
-}
-
-.card:hover {
-    transform: translateY(-5px); /* 悬停时轻微上移 */
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1); /* 强化阴影 */
-}
-
-.card-body {
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 10px; /* 卡片内边框圆角 */
-}
-
-.card-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #28a745;
-}
-
-.card-text {
-    font-size: 1rem;
-    color: #6c757d;
-}
-
-/* 搜索框 */
-.input-group {
-    border-radius: 50px;
-}
-.form-control {
-    border-radius: 30px;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-/* 按钮样式 */
-.btn-outline-success {
-    border-radius: 30px;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-.btn-outline-success:hover {
-    background-color: #28a745;
-    color: white;
-}
-
-/* 悬浮卡片的颜色和边框 */
-.hover-card:hover .card-body {
-    background-color: #f8f9fa;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-}
-
-/* 分页按钮 */
-.page-link {
-    border-radius: 50%;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    background-color: #e0e7ff;
-    border: 1px solid #d1d9e6;
-}
-.page-link:hover {
-    background-color: #28a745;
-    color: white;
-}
-.page-item.active .page-link {
-    background-color: #28a745;
-    color: white;
-}
-
-/* 页脚调整 */
-footer {
-    padding: 20px 0;
-    text-align: center;
-    background-color: #f8f9fa;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-}
-
-</style>
-
 {% endblock %}

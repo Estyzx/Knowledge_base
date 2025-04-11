@@ -1,104 +1,289 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}文章列表 - 农业智库{% endblock %}
 
-{% block main %}
-<div class="container-fluid">
-        <h1 class="text-center my-4 text-success">文章列表</h1>
+{% block head %}
+<style>
+    .article-list-header {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        padding: 2rem 0;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .search-container {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+    
+    .search-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    }
+    
+    .article-card {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1.5rem;
+        border-left: 4px solid #28a745;
+    }
+    
+    .article-card:hover {
+        transform: translateY(-7px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .article-title {
+        color: #28a745;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .article-title:hover {
+        color: #218838;
+        text-decoration: none;
+    }
+    
+    .tag-badge {
+        background-color: rgba(40, 167, 69, 0.15);
+        color: #28a745;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 20px;
+        margin-right: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .tag-badge:hover {
+        background-color: rgba(40, 167, 69, 0.25);
+        transform: translateY(-2px);
+    }
+    
+    .category-badge {
+        background-color: rgba(0, 123, 255, 0.15);
+        color: #007bff;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 20px;
+        margin-right: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .category-badge:hover {
+        background-color: rgba(0, 123, 255, 0.25);
+        transform: translateY(-2px);
+    }
+    
+    .filter-section {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .filter-title {
+        color: #28a745;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid #28a745;
+        padding-bottom: 0.5rem;
+    }
+</style>
+{% endblock %}
 
+{% block main %}
+<div class="container mt-4">
+    <div class="article-list-header text-center">
+        <h1 class="display-4 mb-3"><i class="fas fa-book-open me-3"></i>文章列表</h1>
+        <p class="lead">探索农业知识，分享种植技术</p>
+        
         <!-- 搜索框 -->
-        <div class="row mb-4">
-            <div class="col-md-8 offset-md-2">
-                <form method="get" action="{% url 'article:list' %}">
-                    <div class="input-group">
-                        <input type="text" name="q" class="form-control rounded-pill" placeholder="搜索文章名称或内容"
-                               value="{% if search_key %}{{ search_key }}{% endif %}">
-                        <button type="submit" class="btn btn-success rounded-pill">
-                            <i class="bi bi-search"></i> 搜索
-                        </button>
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-8">
+                <div class="search-container">
+                    <form method="get" action="{% url 'article:list' %}">
+                        <div class="input-group">
+                            <input type="text" name="q" class="form-control rounded-pill" placeholder="搜索文章名称或内容"
+                                   value="{% if search_key %}{{ search_key }}{% endif %}">
+                            <button type="submit" class="btn btn-success rounded-pill">
+                                <i class="fas fa-search me-2"></i> 搜索
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- 左侧筛选栏 -->
+        <div class="col-lg-3">
+            <div class="filter-section sticky-top" style="top: 100px;">
+                <h5 class="filter-title"><i class="fas fa-filter me-2"></i>筛选</h5>
+                
+                <!-- 分类筛选 -->
+                <div class="mb-4">
+                    <h6 class="text-success mb-3">文章分类</h6>
+                    <div class="list-group">
+                        <a href="{% url 'article:list' %}" class="list-group-item list-group-item-action {% if not category_id %}active{% endif %}">
+                            全部分类
+                        </a>
+                        {% for category in categories %}
+                        <a href="{% url 'article:list' %}?category={{ category.id }}{% if search_key %}&q={{ search_key }}{% endif %}" 
+                           class="list-group-item list-group-item-action {% if category_id == category.id|stringformat:'i' %}active{% endif %}">
+                            {{ category.name }}
+                        </a>
+                        {% endfor %}
                     </div>
-                </form>
+                </div>
+                
+                <!-- 标签筛选 -->
+                <div>
+                    <h6 class="text-success mb-3">热门标签</h6>
+                    <div class="d-flex flex-wrap">
+                        {% for tag in tags %}
+                        <a href="{% url 'article:list' %}?tag={{ tag.id }}{% if search_key %}&q={{ search_key }}{% endif %}" 
+                           class="tag-badge text-decoration-none mb-2">
+                            #{{ tag.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
         </div>
 
-    <!-- 文章列表 -->
-    <div class="row g-4">
-        {% for article in articles %}
-        <div class="col-12">
-            <!-- 将整个长条包裹在<a>标签中 -->
-            <a href="{% url 'article:detail' article.id %}" class="text-decoration-none d-block">
-                <div class="row g-3 align-items-center border-bottom pb-3">
-                    <!-- 文章内容 -->
-                    <div class="col-10">
-                        <h4 class="text-success mb-3">
-                            {{ article.title }}
-                        </h4>
-                        <p class="text-muted mb-3">{{ article.content|truncatechars:100|striptags }}</p>
-                        <!-- 元数据 -->
-                        <div class="d-flex align-items-center text-muted small">
-                            <span class="me-3">
-                                <i class="fas fa-user-circle me-1"></i>{{ article.author }}
-                            </span>
-                            <span class="me-3">
-                                <i class="fas fa-calendar-alt me-1"></i>{{ article.updated_time|date:"Y-m-d" }}
-                            </span>
-                            <span>
-                                <i class="fas fa-heart me-1"></i>{{ article.favorite_user.count }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </a>
-        </div>
-        {% endfor %}
-    </div>
+         <!-- 文章列表 -->
+         <div class="col-lg-9">
+             <div class="row g-4">
+                 {% for article in articles %}
+                 <div class="col-md-6 mb-4">
+                     <div class="article-card h-100">
+                         <div class="card-body p-4">
+                             <h4 class="mb-3">
+                                 <a href="{% url 'article:detail' article.id %}" class="article-title">
+                                     {{ article.title }}
+                                 </a>
+                             </h4>
+                             
+                             <!-- 分类和标签 -->
+                             <div class="mb-3">
+                                 {% if article.category %}
+                                 <span class="category-badge">
+                                     <i class="fas fa-folder me-1"></i>{{ article.category.name }}
+                                 </span>
+                                 {% endif %}
+                                 
+                                 {% for tag in article.tags.all %}
+                                 <span class="tag-badge">
+                                     <i class="fas fa-tag me-1"></i>{{ tag.name }}
+                                 </span>
+                                 {% endfor %}
+                             </div>
+                             
+                             <p class="text-muted mb-3">{{ article.content|striptags|truncatechars:100|safe }}</p>
+                             
+                             <!-- 元数据 -->
+                             <div class="d-flex justify-content-between align-items-center">
+                                 <div class="d-flex align-items-center text-muted small">
+                                     <span class="me-3">
+                                         <i class="fas fa-user-circle me-1"></i>{{ article.author.username }}
+                                     </span>
+                                     <span class="me-3">
+                                         <i class="fas fa-calendar-alt me-1"></i>{{ article.updated_time|date:"Y-m-d" }}
+                                     </span>
+                                 </div>
+                                 <div>
+                                     <span class="badge bg-danger rounded-pill">
+                                         <i class="fas fa-heart me-1"></i>{{ article.favorite_user.count }}
+                                     </span>
+                                     <span class="badge bg-info rounded-pill">
+                                         <i class="fas fa-eye me-1"></i>{{ article.views_count }}
+                                     </span>
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+                 {% empty %}
+                 <div class="col-12">
+                     <div class="article-card">
+                         <div class="card-body p-5 text-center">
+                             <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                             <h4 class="text-muted">没有找到相关文章</h4>
+                             <p class="text-muted mb-4">尝试使用其他关键词或浏览所有分类</p>
+                             <a href="{% url 'article:list' %}" class="btn btn-success rounded-pill">
+                                 <i class="fas fa-sync-alt me-2"></i>查看所有文章
+                             </a>
+                         </div>
+                     </div>
+                 </div>
+                 {% endfor %}
+             </div>
 
-        <!-- 分页 -->
-        {% if is_paginated %}
-            <nav aria-label="Page navigation" class="mt-4">
-                <ul class="pagination justify-content-center">
-                    {% if page_obj.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page=1{% if search_key %}&q={{ search_key }}{% endif %}"
-                               aria-label="First">
-                                <span aria-hidden="true">&laquo;&laquo;</span>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_key %}&q={{ search_key }}{% endif %}"
-                               aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-                    {% endif %}
-                    {% for num in page_obj.paginator.page_range %}
-                        {% if page_obj.number == num %}
-                            <li class="page-item active" aria-current="page">
-                                <span class="page-link">{{ num }}</span>
-                            </li>
-                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ num }}{% if search_key %}&q={{ search_key }}{% endif %}">{{ num }}</a>
-                            </li>
-                        {% endif %}
-                    {% endfor %}
-                    {% if page_obj.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_key %}&q={{ search_key }}{% endif %}"
-                               aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_key %}&q={{ search_key }}{% endif %}"
-                               aria-label="Last">
-                                <span aria-hidden="true">&raquo;&raquo;</span>
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </nav>
-        {% endif %}
-
+             <!-- 分页 -->
+             {% if is_paginated %}
+                 <nav aria-label="Page navigation" class="mt-4 mb-5">
+                     <ul class="pagination justify-content-center">
+                         {% if page_obj.has_previous %}
+                             <li class="page-item">
+                                 <a class="page-link" href="?page=1{% if search_key %}&q={{ search_key }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if tag_id %}&tag={{ tag_id }}{% endif %}"
+                                    aria-label="First">
+                                     <span aria-hidden="true">&laquo;&laquo;</span>
+                                 </a>
+                             </li>
+                             <li class="page-item">
+                                 <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_key %}&q={{ search_key }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if tag_id %}&tag={{ tag_id }}{% endif %}"
+                                    aria-label="Previous">
+                                     <span aria-hidden="true">&laquo;</span>
+                                 </a>
+                             </li>
+                         {% endif %}
+                         {% for num in page_obj.paginator.page_range %}
+                             {% if page_obj.number == num %}
+                                 <li class="page-item active" aria-current="page">
+                                     <span class="page-link">{{ num }}</span>
+                                 </li>
+                             {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                 <li class="page-item">
+                                     <a class="page-link" href="?page={{ num }}{% if search_key %}&q={{ search_key }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if tag_id %}&tag={{ tag_id }}{% endif %}">{{ num }}</a>
+                                 </li>
+                             {% endif %}
+                         {% endfor %}
+                         {% if page_obj.has_next %}
+                             <li class="page-item">
+                                 <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_key %}&q={{ search_key }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if tag_id %}&tag={{ tag_id }}{% endif %}"
+                                    aria-label="Next">
+                                     <span aria-hidden="true">&raquo;</span>
+                                 </a>
+                             </li>
+                             <li class="page-item">
+                                 <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_key %}&q={{ search_key }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if tag_id %}&tag={{ tag_id }}{% endif %}"
+                                    aria-label="Last">
+                                     <span aria-hidden="true">&raquo;&raquo;</span>
+                                 </a>
+                             </li>
+                         {% endif %}
+                     </ul>
+                 </nav>
+             {% endif %}
+         </div>
+     </div>
 </div>
 {% endblock %}

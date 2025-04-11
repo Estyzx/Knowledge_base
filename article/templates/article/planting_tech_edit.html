@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load crispy_forms_filters %} {% load crispy_forms_tags static %}
+
+{% block title %}编辑文章 - {{ form.instance.title }}{% endblock %}
+
+{% block head %}
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+
+<style>
+    .form-section {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid #dee2e6;
+    }
+
+    .form-section h3 {
+        color: #2c7a47;
+        border-bottom: 2px solid #2c7a47;
+        padding-bottom: 0.75rem;
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #2c7a47, #38a169);
+    }
+
+    .form-icon {
+        color: #2c7a47;
+        margin-right: 0.5rem;
+    }
+
+    .invalid-feedback {
+        display: block !important;
+        color: red;
+    }
+
+    /* Customize the CKEditor container */
+    .cke_editable {
+        background-color: #ffffff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        font-size: 16px;
+    }
+
+    .cke_toolbox {
+        background: #2c7a47 !important;
+    }
+
+    /* Adjust toolbar for better styling */
+    .cke_button__bold_icon {
+        color: #2c7a47;
+    }
+
+    .cke_button__italic_icon {
+        color: #38a169;
+    }
+
+    .cke_button__underline_icon {
+        color: #38a169;
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb bg-white rounded-3 shadow-sm p-3 mb-4">
+            <li class="breadcrumb-item">
+                <a href="{% url 'orange:home' %}" class="text-success">
+                    <i class="fas fa-home fa-fw"></i> 首页
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'article:list' %}" class="text-success">
+                    <i class="fas fa-book fa-fw"></i> 所有文章
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'article:detail' form.instance.id %}" class="text-success">
+                    <i class="fas fa-file-alt fa-fw"></i> {{ form.instance.title|truncatechars:20 }}
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <i class="fas fa-edit fa-fw"></i> 编辑文章
+            </li>
+        </ol>
+    </nav>
+
+    <div class="card shadow-lg">
+        <div class="card-header text-white">
+            <h2 class="mb-0"><i class="fas fa-edit form-icon"></i>编辑文章</h2>
+        </div>
+
+        <div class="card-body">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post" action="{% url 'article:edit' form.instance.id %}" enctype="multipart/form-data" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <!-- 基础信息 -->
+                <div class="form-section">
+                    <h3><i class="fas fa-info-circle form-icon"></i>基础信息</h3>
+                    <div class="row g-4">
+                        <div class="col-md-12">
+                            {{ form.title|as_crispy_field }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 文章内容 -->
+                <div class="form-section">
+                    <h3><i class="fas fa-file-alt form-icon"></i>文章内容</h3>
+                    <div class="row g-4">
+                        <div class="col-md-12">
+                            {{ form.content|as_crispy_field }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 提交按钮 -->
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{% url 'article:detail' form.instance.id %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>返回文章
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save me-2"></i>保存修改
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

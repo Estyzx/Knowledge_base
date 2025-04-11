@@ -58,6 +58,69 @@
                 <form method="post" action="{% url 'orange:soil_edit' soil.id %}" class="needs-validation" novalidate>
                     {% csrf_token %}
 
+                    <!-- 审核信息 -->
+                    {% if user.is_staff or user.is_expert %}
+                    <div class="form-section">
+                        <h3><i class="fas fa-check-circle form-icon"></i>审核信息</h3>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">当前状态</label>
+                                    <div class="form-control-static">
+                                        {% if soil.review_status == 'pending' %}
+                                            <span class="badge bg-warning">待审核</span>
+                                        {% elif soil.review_status == 'approved' %}
+                                            <span class="badge bg-success">已通过</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">已拒绝</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">审核人</label>
+                                    <div class="form-control-static">
+                                        {{ soil.reviewer.username|default:'暂无' }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-label">审核意见</label>
+                                    <div class="form-control-static">
+                                        {{ soil.review_comment|default:'暂无' }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- 审核操作 -->
+                    {% if user.is_staff or user.is_expert %}
+                    <div class="form-section">
+                        <h3><i class="fas fa-gavel form-icon"></i>审核操作</h3>
+                        <div class="row g-4">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    {{ review_form.action|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    {{ review_form.comment|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" name="review" class="btn btn-primary">
+                                    <i class="fas fa-check-circle me-2"></i>提交审核
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
                     <!-- 基础信息 -->
                     <div class="form-section">
                         <h3><i class="fas fa-info-circle form-icon"></i>基础信息</h3>
@@ -103,6 +166,61 @@
                         </div>
                     </div>
 
+                    <!-- 土壤特性 -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-layer-group form-icon"></i>土壤特性</h3>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.texture|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.drainage|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.water_retention|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.fertility|as_crispy_field }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 养分含量 -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-flask form-icon"></i>养分含量</h3>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.nitrogen_content|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.phosphorus_content|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.potassium_content|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.cation_exchange|as_crispy_field }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
                     <!-- 技术描述 -->
                     <div class="form-section">
                         <h3><i class="fas fa-info-circle form-icon"></i>土壤描述</h3>
@@ -127,7 +245,7 @@
                         <button type="submit" class="btn btn-success btn-lg py-3">
                             <i class="fas fa-save me-2"></i>保存修改
                         </button>
-                        <a href="{% url 'orange:home' %}" class="btn btn-outline-secondary btn-lg py-3">
+                        <a href="{% url 'orange:soil_detail' soil.id %}" class="btn btn-outline-secondary btn-lg py-3">
                             <i class="fas fa-times me-2"></i>取消返回
                         </a>
                     </div>

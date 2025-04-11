@@ -1,265 +1,175 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="zh-cn">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>{% block title %}{% endblock %}</title>
-
-    <!-- Bootstrap 5 CSS -->
-    <link rel="stylesheet"
-          href="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/twitter-bootstrap/5.1.3/css/bootstrap.min.css">
-    <!-- FontAwesome 图标库 -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
-
-    <style>
-        /* 背景优化 */
-        body {
-            background: linear-gradient(135deg, #f3f4f9, #dfe7fd);
-            min-height: 100vh;
-        }
-
-        /* 导航栏优化 */
-        .navbar {
-            transition: all 0.3s ease-in-out;
-        }
-
-        .navbar-brand img {
-            height: 40px;
-        }
-
-        .navbar-nav .nav-link {
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .navbar-nav .nav-link:hover {
-            color: #f8f9fa;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-        }
-
-        /* 卡片式内容 */
-        .content-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            {#transition: transform 0.3s ease-in-out;#}
-        }
-
-        .content-card:hover {
-            {#transform: translateY(-5px);#}
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-        }
-
-        /* 按钮优化 */
-        .btn-custom {
-            border-radius: 25px;
-            padding: 10px 20px;
-            transition: all 0.3s ease-in-out;
-        }
-
-        .btn-custom:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        :root {
-            --primary-orange: #FF6B35;
-            --primary-teal: #2A9D8F;
-            --primary-purple: #6C63FF;
-            --primary-cyan: #00B4D8;
-            --soil-color: #8D6E63;
-        }
-
-        .bg-orange-gradient {
-            background: linear-gradient(135deg, var(--primary-orange) 0%, #FF9F1C 100%) !important;
-        }
-
-        .bg-soil {
-            background-color: var(--soil-color) !important;
-            color: white !important;
-        }
-
-        .bg-success {
-            color: white !important;
-        }
-
-        .text-orange {
-            color: var(--primary-orange) !important;
-        }
-
-        .bg-teal {
-            background-color: var(--primary-teal) !important;
-        }
-
-        .text-teal {
-            color: var(--primary-teal) !important;
-        }
-
-        .bg-purple {
-            background-color: var(--primary-purple) !important;
-        }
-
-        .text-purple {
-            color: var(--primary-purple) !important;
-        }
-
-        .shadow-hover {
-            transition: transform 0.3s, box-shadow 0.3s;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, .15);
-        }
-
-        .shadow-hover:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 1rem 3rem rgba(0, 0, 0, .15) !important;
-        }
-
-        .icon-lg {
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-        }
-
-        .bg-light-20 {
-            background-color: rgba(248, 249, 250, 0.2);
-        }
-
-        .bg-orange-20 {
-            background-color: rgba(255, 107, 53, 0.15);
-        }
-
-        .bg-purple-20 {
-            background-color: rgba(108, 99, 255, 0.15);
-        }
-
-        .bg-cyan-20 {
-            background-color: rgba(0, 180, 216, 0.15);
-        }
-
-        .fruit-stats h3 small {
-            font-size: 0.6em;
-        }
-
-        .breadcrumb {
-            background-color: #f9f9f9;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            padding: 10px;
-        }
-
-        .breadcrumb .breadcrumb-item a {
-            color: #007bff;
-            text-decoration: none;
-        }
-
-        .breadcrumb .breadcrumb-item.active {
-            color: #6c757d;
-        }
-
-    </style>
-    {% block head %}
-    {% endblock %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}农业知识平台{% endblock %}</title>
+    
+    <!-- CSS文件 -->
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    <link rel="stylesheet" href="{% static 'css/animations.css' %}">
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/twitter-bootstrap/5.1.3/css/bootstrap.min.css">
+    
+    <!-- FontAwesome -->
+    <link href="{% static 'fontawesome/css/all.min.css' %}" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/limonte-sweetalert2/11.4.4/sweetalert2.min.css">
+    
+    {% block head %}{% endblock %}
 </head>
 <body>
+    <!-- 页面加载进度条 -->
+    <div id="page-loader">
+        <div id="progress-bar"></div>
+    </div>
 
-<!-- 导航栏 -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-success shadow-sm">
-    <div class="container">
-        <a class="navbar-brand" href="{% url 'orange:home' %}">
-            <img src="" alt="Logo"> 农业智库
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="mainNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'orange:list' %}">
-                        <i class="fas fa-seedling me-1"></i>品种库
-                    </a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-tools me-1"></i>其他知识库
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{% url 'orange:tech_list' %}"><i
-                                class="fas fa-tractor me-1"></i>种植技术库</a></li>
-                        <li><a class="dropdown-item" href="{% url 'orange:pest_list' %}"><i class="fas fa-bug me-1"></i>病虫害库</a>
-                        </li>
-                        <li><a class="dropdown-item" href="{% url 'orange:soil_list' %}"><i
-                                class="fas fa-globe-asia me-1"></i>土壤库</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-tools me-1"></i>种植工具
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="">病虫害识别</a></li>
-                        <li><a class="dropdown-item" href="">种植日历</a></li>
-                    </ul>
-                </li>
-            </ul>
-
-            <ul class="navbar-nav ms-auto">
-                {% if user.is_authenticated %}
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'orange:home' %}">
+                <img src="{% static 'logo.svg' %}" alt="Logo"> 农业知识平台
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'orange:list' %}">
+                            <i class="fas fa-seedling me-1"></i>品种库
+                        </a>
+                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle me-1"></i>{{ user.username }}
+                            <i class="fas fa-tools me-1"></i>其他知识库
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="{% url 'user:detail' user.id %}">
-                                <i class="fas fa-user me-2"></i>个人中心
-                            </a></li>
-                            <li>
-                                <hr class="dropdown-divider">
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'orange:tech_list' %}"><i
+                                    class="fas fa-tractor me-1"></i>种植技术库</a></li>
+                            <li><a class="dropdown-item" href="{% url 'orange:pest_list' %}"><i class="fas fa-bug me-1"></i>病虫害库</a>
                             </li>
+                            <li><a class="dropdown-item" href="{% url 'orange:soil_list' %}"><i class="fas fa-globe-asia me-1"></i>土壤库</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-tools me-1"></i>种植工具
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="">病虫害识别</a></li>
+                            <li><a class="dropdown-item" href="http://zdscxx.moa.gov.cn:8080/nyb/pc/calendar.jsp" target="_blank">种植日历</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle"></i> {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="{% url 'user:user_detail' user.pk %}">
+                                <i class="fas fa-user"></i> 个人中心
+                            </a></li>
+                            <!-- 其他现有菜单项 -->
+                            <li><hr class="dropdown-divider"></li>
                             <li>
-                                <form action="{% url 'user:logout' %}" method="post">
+                                <form id="logout-form" action="{% url 'user:logout' %}" method="post" style="display: inline;">
                                     {% csrf_token %}
-                                    <button type="submit" class="dropdown-item text-danger">
-                                        <i class="fas fa-sign-out-alt me-2"></i>退出登录
-                                    </button>
+                                    <a class="dropdown-item" href="javascript:void(0);" onclick="document.getElementById('logout-form').submit();">
+                                        <i class="fas fa-sign-out-alt"></i> 退出登录
+                                    </a>
                                 </form>
                             </li>
                         </ul>
                     </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link btn-custom btn btn-outline-light" href="{% url 'user:login' %}">
-                            <i class="fas fa-sign-in-alt me-1"></i> 登录
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link btn-custom btn btn-warning text-dark ms-2" href="{% url 'user:register' %}">
-                            <i class="fas fa-user-plus me-1"></i> 注册
-                        </a>
-                    </li>
-                {% endif %}
-            </ul>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link btn-custom btn btn-outline-light" href="{% url 'user:login' %}">
+                                <i class="fas fa-sign-in-alt me-1"></i> 登录
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn-custom btn btn-warning text-dark ms-2" href="{% url 'user:register' %}">
+                                <i class="fas fa-user-plus me-1"></i> 注册
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主体内容 -->
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+                <div class="content-card p-4 glassmorphism">
+                    {% block main %}{% endblock %}
+                </div>
+            </div>
         </div>
     </div>
-</nav>
 
-<!-- 主体内容 -->
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="content-card p-4">
-            {% block main %}
-            {% endblock %}
+    <!-- 页脚 -->
+    <footer class="mt-5 py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h5 class="text-dark fw-bold mb-3">农业知识平台</h5>
+                    <p class="text-muted">提供全面的农业知识和种植技术，助力农业发展。</p>
+                    <div class="d-flex mt-3">
+                        <a href="#" class="me-3 text-muted"><i class="fab fa-weixin fa-lg"></i></a>
+                        <a href="#" class="me-3 text-muted"><i class="fab fa-weibo fa-lg"></i></a>
+                        <a href="#" class="text-muted"><i class="fas fa-envelope fa-lg"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h6 class="text-dark fw-bold mb-3">快速链接</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{% url 'orange:home' %}" class="text-decoration-none text-muted">首页</a></li>
+                        <li class="mb-2"><a href="{% url 'orange:list' %}" class="text-decoration-none text-muted">品种库</a></li>
+                        <li class="mb-2"><a href="{% url 'orange:tech_list' %}" class="text-decoration-none text-muted">种植技术库</a></li>
+                        <li><a href="{% url 'orange:pest_list' %}" class="text-decoration-none text-muted">病虫害库</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                </div>
+                <div class="col-md-2">
+                    <h6 class="text-dark fw-bold mb-3">联系我们</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="fas fa-phone-alt me-2 text-muted"></i><span class="text-muted">暂无</span></li>
+                        <li><i class="fas fa-envelope me-2 text-muted"></i><span class="text-muted">contact@nongye.com</span></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="text-muted mb-0">© 2023 农业知识平台. 保留所有权利</p>
+                </div>
+            </div>
         </div>
+    </footer>
+
+    <!-- 返回顶部按钮 -->
+    <div id="backToTop" class="shadow">
+        <i class="fas fa-chevron-up"></i>
     </div>
-</div>
 
-<!-- Bootstrap 5 JS -->
-<script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/twitter-bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
-
+    <!-- JavaScript依赖 -->
+    <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/popper.js/2.11.2/umd/popper.min.js"></script>
+    <script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/twitter-bootstrap/5.1.3/js/bootstrap.min.js"></script>
+    <script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/sweetalert/2.1.2/sweetalert.min.js"></script>
+    
+    <!-- 自定义JS -->
+    <script src="{% static 'js/app.js' %}" defer></script>
+    <script src="{% static 'js/progress-bar.js' %}" defer></script>
+    
+    {% block extra_js %}{% endblock %}
+    {% block extra_css %}{% endblock %}
 </body>
 </html>

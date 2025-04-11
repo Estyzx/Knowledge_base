@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}待审核内容 - 知识平台{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/list.css' %}">
+    <style>
+        .review-card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            background-color: #fff;
+        }
+        
+        .review-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+        }
+        
+        .review-header {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            background: linear-gradient(135deg, var(--primary-green), var(--primary-teal));
+            color: white;
+        }
+        
+        .review-body {
+            padding: 1.5rem;
+        }
+        
+        .review-footer {
+            padding: 1rem;
+            border-top: 1px solid #eee;
+            background-color: #f9f9f9;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            margin: 2rem 0;
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            color: #ccc;
+            margin-bottom: 1rem;
+        }
+        
+        .review-summary {
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .summary-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .summary-label {
+            font-size: 0.9rem;
+            color: #777;
+        }
+        
+        .quick-review-btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+        
+        .review-card:hover .quick-review-btn {
+            opacity: 1;
+        }
+        
+        .quick-review-btn {
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+        }
+        
+        .review-card {
+            position: relative;
+        }
+        
+        .review-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            z-index: 1;
+        }
+    </style>
+    
+    <script src="{% static 'js/review.js' %}" defer></script>
+{% endblock %}
+
+{% block main %}
+    <div class="container my-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="page-title">待审核内容</h1>
+            <a href="{% url 'orange:review_history' %}" class="btn btn-outline-primary">
+                <i class="fas fa-history me-2"></i>审核历史
+            </a>
+        </div>
+        
+        <!-- 审核汇总信息 -->
+        <div class="review-summary">
+            <div class="row text-center">
+                <div class="col-md-3">
+                    <div class="summary-number">{{ pending_varieties|length }}</div>
+                    <div class="summary-label">待审核品种</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="summary-number">{{ pending_planting_techs|length }}</div>
+                    <div class="summary-label">待审核种植技术</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="summary-number">{{ pending_pests|length }}</div>
+                    <div class="summary-label">待审核病虫害</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="summary-number">{{ pending_soil_types|length }}</div>
+                    <div class="summary-label">待审核土壤类型</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 待审核品种 -->
+        <div class="review-section mb-5">
+            <h2 class="section-title"><i class="fas fa-seedling me-2"></i>待审核品种</h2>
+            {% if pending_varieties %}
+                <div class="row">
+                    {% for variety in pending_varieties %}
+                        <div class="col-md-6">
+                            <div class="review-card">
+                                <div class="review-badge">
+                                    <span class="badge bg-warning rounded-pill">
+                                        <i class="fas fa-clock me-1"></i>待审核
+                                    </span>
+                                </div>
+                                <div class="review-header">
+                                    <h5 class="mb-0">{{ variety.name }}</h5>
+                                </div>
+                                <div class="review-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>分类：</strong> {{ variety.get_category_display }}</p>
+                                            <p><strong>成熟期：</strong> {{ variety.get_maturity_type_display|default:"不详" }}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>提交时间：</strong> {{ variety.create_time|date:"Y-m-d H:i" }}</p>
+                                            <p><strong>提交人：</strong> {{ variety.creator.username }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="review-footer text-end">
+                                    <a href="{% url 'orange:review_variety' variety.id %}" class="btn btn-primary">
+                                        <i class="fas fa-gavel me-1"></i>审核
+                                    </a>
+                                    <a href="{% url 'orange:detail' variety.id %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-eye me-1"></i>查看详情
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="fas fa-check-circle"></i></div>
+                    <h4>暂无待审核品种</h4>
+                    <p class="text-muted">当前没有需要审核的品种内容</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- 待审核种植技术 -->
+        <div class="review-section mb-5">
+            <h2 class="section-title"><i class="fas fa-tractor me-2"></i>待审核种植技术</h2>
+            {% if pending_planting_techs %}
+                <div class="row">
+                    {% for tech in pending_planting_techs %}
+                        <div class="col-md-6">
+                            <div class="review-card">
+                                <div class="review-badge">
+                                    <span class="badge bg-warning rounded-pill">
+                                        <i class="fas fa-clock me-1"></i>待审核
+                                    </span>
+                                </div>
+                                <div class="review-header">
+                                    <h5 class="mb-0">{{ tech.name }}</h5>
+                                </div>
+                                <div class="review-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>适用品种：</strong> {{ tech.variety.name|default:"通用" }}</p>
+                                            <p><strong>技术类型：</strong> {{ tech.get_tech_type_display }}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>提交时间：</strong> {{ tech.create_time|date:"Y-m-d H:i" }}</p>
+                                            <p><strong>提交人：</strong> {{ tech.creator.username }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="review-footer text-end">
+                                    <a href="{% url 'orange:review_tech' tech.id %}" class="btn btn-primary">
+                                        <i class="fas fa-gavel me-1"></i>审核
+                                    </a>
+                                    <a href="{% url 'orange:tech_detail' tech.id %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-eye me-1"></i>查看详情
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="fas fa-check-circle"></i></div>
+                    <h4>暂无待审核种植技术</h4>
+                    <p class="text-muted">当前没有需要审核的种植技术内容</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- 待审核病虫害 -->
+        <div class="review-section mb-5">
+            <h2 class="section-title"><i class="fas fa-bug me-2"></i>待审核病虫害</h2>
+            {% if pending_pests %}
+                <div class="row">
+                    {% for pest in pending_pests %}
+                        <div class="col-md-6">
+                            <div class="review-card">
+                                <div class="review-badge">
+                                    <span class="badge bg-warning rounded-pill">
+                                        <i class="fas fa-clock me-1"></i>待审核
+                                    </span>
+                                </div>
+                                <div class="review-header">
+                                    <h5 class="mb-0">{{ pest.name }}</h5>
+                                </div>
+                                <div class="review-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>类型：</strong> {{ pest.get_type_display }}</p>
+                                            <p><strong>严重程度：</strong> {{ pest.get_severity_display|default:"不详" }}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>提交时间：</strong> {{ pest.create_time|date:"Y-m-d H:i" }}</p>
+                                            <p><strong>提交人：</strong> {{ pest.creator.username }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="review-footer text-end">
+                                    <a href="{% url 'orange:review_pest' pest.id %}" class="btn btn-primary">
+                                        <i class="fas fa-gavel me-1"></i>审核
+                                    </a>
+                                    <a href="{% url 'orange:pest_detail' pest.id %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-eye me-1"></i>查看详情
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="fas fa-check-circle"></i></div>
+                    <h4>暂无待审核病虫害</h4>
+                    <p class="text-muted">当前没有需要审核的病虫害内容</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- 待审核土壤类型 -->
+        <div class="review-section">
+            <h2 class="section-title"><i class="fas fa-mountain me-2"></i>待审核土壤类型</h2>
+            {% if pending_soil_types %}
+                <div class="row">
+                    {% for soil in pending_soil_types %}
+                        <div class="col-md-6">
+                            <div class="review-card">
+                                <div class="review-badge">
+                                    <span class="badge bg-warning rounded-pill">
+                                        <i class="fas fa-clock me-1"></i>待审核
+                                    </span>
+                                </div>
+                                <div class="review-header">
+                                    <h5 class="mb-0">{{ soil.name }}</h5>
+                                </div>
+                                <div class="review-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>土壤质地：</strong> {{ soil.get_texture_display }}</p>
+                                            <p><strong>pH值范围：</strong> {{ soil.ph_range }}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>提交时间：</strong> {{ soil.create_time|date:"Y-m-d H:i" }}</p>
+                                            <p><strong>提交人：</strong> {{ soil.creator.username }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="review-footer text-end">
+                                    <a href="{% url 'orange:review_soil' soil.id %}" class="btn btn-primary">
+                                        <i class="fas fa-gavel me-1"></i>审核
+                                    </a>
+                                    <a href="{% url 'orange:soil_detail' soil.id %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-eye me-1"></i>查看详情
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="fas fa-check-circle"></i></div>
+                    <h4>暂无待审核土壤类型</h4>
+                    <p class="text-muted">当前没有需要审核的土壤类型内容</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% csrf_token %}
+    
+    <!-- 引入审核历史模态框 -->
+    {% include 'gannan_orange/includes/review_history_modal.html' %}
+{% endblock %}

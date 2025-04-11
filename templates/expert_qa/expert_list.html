@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load expert_qa_extras %}
+
+{% block head %}
+<style>
+    .expert-card {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        transition: transform 0.2s;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+    
+    .expert-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .expert-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background-color: #2c7a47;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin: 0 auto 1rem;
+    }
+    
+    .expert-rating {
+        color: #ffc107;
+    }
+    
+    .category-badge {
+        background-color: #2c7a47;
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+    }
+    
+    .filter-section {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="fas fa-user-tie text-success me-2"></i>专家列表</h2>
+        </div>
+    </div>
+
+    <!-- 筛选区域 -->
+    <div class="filter-section">
+        <form method="get" class="expert-search-form">
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="搜索专家名称、领域或简介..." value="{{ query|default:'' }}">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> 搜索
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <select name="category" class="form-select" onchange="this.form.submit()">
+                        <option value="">所有类别</option>
+                        {% for code, name in categories %}
+                        <option value="{{ code }}" {% if category == code %}selected{% endif %}>{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-4">
+                    <select name="sort" class="form-select" onchange="this.form.submit()">
+                        <option value="rating" {% if sort_by == 'rating' %}selected{% endif %}>按评分排序</option>
+                        <option value="answers" {% if sort_by == 'answers' %}selected{% endif %}>按回答数排序</option>
+                        <option value="accepted" {% if sort_by == 'accepted' %}selected{% endif %}>按采纳率排序</option>
+                        <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>按认证时间排序</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- 专家列表 -->
+    <div class="row">
+        {% for expert in experts %}
+        <div class="col-md-4">
+            <a href="{% url 'expert_qa:ask_expert' expert.id %}" class="text-decoration-none">
+                <div class="expert-card p-4">
+                    <div class="expert-avatar">
+                        {% if expert.avatar %}
+                        <img src="{{ expert.avatar.url }}" alt="{{ expert.user.username }}" class="rounded-circle">
+                        {% else %}
+                        <i class="fas fa-user-tie"></i>
+                        {% endif %}
+                    </div>
+                
+                <div class="text-center mb-3">
+                    <h4 class="mb-1">
+                        {{ expert.user.username }}
+                        {% if expert.is_verified %}
+                            <span class="verify-status verified">已认证</span>
+                            <small>({{ expert.verified_at|date:"Y-m-d" }})</small>
+                        {% else %}
+                            {% if perms.expert_qa.can_verify_expert %}
+                                <a href="{% url 'expert_qa:verify_expert' expert.id %}" class="verify-button">
+                                    <i class="fas fa-user-check"></i> 进行认定
+                                </a>
+                            {% else %}
+                                <span class="verify-status unverified">待认证</span>
+                            {% endif %}
+                        {% endif %}
+                    </h4>
+                    <!-- 暂时注释掉 title 字段显示，直到迁移完成 -->
+                    {% comment %}
+                    <div class="text-muted">
+                        {% if expert.title %}{{ expert.title }}{% endif %}
+                    </div>
+                    {% endcomment %}
+                    <div class="text-muted">{{ expert.expertise }}</div>
+                </div>
+                
+                <div class="d-flex justify-content-center mb-3">
+                    <span class="category-badge">{{ expert.get_category_display }}</span>
+                </div>
+                
+                <div class="text-center mb-3">
+                    <div class="expert-rating mb-2">
+                        {% with ''|center:5 as range %}
+                        {% for _ in range %}
+                            {% if forloop.counter <= expert.rating %}
+                                <i class="fas fa-star"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                        {% endwith %}
+                        <span class="ms-2">({{ expert.rating|floatformat:1 }})</span>
+                    </div>
+                    <div class="text-muted small">
+                        <span class="me-3">
+                            <i class="fas fa-check-circle text-success me-1"></i>
+                            已采纳: {{ expert.accepted_answers }}
+                        </span>
+                        <span>
+                            <i class="fas fa-comments me-1"></i>
+                            总回答: {{ expert.total_answers }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <span class="badge bg-success mb-2">{{ expert.get_level_display }}</span>
+                    <div class="small text-muted">
+                        <i class="fas fa-clock me-1"></i>加入时间: {{ expert.created_at|date:"Y-m-d" }}
+                    </div>
+                </div>
+                </div>
+            </a>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-user-tie fa-3x text-muted mb-3"></i>
+            <p class="lead">暂无相关专家</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 分页 -->
+    {% if experts.has_other_pages %}
+    <nav class="mt-4" aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if experts.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ experts.previous_page_number }}{% if category %}&category={{ category }}{% endif %}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in experts.paginator.page_range %}
+            {% if experts.number == num %}
+            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ num }}{% if category %}&category={{ category }}{% endif %}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if experts.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ experts.next_page_number }}{% if category %}&category={{ category }}{% endif %}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

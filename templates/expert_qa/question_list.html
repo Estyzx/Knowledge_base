@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load expert_qa_extras %}
+
+{% block head %}
+<style>
+    .question-card {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        transition: transform 0.2s;
+        margin-bottom: 1rem;
+    }
+    
+    .question-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .category-badge {
+        background-color: #2c7a47;
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+    }
+    
+    .search-box {
+        border-radius: 20px;
+        border: 2px solid #2c7a47;
+        padding: 0.5rem 1rem;
+    }
+    
+    .filter-section {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .tag-badge {
+        background-color: #f1f1f1;
+        color: #555;
+        padding: 0.2rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        margin-right: 0.5rem;
+        display: inline-block;
+        margin-top: 0.5rem;
+    }
+    
+    .tag-badge:hover {
+        background-color: #e0e0e0;
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2><i class="fas fa-question-circle text-success me-2"></i>专家问答</h2>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'expert_qa:ask_question' %}" class="btn btn-success">
+                <i class="fas fa-plus-circle me-2"></i>提出问题
+            </a>
+        </div>
+    </div>
+
+    <!-- 搜索和筛选区域 -->
+    <div class="filter-section">
+        <form method="get" class="row g-3">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control search-box" placeholder="搜索问题..." value="{{ query|default:'' }}">
+                    <button class="btn btn-success" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select name="category" class="form-select" onchange="this.form.submit()">
+                    <option value="">所有领域</option>
+                    <option value="planting" {% if category == 'planting' %}selected{% endif %}>种植</option>
+                    <option value="harvesting" {% if category == 'harvesting' %}selected{% endif %}>收获</option>
+                    <option value="pest_control" {% if category == 'pest_control' %}selected{% endif %}>病虫害防治</option>
+                    <option value="fertilizer" {% if category == 'fertilizer' %}selected{% endif %}>肥料</option>
+                    <option value="irrigation" {% if category == 'irrigation' %}selected{% endif %}>灌溉</option>
+                    <option value="soil" {% if category == 'soil' %}selected{% endif %}>土壤</option>
+                    <option value="other" {% if category == 'other' %}selected{% endif %}>其他</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="sort" class="form-select" onchange="this.form.submit()">
+                    <option value="latest" {% if sort == 'latest' %}selected{% endif %}>最新</option>
+                    <option value="votes" {% if sort == 'votes' %}selected{% endif %}>热门</option>
+                    <option value="views" {% if sort == 'views' %}selected{% endif %}>浏览量</option>
+                    <option value="answers" {% if sort == 'answers' %}selected{% endif %}>回答数</option>
+                </select>
+            </div>
+            
+            <div class="col-md-12 mt-2">
+                <div class="d-flex flex-wrap align-items-center">
+                    <div class="me-3 d-flex align-items-center">
+                        <span class="me-2">问题状态:</span>
+                        <div class="form-check form-check-inline mb-0">
+                            <input class="form-check-input" type="checkbox" id="showAnswered" name="answered" value="1" {% if answered %}checked{% endif %} onChange="this.form.submit()">
+                            <label class="form-check-label" for="showAnswered">已解决</label>
+                        </div>
+                        <div class="form-check form-check-inline mb-0">
+                            <input class="form-check-input" type="checkbox" id="showUnanswered" name="unanswered" value="1" {% if unanswered %}checked{% endif %} onChange="this.form.submit()">
+                            <label class="form-check-label" for="showUnanswered">待解决</label>
+                        </div>
+                    </div>
+                    
+                    {% if tag or category or sort or answered or unanswered %}
+                    <a href="{% url 'expert_qa:question_list' %}" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-times me-1"></i>清除所有筛选
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if tag %}
+            <div class="col-md-12 mt-2">
+                <div class="alert alert-info mb-0">
+                    <span>按标签筛选: <strong>{{ tag }}</strong></span>
+                    <a href="?{% if query %}q={{ query }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}{% if answered %}&answered={{ answered }}{% endif %}{% if unanswered %}&unanswered={{ unanswered }}{% endif %}" class="float-end text-decoration-none">
+                        <i class="fas fa-times"></i> 清除标签筛选
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- 问题列表 -->
+    <div class="question-list">
+        {% for question in questions %}
+        <div class="question-card p-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h5 class="mb-2">
+                        <a href="{% url 'expert_qa:question_detail' question.pk %}" class="text-decoration-none text-dark">
+                            {{ question.title }}
+                        </a>
+                    </h5>
+                    <p class="text-muted mb-2">{{ question.content|truncatewords:30|safe }}</p>
+                    
+                    {% if question.tags %}
+                    <div class="tags">
+                        {% for tag in question.tags|split:"," %}
+                            {% if tag %}
+                            <a href="?tag={{ tag|strip }}" class="tag-badge text-decoration-none">
+                                <i class="fas fa-tag me-1 small"></i>{{ tag|strip }}
+                            </a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <span class="category-badge">{{ question.get_category_display }}</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div class="text-muted small">
+                    <i class="fas fa-user me-1"></i>{{ question.author.username }}
+                    <i class="fas fa-clock ms-3 me-1"></i>{{ question.created_at|date:"Y-m-d H:i" }}
+                </div>
+                <div>
+                    <span class="badge bg-secondary me-2">
+                        <i class="fas fa-comments me-1"></i>{{ question.answers.count }}
+                    </span>
+                    {% if question.is_answered %}
+                        <span class="badge bg-success">
+                            <i class="fas fa-check-circle me-1"></i>已解决
+                        </span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">
+                            <i class="fas fa-clock me-1"></i>待解决
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-5">
+            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+            <p class="lead">暂无相关问题</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 分页 -->
+    {% if questions.has_other_pages %}
+    <nav class="mt-4" aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if questions.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ questions.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if tag %}&tag={{ tag }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}{% if answered %}&answered={{ answered }}{% endif %}{% if unanswered %}&unanswered={{ unanswered }}{% endif %}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in questions.paginator.page_range %}
+            {% if questions.number == num %}
+            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if tag %}&tag={{ tag }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}{% if answered %}&answered={{ answered }}{% endif %}{% if unanswered %}&unanswered={{ unanswered }}{% endif %}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if questions.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ questions.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if tag %}&tag={{ tag }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}{% if answered %}&answered={{ answered }}{% endif %}{% if unanswered %}&unanswered={{ unanswered }}{% endif %}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
