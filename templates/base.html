@@ -18,6 +18,8 @@
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/limonte-sweetalert2/11.4.4/sweetalert2.min.css">
     
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+    
     {% block head %}{% endblock %}
 </head>
 <body>
@@ -171,5 +173,5 @@
     
     {% block extra_js %}{% endblock %}
     {% block extra_css %}{% endblock %}
-</body>
+    {% block script %}{% endblock %}
 </html>

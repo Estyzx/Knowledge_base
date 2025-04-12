@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'ckeditor',
     'ckeditor_uploader',
     'expert_qa',
+    'pest_recognition.apps.PestRecognitionConfig',  # 保留此行
 ]
 
 MIDDLEWARE = [
@@ -123,7 +124,18 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# 媒体文件配置
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# 配置通义千问视觉模型
+PEST_RECOGNITION_MODEL = 'Qwen/Qwen2.5-VL-72B-Instruct'
+PEST_RECOGNITION_API_URL = 'https://api.siliconflow.cn/v1/chat/completions'
+PEST_RECOGNITION_API_KEY = 'sk-wyxlabcftrhcqidzsgtpibnjdavfpmvumewocjxddofzaccj'  # 确保此处有正确的密钥
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
