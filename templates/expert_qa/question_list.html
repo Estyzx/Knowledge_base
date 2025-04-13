@@ -7,13 +7,46 @@
     .question-card {
         border: 1px solid #e0e0e0;
         border-radius: 8px;
-        transition: transform 0.2s;
+        transition: all 0.3s ease;
         margin-bottom: 1rem;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+        position: relative;
+        overflow: hidden;
     }
     
     .question-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        border-color: #c8e6c9;
+    }
+    
+    .question-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: #2c7a47;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .question-card:hover::after {
+        opacity: 1;
+    }
+    
+    .question-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2d3748;
+        transition: color 0.3s ease;
+        margin-bottom: 0.7rem;
+    }
+    
+    .question-card:hover .question-title {
+        color: #2c7a47;
     }
     
     .category-badge {
@@ -33,8 +66,9 @@
     .filter-section {
         background: #f8f9fa;
         border-radius: 8px;
-        padding: 1rem;
+        padding: 1.2rem;
         margin-bottom: 2rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     }
 
     .tag-badge {
@@ -46,10 +80,67 @@
         margin-right: 0.5rem;
         display: inline-block;
         margin-top: 0.5rem;
+        transition: all 0.2s ease;
     }
     
     .tag-badge:hover {
         background-color: #e0e0e0;
+        transform: translateY(-1px);
+    }
+    
+    .question-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+        border-top: 1px solid #f0f0f0;
+        padding-top: 0.8rem;
+    }
+    
+    .meta-item {
+        display: flex;
+        align-items: center;
+        color: #6c757d;
+        font-size: 0.85rem;
+    }
+    
+    .meta-item i {
+        margin-right: 5px;
+    }
+    
+    .solved-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.6rem;
+        border-radius: 1rem;
+        font-weight: 500;
+        font-size: 0.8rem;
+        margin-left: 0.5rem;
+    }
+    
+    .solved-badge.solved {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    
+    .solved-badge.unsolved {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    
+    .answers-count {
+        background-color: #e9ecef;
+        color: #495057;
+        border-radius: 4px;
+        padding: 0.2rem 0.5rem;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        margin-right: 0.5rem;
+    }
+    
+    .answers-count i {
+        margin-right: 4px;
     }
 </style>
 {% endblock %}
@@ -134,48 +225,53 @@
         </form>
     </div>
 
-    <!-- 问题列表 -->
+    <!-- 优化后的问题列表 -->
     <div class="question-list">
         {% for question in questions %}
         <div class="question-card p-3">
             <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <h5 class="mb-2">
-                        <a href="{% url 'expert_qa:question_detail' question.pk %}" class="text-decoration-none text-dark">
-                            {{ question.title }}
-                        </a>
-                    </h5>
-                    <p class="text-muted mb-2">{{ question.content|truncatewords:30|safe }}</p>
-                    
-                    {% if question.tags %}
-                    <div class="tags">
-                        {% for tag in question.tags|split:"," %}
-                            {% if tag %}
-                            <a href="?tag={{ tag|strip }}" class="tag-badge text-decoration-none">
-                                <i class="fas fa-tag me-1 small"></i>{{ tag|strip }}
-                            </a>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                </div>
+                <h5 class="question-title mb-0">
+                    <a href="{% url 'expert_qa:question_detail' question.pk %}" class="text-decoration-none">
+                        {{ question.title }}
+                    </a>
+                </h5>
                 <span class="category-badge">{{ question.get_category_display }}</span>
             </div>
-            <div class="d-flex justify-content-between align-items-center mt-3">
-                <div class="text-muted small">
-                    <i class="fas fa-user me-1"></i>{{ question.author.username }}
-                    <i class="fas fa-clock ms-3 me-1"></i>{{ question.created_at|date:"Y-m-d H:i" }}
+            
+            {% if question.tags %}
+            <div class="tags mt-2">
+                {% for tag in question.tags|split:"," %}
+                    {% if tag %}
+                    <a href="?tag={{ tag|strip }}" class="tag-badge text-decoration-none">
+                        <i class="fas fa-tag me-1 small"></i>{{ tag|strip }}
+                    </a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="question-meta">
+                <div class="author-info">
+                    <span class="meta-item me-3">
+                        <i class="fas fa-user"></i>
+                        {{ question.author.username }}
+                    </span>
+                    <span class="meta-item">
+                        <i class="fas fa-clock"></i>
+                        {{ question.created_at|date:"Y-m-d H:i" }}
+                    </span>
                 </div>
-                <div>
-                    <span class="badge bg-secondary me-2">
-                        <i class="fas fa-comments me-1"></i>{{ question.answers.count }}
+                <div class="question-stats">
+                    <span class="answers-count">
+                        <i class="fas fa-comments"></i>
+                        {{ question.answers.count }}
                     </span>
                     {% if question.is_answered %}
-                        <span class="badge bg-success">
+                        <span class="solved-badge solved">
                             <i class="fas fa-check-circle me-1"></i>已解决
                         </span>
                     {% else %}
-                        <span class="badge bg-warning text-dark">
+                        <span class="solved-badge unsolved">
                             <i class="fas fa-clock me-1"></i>待解决
                         </span>
                     {% endif %}

@@ -8,8 +8,7 @@
     // 使用data属性传递认证状态
     document.documentElement.setAttribute('data-authenticated', '{{ user.is_authenticated|yesno:"true,false" }}');
 </script>
-<script src="{% static 'js/question_detail.js' %}" defer></script>
-<script src="{% static 'js/ckeditor_init.js' %}"></script>
+<!-- 移除外部编辑器初始化脚本，避免双重初始化 -->
 <link rel="stylesheet" href="{% static 'css/follow_up.css' %}">
 <style>
         .question-header {
@@ -251,9 +250,12 @@
             <h3>撰写专家回答</h3>
             <small class="text-muted">请以专业的角度提供详细的解答</small>
         </div>
-        <form method="post" action="{% url 'expert_qa:post_answer' question.id %}" id="answer-form">
+        <form method="post" action="{% url 'expert_qa:post_answer' question.id %}" id="answer-form" novalidate>
             {% csrf_token %}
-            <textarea name="content" id="answer-content" class="rich-editor" required></textarea>
+            <div id="editor-container">
+                <!-- 解决表单验证问题，移除required属性，改由JS验证 -->
+                <textarea name="content" id="editor" class="rich-editor"></textarea>
+            </div>
             <div class="form-text text-muted mb-2">支持富文本编辑，可以添加图片、表格等内容</div>
             <div class="text-end mt-3">
                 <button type="submit" class="btn btn-primary" id="submit-answer">
@@ -323,13 +325,15 @@
 </div>
 {% endblock %}
 
-{% block scripts %}
+{% block script %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // 初始化富文本编辑器
-    if (document.querySelector('#answer-content')) {
+    let editor;
+    
+    if (document.getElementById('editor')) {
         ClassicEditor
-            .create(document.querySelector('#answer-content'), {
+            .create(document.getElementById('editor'), {
                 language: 'zh-cn',
                 toolbar: [
                     'heading',
@@ -351,9 +355,70 @@ document.addEventListener('DOMContentLoaded', function() {
                     'redo'
                 ]
             })
+            .then(newEditor => {
+                editor = newEditor;
+                console.log('Editor initialized successfully');
+                
+                // 监听表单提交事件
+                const form = document.getElementById('answer-form');
+                if (form) {
+                    form.addEventListener('submit', function(event) {
+                        // 阻止表单默认提交
+                        event.preventDefault();
+                        
+                        // 获取编辑器内容
+                        const editorData = editor.getData();
+                        
+                        // 检查内容是否为空
+                        if (!editorData || editorData.trim() === '') {
+                            alert('请输入回答内容');
+                            return;
+                        }
+                        
+                        // 创建隐藏字段保存内容，并移除textarea以避免验证错误
+                        let hiddenField = form.querySelector('input[name="content"]');
+                        if (!hiddenField) {
+                            hiddenField = document.createElement('input');
+                            hiddenField.type = 'hidden';
+                            hiddenField.name = 'content';
+                            form.appendChild(hiddenField);
+                        }
+                        hiddenField.value = editorData;
+                        
+                        // 移除原始textarea以避免验证错误
+                        const originalTextarea = document.getElementById('editor');
+                        if (originalTextarea) {
+                            originalTextarea.removeAttribute('name');
+                        }
+                        
+                        // 显示提交状态
+                        const submitBtn = document.getElementById('submit-answer');
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>提交中...';
+                        
+                        // 提交表单
+                        form.submit();
+                    });
+                }
+            })
             .catch(error => {
-                console.error(error);
+                console.error('编辑器初始化失败:', error);
             });
+    }
+    
+    // 采纳回答功能
+    const acceptButtons = document.querySelectorAll('.accept-answer');
+    if (acceptButtons) {
+        acceptButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const answerId = this.getAttribute('data-answer-id');
+                if (answerId) {
+                    if (confirm('确定要采纳这个回答吗？采纳后将不能更改。')) {
+                        window.location.href = `/expert_qa/accept_answer/${answerId}/`;
+                    }
+                }
+            });
+        });
     }
 });
 </script>

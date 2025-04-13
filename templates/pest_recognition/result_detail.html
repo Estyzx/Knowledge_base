@@ -7,7 +7,71 @@
 {% block head %}
     <link rel="stylesheet" href="{% static 'css/pest_recognition.css' %}">
     <link rel="stylesheet" href="{% static 'css/markdown.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
+    <!-- 使用本地资源替代CDN，确保离线可用 -->
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+    <style>
+        /* 添加页内Lightbox样式，不依赖CDN */
+        .lightbox-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .lightbox-content {
+            max-width: 90%;
+            max-height: 90%;
+        }
+        
+        .lightbox-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            margin: auto;
+            display: block;
+        }
+        
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+        }
+        
+        /* 修复图片容器样式 */
+        .result-image-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 6px;
+        }
+        
+        .result-image-full {
+            width: 100%;
+            max-height: 350px;
+            object-fit: contain;
+            display: block;
+        }
+        
+        /* 渐变背景样式 */
+        .bg-success-gradient {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+        
+        .bg-info-gradient {
+            background: linear-gradient(135deg, #17a2b8 0%, #0dcaf0 100%);
+        }
+        
+        .bg-warning-gradient {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+        }
+    </style>
 {% endblock %}
 
 {% block main %}
@@ -40,9 +104,12 @@
                                 <div class="card-body p-0">
                                     <div class="result-image-container text-center">
                                         {% if history.image %}
-                                            <a href="{{ history.image.url }}" data-lightbox="pest-image" data-title="点击查看原图">
+                                            <a href="{{ history.image.url }}" class="lightbox-image" data-title="点击查看原图">
                                                 <img src="{{ history.image.url }}" alt="识别图像" class="result-image-full" 
                                                      onerror="this.onerror=null;this.src='{% static 'images/image_placeholder.png' %}';">
+                                                <div class="zoom-hint">
+                                                    <i class="fas fa-search-plus"></i>
+                                                </div>
                                             </a>
                                         {% else %}
                                             <div class="bg-light d-flex align-items-center justify-content-center result-image">
@@ -169,6 +236,9 @@
                         </a>
                         
                         <div>
+                            <a href="#" class="btn btn-outline-info me-2" onclick="window.print()">
+                                <i class="fas fa-print me-2"></i>打印结果
+                            </a>
                             <a href="{% url 'pest_recognition:upload' %}" class="btn btn-success">
                                 <i class="fas fa-camera me-2"></i>继续识别
                             </a>
@@ -179,18 +249,32 @@
         </div>
     </div>
 </div>
+
+<!-- 自定义Lightbox代替CDN版本 -->
+<div class="lightbox-overlay" id="lightbox">
+    <div class="lightbox-close">&times;</div>
+    <div class="lightbox-content">
+        <img id="lightboxImg" src="" alt="Lightbox Image">
+    </div>
+</div>
 {% endblock %}
 
 {% block script %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
 <script>
     $(document).ready(function() {
-        // 配置Lightbox选项
-        lightbox.option({
-            'resizeDuration': 200,
-            'wrapAround': true,
-            'albumLabel': '图片 %1 / %2',
-            'fadeDuration': 300,
+        // 自定义Lightbox实现，替代CDN
+        $('.lightbox-image').on('click', function(e) {
+            e.preventDefault();
+            var imgSrc = $(this).attr('href');
+            $('#lightboxImg').attr('src', imgSrc);
+            $('#lightbox').css('display', 'flex');
+        });
+        
+        // 关闭Lightbox
+        $('.lightbox-close, #lightbox').on('click', function(e) {
+            if (e.target === this || $(e.target).hasClass('lightbox-close')) {
+                $('#lightbox').fadeOut();
+            }
         });
     });
 </script>

@@ -17,16 +17,10 @@ from .forms import VarietyForm, PlantingTechForm, PestForm, SoilTypeForm, Review
 from .models import Variety, PlantingTech, SoilType, Pest, ReviewHistory, Category
 
 
-# 获取最后审核通过的版本
+# 获取内容最后一个审核通过的版本
 def get_last_approved_version(model_class, instance_id):
-    """
-    获取指定内容的最后一个审核通过版本
-    :param model_class: 模型类
-    :param instance_id: 内容ID
-    :return: 审核通过的对象或None
-    """
+    """获取指定内容的最后一个审核通过版本"""
     try:
-        # 从审核历史中获取最近一次通过的审核记录
         last_approved_history = ReviewHistory.objects.filter(
             content_type=model_class.__name__.lower(),
             content_id=instance_id,
@@ -34,7 +28,6 @@ def get_last_approved_version(model_class, instance_id):
         ).order_by('-review_date').first()
         
         if last_approved_history:
-            # 获取该版本的对象
             return {
                 'id': instance_id,
                 'review_date': last_approved_history.review_date,
@@ -46,8 +39,6 @@ def get_last_approved_version(model_class, instance_id):
         print(f"Error getting last approved version: {e}")
         return None
 
-# Create your views here.
-
 
 class HomePage(TemplateView):
     template_name = 'gannan_orange/home.html'
@@ -55,83 +46,42 @@ class HomePage(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # 使用缓存减少API调用，缓存3小时
+        # 天气数据获取 - 使用缓存提高性能
         weather_data = cache.get('weather_data')
         current_weather = cache.get('current_weather')
         
         if weather_data is None or current_weather is None:
             try:
-                # 设置较短的超时时间，避免页面加载阻塞
-                url = "https://api.seniverse.com/v3/weather/daily.json?key=SsIcJ_YpHt1dJPr1Q&location=baoding&language=zh-Hans&unit=c&start=0&days=5"
-                response = requests.get(url, timeout=1.5)
-                url1 = "https://api.seniverse.com/v3/weather/now.json?key=SsIcJ_YpHt1dJPr1Q&location=baoding&language=zh-Hans&unit=c"
-                response1 = requests.get(url1, timeout=1.5)
-                
-                if response.status_code == 200 and response1.status_code == 200:
-                    data = response.json()
-                    data1 = response1.json()
-                    
-                    update_data = data['results'][0]['last_update'][:10]
-                    humidity = data['results'][0]['daily'][0]['humidity']
-                    wind_speed = data['results'][0]['daily'][0]['wind_speed']
-                    code_day = data['results'][0]['daily'][0]['code_day']
-                    
-                    # 存入缓存，有效期3小时
-                    weather_data = {
-                        'update_data': update_data,
-                        'humidity': humidity,
-                        'wind_speed': wind_speed,
-                        'code_day': code_day,
-                        'days': data['results'][0]['daily'],
-                    }
-                    
-                    current_weather = {
-                        'temperature': data1['results'][0]['now']['temperature'],
-                        'text': data1['results'][0]['now']['text'],
-                    }
-                    
+                weather_result = self.fetch_weather_data()
+                if weather_result:
+                    weather_data, current_weather = weather_result
+                    # 3小时缓存
                     cache.set('weather_data', weather_data, 60*60*3)
                     cache.set('current_weather', current_weather, 60*60*3)
+                else:
+                    weather_data, current_weather = self.get_default_weather()
             except Exception as e:
                 print(f"Error fetching weather data: {e}")
-                
-                # 设置默认天气数据，避免页面报错
-                weather_data = {
-                    'update_data': '暂无数据',
-                    'humidity': 'N/A',
-                    'wind_speed': 'N/A',
-                    'code_day': '99',
-                    'days': [],
-                }
-                current_weather = {
-                    'temperature': 'N/A',
-                    'text': '暂无数据',
-                }
+                weather_data, current_weather = self.get_default_weather()
         
+        # 只添加必要的天气数据
         context.update({
             'weather': weather_data,
             'current_weather': current_weather,
-            'update_time': weather_data.get('update_data', '暂无数据'),
-            'humidity': weather_data.get('humidity', 'N/A'),
-            'wind_speed': weather_data.get('wind_speed', 'N/A'),
-            'code_day': weather_data.get('code_day', '99'),
-            'icon_night': f"{weather_data.get('code_day', '99')}.svg",
-            'temperature': current_weather.get('temperature', 'N/A'),
         })
         
-        # 使用缓存减少数据库查询
+        # 首页统计数据缓存
         stats_cache_key = 'home_page_stats'
         home_stats = cache.get(stats_cache_key)
         
         if home_stats is None:
-            # 优化所有数据库查询
             try:
-                # 减少重复查询，只查询必要数据
+                # 统计数据查询优化
                 varieties_count = Variety.objects.filter(review_status='approved').count()
                 techs_count = PlantingTech.objects.filter(review_status='approved').count()
                 user_count = CustomUser.objects.count()
                 
-                # 仅对管理员提供待审核内容统计
+                # 管理员查看待审核内容
                 if self.request.user.is_staff:
                     pending_varieties = Variety.objects.filter(review_status='pending').count()
                     pending_planting_techs = PlantingTech.objects.filter(review_status='pending').count()
@@ -142,15 +92,12 @@ class HomePage(TemplateView):
                     pending_varieties = pending_planting_techs = pending_pests = pending_soil_types = 0
                     total_pending = 0
                 
-                # 使用select_related减少数据库查询
+                # 最新内容推荐
                 last_varieties = Variety.objects.filter(
                     review_status='approved'
                 ).order_by('-create_time')[:3]
                 
                 tech_articles = PlantingTechArticle.objects.select_related('author').order_by('-create_time')[:3]
-                # 调试输出，可以在开发时使用
-                print(f"最新品种: {last_varieties.count()}")
-                print(f"最新文章: {tech_articles.count()}")
                 
                 home_stats = {
                     'total_variety': varieties_count,
@@ -164,17 +111,77 @@ class HomePage(TemplateView):
                     'pending_pests': pending_pests,
                     'pending_soil_types': pending_soil_types,
                 }
-                # 设置缓存，有效期减少为30分钟，方便更新内容
+                # 30分钟缓存以保持数据更新
                 cache.set(stats_cache_key, home_stats, 60*30)
             except Exception as e:
                 print(f"Error preparing home stats: {e}")
                 home_stats = get_default_home_stats()
         context.update(home_stats)
         return context
+    
+    def fetch_weather_data(self):
+        """并行获取天气数据以提高性能"""
+        try:
+            timeout = 2.0
+            location = "baoding"
+            api_key = "SsIcJ_YpHt1dJPr1Q"
+            
+            url = f"https://api.seniverse.com/v3/weather/daily.json?key={api_key}&location={location}&language=zh-Hans&unit=c&start=0&days=5"
+            url_now = f"https://api.seniverse.com/v3/weather/now.json?key={api_key}&location={location}&language=zh-Hans&unit=c"
+            
+            # 并行请求提高效率
+            import concurrent.futures
+            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+                future_forecast = executor.submit(requests.get, url, timeout=timeout)
+                future_now = executor.submit(requests.get, url_now, timeout=timeout)
+                
+                response = future_forecast.result()
+                response_now = future_now.result()
+            
+            if response.status_code == 200 and response_now.status_code == 200:
+                data = response.json()
+                data_now = response_now.json()
+                
+                daily = data['results'][0]['daily'][0]
+                now = data_now['results'][0]['now']
+                
+                weather_data = {
+                    'update_data': data['results'][0]['last_update'][:10],
+                    'humidity': daily['humidity'],
+                    'wind_speed': daily['wind_speed'],
+                    'code_day': daily['code_day'],
+                    'days': data['results'][0]['daily'],
+                }
+                
+                current_weather = {
+                    'temperature': now['temperature'],
+                    'text': now['text'],
+                }
+                
+                return weather_data, current_weather
+            return None
+        except Exception as e:
+            print(f"Error in fetch_weather_data: {e}")
+            return None
+    
+    def get_default_weather(self):
+        """默认天气数据 - 防止API故障"""
+        weather_data = {
+            'update_data': '暂无数据',
+            'humidity': 'N/A',
+            'wind_speed': 'N/A',
+            'code_day': '99',
+            'days': [],
+        }
+        current_weather = {
+            'temperature': 'N/A',
+            'text': '暂无数据',
+        }
+        return weather_data, current_weather
 
 
 def get_default_home_stats():
-    """返回默认的首页统计数据"""
+    """首页默认统计数据 - 防止查询错误"""
     return {
         'total_variety': 0,
         'tech_count': 0,
@@ -239,7 +246,7 @@ class VarietyDetail(DetailView):
         # 获取HTTP_REFERER，如果没有则使用默认的URL
         referer = self.request.META.get('HTTP_REFERER')
         # 安全地处理referer
-        if referer:
+        if (referer):
             # 如果referer包含'edit'，那么返回列表页面
             if 'edit' in referer:
                 referer = reverse('orange:list')
@@ -933,69 +940,51 @@ class SoilTypeReviewView(BaseReviewView):
     def get_content_type(self):
         return 'soil_type'
 
-# 创建一个API视图函数来异步获取天气数据
+# 天气API接口 - 提供异步数据获取
 def weather_api(request):
     from django.http import JsonResponse
     
-    # 使用缓存减少API调用，缓存3小时
+    # 使用缓存提高性能
     weather_data = cache.get('weather_data')
     current_weather = cache.get('current_weather')
     
     if weather_data is None or current_weather is None:
         try:
-            # 设置较短的超时时间，避免页面加载阻塞
-            url = "https://api.seniverse.com/v3/weather/daily.json?key=SsIcJ_YpHt1dJPr1Q&location=ganzhou&language=zh-Hans&unit=c&start=0&days=5"
-            response = requests.get(url, timeout=2.0)
-            url1 = "https://api.seniverse.com/v3/weather/now.json?key=SsIcJ_YpHt1dJPr1Q&location=ganzhou&language=zh-Hans&unit=c"
-            response1 = requests.get(url1, timeout=2.0)
+            # 重用通用天气获取方法
+            home_page = HomePage()
+            weather_result = home_page.fetch_weather_data()
             
-            if response.status_code == 200 and response1.status_code == 200:
-                data = response.json()
-                data1 = response1.json()
-                
-                update_data = data['results'][0]['last_update'][:10]
-                humidity = data['results'][0]['daily'][0]['humidity']
-                wind_speed = data['results'][0]['daily'][0]['wind_speed']
-                code_day = data['results'][0]['daily'][0]['code_day']
-                
-                # 存入缓存，有效期3小时
-                weather_data = {
-                    'update_data': update_data,
-                    'humidity': humidity,
-                    'wind_speed': wind_speed,
-                    'code_day': code_day,
-                    'days': data['results'][0]['daily'],
-                }
-                
-                current_weather = {
-                    'temperature': data1['results'][0]['now']['temperature'],
-                    'text': data1['results'][0]['now']['text'],
-                }
-                
+            if (weather_result):
+                weather_data, current_weather = weather_result
                 cache.set('weather_data', weather_data, 60*60*3)
                 cache.set('current_weather', current_weather, 60*60*3)
             else:
+                # 错误响应
                 return JsonResponse({
                     'status': 'error',
-                    'message': '天气API响应错误'
+                    'message': '天气API响应错误',
+                    'weather_data': {'update_data': '数据获取失败', 'humidity': 'N/A', 'wind_speed': 'N/A', 'code_day': '99', 'days': []},
+                    'current_weather': {'temperature': '--', 'text': '数据获取中'},
                 })
         except Exception as e:
-            print(f"Error fetching weather data: {e}")
+            # 异常响应
             return JsonResponse({
                 'status': 'error',
-                'message': f'获取天气数据失败: {str(e)}',
-                'weather_data': {'update_data': '暂无数据', 'humidity': 'N/A', 'wind_speed': 'N/A', 'code_day': '99', 'days': []},
-                'current_weather': {'temperature': 'N/A', 'text': '暂无数据'},
+                'message': str(e),
+                'weather_data': {'update_data': '数据获取失败', 'humidity': 'N/A', 'wind_speed': 'N/A', 'code_day': '99', 'days': []},
+                'current_weather': {'temperature': '--', 'text': '数据获取中'},
             })
     
+    # 成功响应
     return JsonResponse({
         'status': 'success',
         'weather_data': weather_data,
         'current_weather': current_weather
     })
 
+# 创建审核历史记录
 def create_review_history(content_type, content_id, reviewer, action, comment, content_name=None):
-    """创建审核历史记录"""
+    """创建内容审核历史记录"""
     try:
         history = ReviewHistory(
             content_type=content_type,
@@ -1005,13 +994,9 @@ def create_review_history(content_type, content_id, reviewer, action, comment, c
             comment=comment
         )
         
-        # 尝试设置内容名称（如果字段存在）
-        if content_name:
-            try:
-                if hasattr(history, 'content_name'):
-                    history.content_name = content_name
-            except:
-                pass
+        # 可选保存内容名称
+        if content_name and hasattr(history, 'content_name'):
+            history.content_name = content_name
                 
         history.save()
         return history

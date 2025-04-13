@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{% static 'css/pest_recognition.css' %}">
     <link rel="stylesheet" href="{% static 'css/markdown.css' %}">
     <!-- 确保jQuery在页面顶部加载 (使用本地文件) -->
-    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'js/jquery.min.js' %}"></script>
     <style>
         /* 添加页内Lightbox样式，不依赖CDN */
         .lightbox-overlay {
@@ -33,6 +33,7 @@
             max-width: 100%;
             max-height: 90vh;
             margin: auto;
+            display: block; /* 确保图片居中 */
         }
         
         .lightbox-close {
@@ -42,6 +43,96 @@
             color: white;
             font-size: 30px;
             cursor: pointer;
+        }
+
+        /* 修改图片预览区域样式，使图片居中 */
+        .result-image-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 6px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 300px;
+            background-color: #f8f9fa;
+        }
+        
+        .result-image-full {
+            max-width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 6px;
+            margin: 0 auto; /* 确保水平居中 */
+            display: block;
+        }
+        
+        .zoom-hint {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(0,0,0,0.6);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            opacity: 0.7;
+            transition: all 0.3s;
+        }
+        
+        .result-image-container:hover .zoom-hint {
+            opacity: 1;
+        }
+        
+        /* 添加动画效果 */
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        /* 修复响应式相关卡片样式 */
+        .related-pest-image-container {
+            height: 140px;
+            overflow: hidden;
+        }
+        
+        .related-pest-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .shadow-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .shadow-hover:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-3px);
+        }
+        
+        /* 严重程度标签样式 */
+        .severity-indicator {
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+        
+        .severity-high {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .severity-medium {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .severity-low {
+            background-color: #d1ecf1;
+            color: #0c5460;
         }
     </style>
 {% endblock %}
@@ -64,10 +155,11 @@
                 </div>
                 
                 <div class="card-body p-4">
-                    <!-- 图像区域 - 现在放在顶部 -->
-                    <div class="row mb-4">
-                        <div class="col-md-12">
-                            <div class="recognition-card">
+                    <!-- 修改布局：图像区域和分析结果区域并排显示 -->
+                    <div class="row">
+                        <!-- 图像区域 - 放在左侧并居中显示 -->
+                        <div class="col-lg-5 mb-4">
+                            <div class="recognition-card h-100">
                                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
                                     <h5 class="mb-0">
                                         <i class="fas fa-image text-primary me-2"></i>识别图像
@@ -78,7 +170,7 @@
                                     </span>
                                     {% endif %}
                                 </div>
-                                <div class="card-body p-0">
+                                <div class="card-body d-flex flex-column justify-content-center p-0">
                                     <div class="result-image-container text-center">
                                         {% if history.image %}
                                             <a href="{{ history.image.url }}" data-lightbox="pest-image" data-title="点击查看原图">
@@ -97,11 +189,9 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- 分析结果区域 - 现在放在图像下方 -->
-                    <div class="row">
-                        <div class="col-md-12">
+                        
+                        <!-- 分析结果区域 - 放在右侧，增强数据库匹配信息 -->
+                        <div class="col-lg-7">
                             {% if history.result_pest %}
                                 <div class="recognition-card">
                                     <div class="card-header bg-success-gradient text-white">
@@ -120,14 +210,23 @@
                                     <div class="card-body">
                                         <div class="result-info">
                                             <div class="row">
-                                                <div class="col-md-7">
+                                                <div class="col-12">
                                                     <h3>
                                                         <i class="fas fa-bug text-danger me-2"></i>
                                                         {{ history.result_pest.name }}
                                                     </h3>
                                                     
+                                                    <!-- 学名信息 -->
+                                                    {% if history.result_pest.scientific_name %}
+                                                    <p class="text-muted font-italic mb-2">
+                                                        <i class="fas fa-leaf text-success me-1"></i>
+                                                        学名：<em>{{ history.result_pest.scientific_name }}</em>
+                                                    </p>
+                                                    {% endif %}
+                                                    
+                                                    <!-- AI匹配信息 -->
                                                     {% if api_response.extracted_info.pest_name and api_response.extracted_info.pest_name != history.result_pest.name %}
-                                                    <div class="alert alert-info py-2">
+                                                    <div class="alert alert-info py-2 mt-2">
                                                         <small>
                                                             <i class="fas fa-info-circle"></i> 
                                                             AI原始识别结果："{{ api_response.extracted_info.pest_name }}"
@@ -138,30 +237,17 @@
                                                     </div>
                                                     {% endif %}
                                                     
-                                                    <div class="mt-3">
-                                                        <div class="confidence-bar-container mb-3">
-                                                            <div class="d-flex justify-content-between mb-1">
-                                                                <span>识别置信度</span>
-                                                                <span class="fw-bold">{{ history.confidence|floatformat:2 }}</span>
-                                                            </div>
-                                                            
-                                                            <div class="progress">
-                                                                <div class="progress-bar 
-                                                                    {% if history.confidence >= 80 %}bg-success{% elif history.confidence >= 60 %}bg-primary{% elif history.confidence >= 40 %}bg-info{% elif history.confidence >= 20 %}bg-warning{% else %}bg-danger{% endif %}" 
-                                                                    role="progressbar" 
-                                                                    style="width: {% if history.confidence > 100 %}100{% elif history.confidence < 0 %}0{% else %}{{ history.confidence|floatformat:0 }}{% endif %}%" 
-                                                                    aria-valuenow="{{ history.confidence|floatformat:0 }}" 
-                                                                    aria-valuemin="0" 
-                                                                    aria-valuemax="100">
-                                                                </div>
-                                                            </div>
-                                                        </div>
+                                                    <!-- 简短描述 -->
+                                                    {% if history.result_pest.short_description %}
+                                                    <div class="pest-description my-3 p-3 bg-light rounded">
+                                                        <p class="mb-0">{{ history.result_pest.short_description }}</p>
                                                     </div>
-                                                </div>
-                                                <div class="col-md-5">
-                                                    <table class="table">
+                                                    {% endif %}
+                                                    
+                                                    <!-- 基本信息表格 -->
+                                                    <table class="table mt-3">
                                                         <tr>
-                                                            <th width="40%"><i class="fas fa-microscope text-primary me-1"></i> 类型</th>
+                                                            <th width="20%"><i class="fas fa-microscope text-primary me-1"></i> 类型</th>
                                                             <td>{{ history.result_pest.get_type_display }}</td>
                                                         </tr>
                                                         <tr>
@@ -176,8 +262,35 @@
                                                             <th><i class="fas fa-calendar-alt text-success me-1"></i> 发生季节</th>
                                                             <td>{{ history.result_pest.get_season_display|default:"所有季节" }}</td>
                                                         </tr>
+                                                        {% if history.result_pest.alias %}
+                                                        <tr>
+                                                            <th><i class="fas fa-tags text-info me-1"></i> 别名</th>
+                                                            <td>{{ history.result_pest.alias }}</td>
+                                                        </tr>
+                                                        {% endif %}
                                                     </table>
-                                                    <div class="mt-4 text-end">
+                                                    
+                                                    <!-- 置信度进度条 - 移到按钮上方 -->
+                                                    <div class="confidence-bar-container mb-4 mt-4">
+                                                        <div class="d-flex justify-content-between mb-1">
+                                                            <span><i class="fas fa-chart-bar me-2"></i>识别置信度</span>
+                                                            <span class="fw-bold">{{ history.confidence|floatformat:2 }}</span>
+                                                        </div>
+                                                        
+                                                        <div class="progress">
+                                                            <div class="progress-bar 
+                                                                {% if history.confidence >= 80 %}bg-success{% elif history.confidence >= 60 %}bg-primary{% elif history.confidence >= 40 %}bg-info{% elif history.confidence >= 20 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                                                role="progressbar" 
+                                                                style="width: {% if history.confidence > 100 %}100{% elif history.confidence < 0 %}0{% else %}{{ history.confidence|floatformat:0 }}{% endif %}%" 
+                                                                aria-valuenow="{{ history.confidence|floatformat:0 }}" 
+                                                                aria-valuemin="0" 
+                                                                aria-valuemax="100">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- 查看详情按钮 -->
+                                                    <div class="text-end">
                                                         <a href="{% url 'orange:pest_detail' history.result_pest.id %}" class="btn btn-primary btn-lg">
                                                             <i class="fas fa-info-circle me-2"></i>查看详细防治方法
                                                         </a>
@@ -233,117 +346,115 @@
                                     </div>
                                 </div>
                             {% endif %}
-                            
-                            <!-- 通义千问AI分析结果 - 始终显示 -->
-                            {% if api_response.extracted_info %}
-                            <div class="recognition-card mt-4">
-                                <div class="card-header bg-info-gradient text-white">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h5 class="mb-0">
-                                            <i class="fas fa-robot me-2"></i>通义千问分析结果
-                                        </h5>
-                                        {% if api_response.extracted_info.multiple_diseases %}
-                                        <span class="badge bg-light text-info">
-                                            检测到 {{ api_response.extracted_info.multiple_diseases|length }} 种可能病虫害
-                                        </span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <!-- 如果识别出多种可能的病虫害 -->
-                                    {% if api_response.extracted_info.multiple_diseases %}
-                                    <div class="alert alert-info mb-3">
-                                        <h6 class="mb-2"><i class="fas fa-list-ul me-2"></i>识别到的可能病虫害:</h6>
-                                        <div class="row">
-                                            {% for disease in api_response.extracted_info.multiple_diseases %}
-                                            <div class="col-md-4 mb-2">
-                                                <div class="disease-item p-2 border rounded">
-                                                    <strong>{{ disease.name }}</strong>
-                                                    <span class="badge bg-light text-dark">{{ disease.type }}</span>
-                                                </div>
-                                            </div>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                    {% endif %}
-                                    
-                                    <!-- AI分析结果详情 -->
-                                    <div class="card bg-light">
-                                        <div class="card-body">
-                                            {% if api_response.extracted_info.markdown_response %}
-                                                <div class="markdown-content">
-                                                    {{ api_response.extracted_info.markdown_response|markdown_to_html }}
-                                                </div>
-                                            {% else %}
-                                                <div class="ai-response">
-                                                    {{ api_response.extracted_info.full_response|linebreaks }}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <div class="text-muted text-center mt-2">
-                                        <small>由通义千问视觉模型提供的分析结果</small>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endif %}
-                            
-                            <!-- 相关内容保持不变 -->
-                            {% if history.result_pest and related_pests %}
-                            <div class="mt-5">
-                                <div class="recognition-card animate-fadeInUp delay-1">
-                                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                        <h3 class="mb-0">
-                                            <i class="fas fa-link text-success me-2"></i>相关病虫害
-                                        </h3>
-                                        <span class="badge bg-primary">
-                                            {{ related_pests|length }} 项相关结果
-                                        </span>
-                                    </div>
-                                    <div class="card-body pb-2">
-                                        <div class="row">
-                                            {% for pest in related_pests %}
-                                                {% if pest.id != history.result_pest.id %}
-                                                <div class="col-md-3 mb-4">
-                                                    <div class="card h-100 shadow-hover">
-                                                        {% if pest.image %}
-                                                        <div class="related-pest-image-container">
-                                                            <img src="{{ pest.image.url }}" class="card-img-top related-pest-image" alt="{{ pest.name }}">
-                                                        </div>
-                                                        {% else %}
-                                                        <div class="no-image-placeholder">
-                                                            <i class="fas fa-bug fa-3x text-muted"></i>
-                                                        </div>
-                                                        {% endif %}
-                                                        <div class="card-body p-3">
-                                                            <h6 class="card-title mb-1">{{ pest.name }}</h6>
-                                                            <p class="card-text small text-muted mb-2">
-                                                                <span class="badge bg-{{ pest.severity }}-soft">
-                                                                    {{ pest.get_severity_display }}
-                                                                </span>
-                                                                <span class="badge bg-light text-dark">
-                                                                    {{ pest.get_type_display }}
-                                                                </span>
-                                                            </p>
-                                                            <div class="d-grid">
-                                                                <a href="{% url 'orange:pest_detail' pest.id %}" class="btn btn-sm btn-outline-primary">
-                                                                    查看详情
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                {% endif %}
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endif %}
-                        
-                            
                         </div>
                     </div>
+                    
+                    <!-- 通义千问AI分析结果 - 始终显示 -->
+                    {% if api_response.extracted_info %}
+                    <div class="recognition-card mt-4">
+                        <div class="card-header bg-info-gradient text-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-robot me-2"></i>通义千问分析结果
+                                </h5>
+                                {% if api_response.extracted_info.multiple_diseases %}
+                                <span class="badge bg-light text-info">
+                                    检测到 {{ api_response.extracted_info.multiple_diseases|length }} 种可能病虫害
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <!-- 如果识别出多种可能的病虫害 -->
+                            {% if api_response.extracted_info.multiple_diseases %}
+                            <div class="alert alert-info mb-3">
+                                <h6 class="mb-2"><i class="fas fa-list-ul me-2"></i>识别到的可能病虫害:</h6>
+                                <div class="row">
+                                    {% for disease in api_response.extracted_info.multiple_diseases %}
+                                    <div class="col-md-4 mb-2">
+                                        <div class="disease-item p-2 border rounded">
+                                            <strong>{{ disease.name }}</strong>
+                                            <span class="badge bg-light text-dark">{{ disease.type }}</span>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- AI分析结果详情 -->
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    {% if api_response.extracted_info.markdown_response %}
+                                        <div class="markdown-content">
+                                            {{ api_response.extracted_info.markdown_response|markdown_to_html }}
+                                        </div>
+                                    {% else %}
+                                        <div class="ai-response">
+                                            {{ api_response.extracted_info.full_response|linebreaks }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="text-muted text-center mt-2">
+                                <small>由通义千问视觉模型提供的分析结果</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- 相关内容保持不变 -->
+                    {% if history.result_pest and related_pests %}
+                    <div class="mt-5">
+                        <div class="recognition-card animate-fadeInUp delay-1">
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                <h3 class="mb-0">
+                                    <i class="fas fa-link text-success me-2"></i>相关病虫害
+                                </h3>
+                                <span class="badge bg-primary">
+                                    {{ related_pests|length }} 项相关结果
+                                </span>
+                            </div>
+                            <div class="card-body pb-2">
+                                <div class="row">
+                                    {% for pest in related_pests %}
+                                        {% if pest.id != history.result_pest.id %}
+                                        <div class="col-md-3 mb-4">
+                                            <div class="card h-100 shadow-hover">
+                                                {% if pest.image %}
+                                                <div class="related-pest-image-container">
+                                                    <img src="{{ pest.image.url }}" class="card-img-top related-pest-image" alt="{{ pest.name }}">
+                                                </div>
+                                                {% else %}
+                                                <div class="no-image-placeholder">
+                                                    <i class="fas fa-bug fa-3x text-muted"></i>
+                                                </div>
+                                                {% endif %}
+                                                <div class="card-body p-3">
+                                                    <h6 class="card-title mb-1">{{ pest.name }}</h6>
+                                                    <p class="card-text small text-muted mb-2">
+                                                        <span class="badge bg-{{ pest.severity }}-soft">
+                                                            {{ pest.get_severity_display }}
+                                                        </span>
+                                                        <span class="badge bg-light text-dark">
+                                                            {{ pest.get_type_display }}
+                                                        </span>
+                                                    </p>
+                                                    <div class="d-grid">
+                                                        <a href="{% url 'orange:pest_detail' pest.id %}" class="btn btn-sm btn-outline-primary">
+                                                            查看详情
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                     
                     <!-- 操作按钮 -->
                     <div class="d-flex justify-content-between mt-5">
@@ -373,7 +484,7 @@
         <img id="lightboxImg" src="" alt="Lightbox Image">
     </div>
 </div>
-
+{% endblock %}
 {% block script %}
 <script>
     $(document).ready(function() {
@@ -382,7 +493,7 @@
             e.preventDefault();
             var imgSrc = $(this).attr('href');
             $('#lightboxImg').attr('src', imgSrc);
-            $('#lightbox').fadeIn();
+            $('#lightbox').css('display', 'flex'); // 使用flex确保内容居中
         });
         
         // 关闭Lightbox
@@ -404,7 +515,18 @@
         $('.btn-outline-secondary').on('click', function() {
             sessionStorage.setItem('returnFromResult', 'true');
         });
+        
+        // 修复任何图像加载错误
+        $('.result-image-full').on('error', function() {
+            this.onerror = null;
+            this.src = '{% static "images/image_placeholder.png" %}';
+        });
+        
+        // 确保图片完全加载后居中显示
+        $('.result-image-full').on('load', function() {
+            $(this).parent().parent().addClass('loaded');
+        });
     });
 </script>
 {% endblock %}
-{% endblock %}
+

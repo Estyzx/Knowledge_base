@@ -5,7 +5,7 @@
 
 {% block head %}
 <style>
-    /* 延迟加载占位符样式 */
+    /* 基础样式和动画 */
     .placeholder {
         background-color: #f0f0f0;
         border-radius: 5px;
@@ -43,14 +43,8 @@
 
     /* 天气卡片优化 */
     .weather-card { transition: all 0.3s ease; }
-    .weather-icon-animate { animation: weather-icon-float 3s ease-in-out infinite; }
-
-    @keyframes weather-icon-float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-5px); }
-    }
     
-    /* 添加骨架屏样式 */
+    /* 骨架屏样式 - 提高用户体验 */
     .skeleton-text {
         height: 1rem;
         margin-bottom: 0.5rem;
@@ -75,7 +69,7 @@
     }
 </style>
 
-<!-- 使用预加载提高性能 -->
+<!-- 预加载关键资源 -->
 <link rel="preload" href="{% static 'css/home.css' %}" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript>
     <link rel="stylesheet" href="{% static 'css/home.css' %}">
@@ -91,7 +85,7 @@
 {% endblock %}
 
 {% block main %}
-<!-- 优先加载核心内容 -->
+<!-- 核心内容容器 -->
 <div class="container">
     <div class="row">
         <div class="col-lg-12">
@@ -222,7 +216,7 @@
                 <div class="card-body">
                     <h5 class="card-title">保定天气</h5>
                     <div id="weather-content" class="placeholder">
-                        <!-- 添加骨架屏 -->
+                        <!-- 骨架屏 - 内容加载前显示 -->
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div class="d-flex flex-column">
                                 <div class="skeleton-text" style="width: 80px; height: 2rem;"></div>
@@ -245,7 +239,7 @@
                 </div>
             </div>
             
-            <!-- 最新内容展示修复 - 将内容块移到这里 -->
+            <!-- 最新内容展示 -->
             <div class="row g-4 mb-5">
                 <!-- 最新品种 -->
                 <div class="col-md-6">
@@ -419,27 +413,26 @@
     </div>
 </div>
 
-<!-- 优化懒加载 -->
+<!-- 天气加载脚本 -->
 <script>
-    // 页面加载完成后立即执行
+    // 页面加载完成后执行
     document.addEventListener('DOMContentLoaded', function () {
-        // 立即加载天气数据，不等待其他资源
         loadWeatherData();
     });
 
-    // 加载天气数据 - 使用fetch API的超时设置
+    // 获取天气数据并处理缓存
     function loadWeatherData() {
         const weatherContent = document.getElementById('weather-content');
         if (!weatherContent) return;
 
-        // 检查是否有本地存储的缓存数据
+        // 检查本地缓存
         if (localStorage.getItem('weatherCache')) {
             try {
                 const cache = JSON.parse(localStorage.getItem('weatherCache'));
                 const cacheTime = new Date(cache.timestamp);
                 const now = new Date();
 
-                // 如果缓存时间小于30分钟，使用缓存数据
+                // 30分钟内的缓存有效
                 if ((now - cacheTime) / 1000 / 60 < 30) {
                     renderWeather(cache.data);
                     return;
@@ -449,14 +442,13 @@
             }
         }
 
-        // 设置超时控制
+        // API请求带超时控制
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3秒超时
+        const timeoutId = setTimeout(() => controller.abort(), 3000); 
 
-        // 获取新天气数据
         fetch('/orange/api/weather/', {
             signal: controller.signal,
-            cache: 'no-cache' // 确保获取最新数据
+            cache: 'no-cache'
         })
         .then(response => {
             clearTimeout(timeoutId);
@@ -464,60 +456,49 @@
         })
         .then(data => {
             if (data.status === 'success') {
-                // 保存到本地存储
+                // 成功时缓存结果
                 localStorage.setItem('weatherCache', JSON.stringify({
                     timestamp: new Date(),
                     data: data
                 }));
                 renderWeather(data);
             } else {
-                weatherContent.innerHTML = `
-                    <div class="text-center text-muted p-3">
-                        <i class="fas fa-exclamation-circle me-2"></i> 天气数据加载失败
-                        <button class="btn btn-sm btn-outline-secondary ms-2 retry-weather">
-                            <i class="fas fa-sync-alt me-1"></i>重试
-                        </button>
-                    </div>`;
-                
-                // 添加重试按钮事件
-                const retryBtn = weatherContent.querySelector('.retry-weather');
-                if (retryBtn) {
-                    retryBtn.addEventListener('click', loadWeatherData);
-                }
+                // 失败提示
+                showWeatherError(weatherContent);
             }
         })
         .catch(error => {
             clearTimeout(timeoutId);
             console.error('获取天气数据失败:', error);
-            weatherContent.innerHTML = `
-                <div class="text-center text-muted p-3">
-                    <i class="fas fa-exclamation-circle me-2"></i> 天气数据加载失败
-                    <button class="btn btn-sm btn-outline-secondary ms-2 retry-weather">
-                        <i class="fas fa-sync-alt me-1"></i>重试
-                    </button>
-                </div>`;
-            
-            // 添加重试按钮事件
-            const retryBtn = weatherContent.querySelector('.retry-weather');
-            if (retryBtn) {
-                retryBtn.addEventListener('click', loadWeatherData);
-            }
+            showWeatherError(weatherContent);
         });
     }
 
-    // 渲染天气UI - 优化渲染过程
+    // 显示错误信息并提供重试功能
+    function showWeatherError(container) {
+        container.innerHTML = `
+            <div class="text-center text-muted p-3">
+                <i class="fas fa-exclamation-circle me-2"></i> 天气数据加载失败
+                <button class="btn btn-sm btn-outline-secondary ms-2 retry-weather">
+                    <i class="fas fa-sync-alt me-1"></i>重试
+                </button>
+            </div>`;
+        
+        const retryBtn = container.querySelector('.retry-weather');
+        if (retryBtn) {
+            retryBtn.addEventListener('click', loadWeatherData);
+        }
+    }
+
+    // 渲染天气UI
     function renderWeather(data) {
         const weatherContent = document.getElementById('weather-content');
         if (!weatherContent) return;
 
-        // 移除占位符样式
         weatherContent.classList.remove('placeholder');
 
-        // 生成天气HTML
         const weather = data.weather_data;
         const current = data.current_weather;
-
-        // 根据天气代码获取对应的图标
         const weatherCode = weather.code_day || '99';
         const weatherIconPath = `/static/white/${weatherCode}@2x.png`;
 
@@ -527,8 +508,8 @@
                     <h3 class="mb-0">${current.temperature}°C</h3>
                     <span class="text-muted">${current.text}</span>
                 </div>
-                <div class="weather-icon weather-icon-animate">
-                    <img src="${weatherIconPath}" alt="${current.text}" width="48" height="48" class="weather-icon">
+                <div>
+                    <img src="${weatherIconPath}" alt="${current.text}" width="48" height="48">
                 </div>
             </div>
             <div class="row small text-muted">
@@ -544,50 +525,5 @@
             </div>
         `;
     }
-
-    // 观察者选项
-    const observerOptions = {
-        root: null, // 使用视口作为容器
-        rootMargin: '100px 0px', // 在元素进入视口前100px开始加载
-        threshold: 0.1 // 当10%的元素可见时触发
-    };
-
-    // 初始化延迟加载逻辑
-    document.addEventListener('DOMContentLoaded', function () {
-        const observer = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const element = entry.target;
-                    if (element.classList.contains('lazy-content')) {
-                        element.classList.remove('lazy-content');
-                    }
-                    observer.unobserve(element);
-                }
-            });
-        }, observerOptions);
-
-        // 注册所有延迟加载元素
-        document.querySelectorAll('.lazy-content').forEach(el => {
-            observer.observe(el);
-        });
-
-        // 延迟加载非关键图片
-        document.querySelectorAll('img[data-src]').forEach(img => {
-            const imgObserver = new IntersectionObserver(entries => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        img.src = img.dataset.src;
-                        imgObserver.unobserve(img);
-                    }
-                });
-            }, observerOptions);
-            imgObserver.observe(img);
-        });
-    });
 </script>
-{% endblock %}
-
-{% block extra_js %}
-<!-- 将非关键JavaScript移到页面底部 -->
-<script src="{% static 'js/home.js' %}"></script>
 {% endblock %}
