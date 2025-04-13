@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}识别历史 - 病虫害识别{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/pest_recognition.css' %}">
+    <style>
+        .history-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        .card {
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+{% endblock %}
+
+{% block main %}
+<div class="container my-5">
+    <div class="glass-card mb-5">
+        <div class="card-header border-0 bg-primary text-white">
+            <h1 class="mb-0"><i class="fas fa-history me-2"></i>识别历史</h1>
+        </div>
+        <div class="card-body">
+            {% if histories %}
+                <div class="row">
+                    {% for history in histories %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">
+                                    {% if history.result_pest %}
+                                        <i class="fas fa-check-circle text-success me-2"></i>{{ history.result_pest.name }}
+                                    {% elif history.ai_result_name %}
+                                        <i class="fas fa-robot text-info me-2"></i>{{ history.ai_result_name }} <small class="text-muted">(AI识别)</small>
+                                    {% else %}
+                                        <i class="fas fa-question-circle text-warning me-2"></i>未能识别
+                                    {% endif %}
+                                </h5>
+                                <span class="badge bg-secondary">{{ history.create_time|date:"Y-m-d H:i" }}</span>
+                            </div>
+                            <div class="row g-0">
+                                <div class="col-md-4">
+                                    <img src="{{ history.image.url }}" alt="识别图像" class="img-fluid rounded-start history-image">
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <span>
+                                                    {% if history.result_pest %}
+                                                        <span class="badge bg-primary">{{ history.result_pest.get_type_display }}</span>
+                                                    {% elif history.ai_result_name %}
+                                                        <span class="badge bg-info">AI识别结果</span>
+                                                    {% else %}
+                                                        <span class="badge bg-warning">未识别</span>
+                                                    {% endif %}
+                                                </span>
+                                                <span class="badge {% if history.confidence >= 80 %}bg-success{% elif history.confidence >= 60 %}bg-primary{% elif history.confidence >= 40 %}bg-info{% else %}bg-warning{% endif %}">
+                                                    {{ history.confidence|floatformat:1 }}%
+                                                </span>
+                                            </div>
+                                            <div class="progress" style="height: 5px;">
+                                                <div class="progress-bar 
+                                                    {% if history.confidence >= 80 %}bg-success{% elif history.confidence >= 60 %}bg-primary{% elif history.confidence >= 40 %}bg-info{% else %}bg-warning{% endif %}" 
+                                                    role="progressbar" 
+                                                    style="width: {{ history.confidence|floatformat:0 }}%" 
+                                                    aria-valuenow="{{ history.confidence|floatformat:0 }}" 
+                                                    aria-valuemin="0" 
+                                                    aria-valuemax="100">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mt-3">
+                                            <small class="text-muted">
+                                                <i class="fas fa-robot me-1"></i>{{ history.model_used|default:"默认模型" }}
+                                            </small>
+                                            <a href="{% url 'pest_recognition:result_detail' history.id %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye me-1"></i>查看详情
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- 分页导航 -->
+                {% if is_paginated %}
+                <nav aria-label="识别历史分页" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">&laquo; 首页</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">上一页</a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }} <span class="sr-only">(当前页)</span></span>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">下一页</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">尾页 &raquo;</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center p-5 bg-light rounded-3">
+                    <i class="fas fa-history fa-4x text-muted mb-3"></i>
+                    <h3>暂无识别历史</h3>
+                    <p class="text-muted">您还没有进行过病虫害识别</p>
+                    <a href="{% url 'pest_recognition:upload' %}" class="btn btn-primary mt-3">
+                        <i class="fas fa-camera me-2"></i>开始识别
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

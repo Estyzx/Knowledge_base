@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+{% load static %}
+{% load markdown_extras %}
+
+{% block title %}识别详情 - 病虫害图像识别{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/pest_recognition.css' %}">
+    <link rel="stylesheet" href="{% static 'css/markdown.css' %}">
+    <!-- 使用本地资源替代CDN，确保离线可用 -->
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+    <style>
+        /* 添加页内Lightbox样式，不依赖CDN */
+        .lightbox-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .lightbox-content {
+            max-width: 90%;
+            max-height: 90%;
+        }
+        
+        .lightbox-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            margin: auto;
+            display: block;
+        }
+        
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+        }
+        
+        /* 修复图片容器样式 */
+        .result-image-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 6px;
+        }
+        
+        .result-image-full {
+            width: 100%;
+            max-height: 350px;
+            object-fit: contain;
+            display: block;
+        }
+        
+        /* 渐变背景样式 */
+        .bg-success-gradient {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+        
+        .bg-info-gradient {
+            background: linear-gradient(135deg, #17a2b8 0%, #0dcaf0 100%);
+        }
+        
+        .bg-warning-gradient {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+        }
+    </style>
+{% endblock %}
+
+{% block main %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="glass-card mb-4">
+                <div class="card-header bg-primary text-white py-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="mb-0">
+                            <i class="fas fa-search me-2"></i>识别详情
+                        </h1>
+                        <span class="badge bg-light text-primary">
+                            <i class="fas fa-clock me-1"></i>
+                            {{ history.create_time|date:"Y-m-d H:i" }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4">
+                    <!-- 图像和识别结果 -->
+                    <div class="row mb-4">
+                        <div class="col-md-5">
+                            <div class="recognition-card">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-image text-primary me-2"></i>识别图像
+                                    </h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="result-image-container text-center">
+                                        {% if history.image %}
+                                            <a href="{{ history.image.url }}" class="lightbox-image" data-title="点击查看原图">
+                                                <img src="{{ history.image.url }}" alt="识别图像" class="result-image-full" 
+                                                     onerror="this.onerror=null;this.src='{% static 'images/image_placeholder.png' %}';">
+                                                <div class="zoom-hint">
+                                                    <i class="fas fa-search-plus"></i>
+                                                </div>
+                                            </a>
+                                        {% else %}
+                                            <div class="bg-light d-flex align-items-center justify-content-center result-image">
+                                                <i class="fas fa-image fa-5x text-muted"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-7">
+                            <div class="recognition-card h-100">
+                                <div class="card-header {% if history.result_pest %}bg-success-gradient{% elif history.ai_result_name %}bg-info-gradient{% else %}bg-warning-gradient{% endif %} text-white">
+                                    <h5 class="mb-0">
+                                        {% if history.result_pest %}
+                                            <i class="fas fa-check-circle me-2"></i>识别结果
+                                        {% elif history.ai_result_name %}
+                                            <i class="fas fa-robot me-2"></i>AI识别结果
+                                        {% else %}
+                                            <i class="fas fa-exclamation-triangle me-2"></i>无法识别
+                                        {% endif %}
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    {% if history.result_pest or history.ai_result_name %}
+                                        <h3>
+                                            {% if history.result_pest %}
+                                                <i class="fas fa-bug text-danger me-2"></i>{{ history.result_pest.name }}
+                                            {% else %}
+                                                <i class="fas fa-robot text-info me-2"></i>{{ history.ai_result_name }}
+                                            {% endif %}
+                                        </h3>
+                                        
+                                        <div class="mt-3">
+                                            <div class="confidence-bar-container mb-3">
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <span>识别置信度</span>
+                                                    <span class="fw-bold">{{ history.confidence|floatformat:2 }}</span>
+                                                </div>
+                                                <div class="progress">
+                                                    <div class="progress-bar 
+                                                        {% if history.confidence >= 80 %}bg-success{% elif history.confidence >= 60 %}bg-primary{% elif history.confidence >= 40 %}bg-info{% elif history.confidence >= 20 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                                        role="progressbar" 
+                                                        style="width: {{ history.confidence|floatformat:0 }}%" 
+                                                        aria-valuenow="{{ history.confidence|floatformat:0 }}" 
+                                                        aria-valuemin="0" 
+                                                        aria-valuemax="100">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            {% if history.result_pest %}
+                                            <table class="table table-striped">
+                                                <tr>
+                                                    <th width="40%">类型</th>
+                                                    <td>{{ history.result_pest.get_type_display }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>危害程度</th>
+                                                    <td>{{ history.result_pest.get_severity_display }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>发生季节</th>
+                                                    <td>{{ history.result_pest.occurrence_season|default:"不详" }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>识别模型</th>
+                                                    <td>{{ history.model_used }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>响应时间</th>
+                                                    <td>{{ history.response_time|floatformat:2 }}秒</td>
+                                                </tr>
+                                            </table>
+                                            
+                                            <div class="mt-3 text-end">
+                                                <a href="{% url 'orange:pest_detail' history.result_pest.id %}" class="btn btn-primary">
+                                                    <i class="fas fa-info-circle me-2"></i>查看详细防治方法
+                                                </a>
+                                            </div>
+                                            {% else %}
+                                            <div class="alert alert-info">
+                                                <i class="fas fa-info-circle me-2"></i>
+                                                该病虫害未在系统数据库中找到匹配记录
+                                            </div>
+                                            <table class="table table-striped">
+                                                <tr>
+                                                    <th width="40%">AI识别名称</th>
+                                                    <td>{{ history.ai_result_name }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>识别模型</th>
+                                                    <td>{{ history.model_used }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>响应时间</th>
+                                                    <td>{{ history.response_time|floatformat:2 }}秒</td>
+                                                </tr>
+                                            </table>
+                                            {% endif %}
+                                        </div>
+                                    {% else %}
+                                        <div class="alert alert-warning">
+                                            <strong>未能识别出匹配的病虫害</strong>
+                                            <p class="mb-0 mt-2">可能原因：</p>
+                                            <ul class="mb-0">
+                                                <li>图像不够清晰</li>
+                                                <li>光线不足</li>
+                                                <li>拍摄角度不佳</li>
+                                                <li>未捕捉到病害特征</li>
+                                            </ul>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 操作按钮 -->
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'pest_recognition:history' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>返回历史列表
+                        </a>
+                        
+                        <div>
+                            <a href="#" class="btn btn-outline-info me-2" onclick="window.print()">
+                                <i class="fas fa-print me-2"></i>打印结果
+                            </a>
+                            <a href="{% url 'pest_recognition:upload' %}" class="btn btn-success">
+                                <i class="fas fa-camera me-2"></i>继续识别
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 自定义Lightbox代替CDN版本 -->
+<div class="lightbox-overlay" id="lightbox">
+    <div class="lightbox-close">&times;</div>
+    <div class="lightbox-content">
+        <img id="lightboxImg" src="" alt="Lightbox Image">
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    $(document).ready(function() {
+        // 自定义Lightbox实现，替代CDN
+        $('.lightbox-image').on('click', function(e) {
+            e.preventDefault();
+            var imgSrc = $(this).attr('href');
+            $('#lightboxImg').attr('src', imgSrc);
+            $('#lightbox').css('display', 'flex');
+        });
+        
+        // 关闭Lightbox
+        $('.lightbox-close, #lightbox').on('click', function(e) {
+            if (e.target === this || $(e.target).hasClass('lightbox-close')) {
+                $('#lightbox').fadeOut();
+            }
+        });
+    });
+</script>
+{% endblock %}

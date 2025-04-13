@@ -1,0 +1,658 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}病虫害图像识别 - 甘南脐橙知识库{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/pest_recognition.css' %}">
+    <!-- 使用本地jQuery而不是CDN -->
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <style>
+        /* 等待动画样式 */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .loading-spinner {
+            width: 80px;
+            height: 80px;
+            border: 8px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 8px solid #fff;
+            animation: spin 1s linear infinite;
+        }
+        
+        .loading-text {
+            color: white;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 上传区域样式 */
+        .upload-area {
+            cursor: pointer;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .border-dashed {
+            border: 2px dashed #ccc;
+        }
+        
+        .border-dashed:hover,
+        .border-dashed.drag-over {
+            border-color: #28a745;
+            background-color: #e8f5e9;
+        }
+        
+        .file-input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .preview-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .preview-container img {
+            max-height: 150px;
+            max-width: 100%;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .preview-container {
+            width: 100%;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .preview-container img {
+            max-height: 180px;
+            max-width: 90%;
+            border-radius: 6px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        }
+        
+        /* 改进的拖放指示样式 */
+        .border-dashed.drag-over {
+            border-style: solid;
+            border-width: 3px;
+            border-color: #28a745;
+            background-color: rgba(40, 167, 69, 0.08);
+            transition: all 0.2s ease;
+        }
+
+        /* 最近识别记录样式 */
+        .recent-history-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .recent-history-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        }
+        
+        .recent-img-container {
+            height: 140px;
+            overflow: hidden;
+            position: relative;
+            background-color: #f8f9fa;
+        }
+        
+        .recent-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .recent-history-card:hover .recent-img {
+            transform: scale(1.05);
+        }
+        
+        .recent-history-body {
+            background-color: #fff;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+    </style>
+{% endblock %}
+
+{% block main %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <div class="glass-card mb-4 animate-fadeInUp">
+                <div class="card-header bg-success-gradient text-white py-4">
+                    <h1 class="mb-0 text-center">
+                        <i class="fas fa-camera me-2"></i>病虫害图像识别
+                    </h1>
+                </div>
+                
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="alert {% if api_enabled %}alert-info{% else %}alert-warning{% endif %}">
+                                <i class="fas fa-info-circle me-2"></i>
+                                拍摄或上传脐橙病虫害图片，系统将自动识别并提供防治建议
+                                {% if not api_enabled %}
+                                <span class="badge bg-warning text-dark ms-2">使用模拟数据</span>
+                                {% endif %}
+                                {% if api_enabled %}
+                                <span class="badge bg-success ms-2">使用通义千问视觉模型</span>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- 模型信息卡片 -->
+                            {% for model_id, model_info in available_models.items %}
+                            <div class="card mb-4 border-success">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-brain me-2"></i>{{ model_info.name }}
+                                    </h5>
+                                    <span class="badge bg-success">推荐模型</span>
+                                </div>
+                                <div class="card-body">
+                                    <p>{{ model_info.description }}</p>
+                                    <div class="model-features mb-2">
+                                        {% for feature in model_info.features %}
+                                        <span class="badge bg-light text-dark">{{ feature }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    <input type="hidden" id="selected-model" value="{{ model_id }}">
+                                </div>
+                            </div>
+                            {% endfor %}
+                            
+                            <div class="upload-container border rounded p-4 text-center bg-light mb-4">
+                                <form action="{% url 'pest_recognition:upload' %}" method="post" enctype="multipart/form-data" id="uploadForm">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="model" id="selected-model-input" value="{{ default_model }}">
+                                    <div id="uploadArea" class="upload-area position-relative border-dashed">
+                                        <div id="uploadContent">
+                                            <i class="fas fa-cloud-upload-alt fa-3x text-success mb-3"></i>
+                                            <h4>拖拽图片至此区域或点击上传</h4>
+                                            <p class="text-muted">支持JPG、PNG等常见图像格式</p>
+                                        </div>
+                                        <div id="previewContainer" class="preview-container" style="display:none;">
+                                            <img id="previewImage" src="" alt="预览图片" class="mb-3 rounded">
+                                            <p id="fileName" class="mb-1"></p>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="changeImageBtn">
+                                                <i class="fas fa-exchange-alt me-1"></i>更换图片
+                                            </button>
+                                        </div>
+                                        <input type="file" name="image" id="imageInput" class="file-input" accept="image/*">
+                                    </div>
+                                    <button type="submit" class="btn btn-success btn-lg mt-3" id="uploadBtn" disabled>
+                                        <i class="fas fa-upload me-2"></i>开始识别
+                                    </button>
+                                </form>
+                            </div>
+                            
+                            <div class="text-center mb-4">
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-outline-success" id="cameraBtn">
+                                        <i class="fas fa-camera me-2"></i>拍摄照片
+                                    </button>
+                                    <button class="btn btn-outline-primary" id="galleryBtn">
+                                        <i class="fas fa-images me-2"></i>从相册选择
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- 相机拍照区域 -->
+                            <div class="camera-container d-none border rounded p-3 mb-4 bg-dark">
+                                <div class="text-end mb-2">
+                                    <button class="btn btn-sm btn-light closeCameraBtn">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <video id="video" class="w-100 rounded mb-3" autoplay></video>
+                                <div class="text-center">
+                                    <button id="captureBtn" class="btn btn-danger btn-lg rounded-circle">
+                                        <i class="fas fa-camera"></i>
+                                    </button>
+                                </div>
+                                <canvas id="canvas" class="d-none"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 最近识别记录 -->
+                    {% if recent_histories %}
+                    <div class="mt-5">
+                        <h4 class="border-bottom pb-2">
+                            <i class="fas fa-history me-2"></i>最近识别记录
+                        </h4>
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3">
+                            {% for history in recent_histories %}
+                            <div class="col">
+                                <div class="recent-history-card h-100 shadow-sm border rounded">
+                                    <div class="recent-img-container">
+                                        <img src="{{ history.image.url }}" alt="最近识别历史" class="recent-img"
+                                             onerror="this.onerror=null;this.src='{% static 'images/image_placeholder.png' %}';">
+                                    </div>
+                                    <div class="recent-history-body p-2">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0 text-truncate" style="max-width: 70%">
+                                                {% if history.result_pest %}
+                                                    {{ history.result_pest.name }}
+                                                {% elif history.ai_result_name %}
+                                                    {{ history.ai_result_name }}
+                                                    <span class="badge bg-info text-white">AI</span>
+                                                {% else %}
+                                                    未识别
+                                                {% endif %}
+                                            </h6>
+                                            <span class="badge {% if history.confidence >= 80 %}bg-success{% elif history.confidence >= 60 %}bg-primary{% elif history.confidence >= 40 %}bg-info{% else %}bg-warning{% endif %}">
+                                                {{ history.confidence|floatformat:0 }}%
+                                            </span>
+                                        </div>
+                                        <small class="text-muted d-block mt-1">{{ history.create_time|date:"Y-m-d H:i" }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="text-center mt-3">
+                            <a href="{% url 'pest_recognition:history' %}" class="btn btn-outline-secondary">
+                                查看全部记录 <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- 使用说明卡片 -->
+            <div class="glass-card animate-fadeInUp delay-1">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-question-circle me-2"></i>通义千问视觉模型使用指南
+                    </h5>
+                </div>
+                <div class="card-body markdown-content">
+                    {{ model_guide|linebreaksbr }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 等待动画遮罩 -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">正在识别病虫害，请稍候...</div>
+</div>
+
+{% block script %}
+<script>
+    $(document).ready(function() {
+        // 初始化事件绑定
+        initializeFileEvents();
+        
+        /**
+         * 初始化文件相关的所有事件处理
+         */
+        function initializeFileEvents() {
+            // 文件选择后显示预览
+            $('#imageInput').off('change').on('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    handleFileSelect(file);
+                    console.log("已选择图片:", file.name); // 调试输出
+                }
+            });
+        }
+        
+        function handleFileSelect(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $('#dropArea').css('background-color', '#fff');
+                
+                // 创建预览区域HTML但先不包含input元素
+                const previewHtml = `
+                    <div style="position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <img src="${e.target.result}" style="max-height: 180px; max-width: 100%;" class="mb-2">
+                        <p class="mb-0">${file.name}</p>
+                    </div>
+                `;
+                
+                // 更新预览区域
+                $('#dropArea').html(previewHtml);
+                
+                // 重新添加input元素并重新绑定事件
+                $('<input>').attr({
+                    type: 'file',
+                    name: 'image',
+                    id: 'imageInput',
+                    accept: 'image/*',
+                    class: 'position-absolute'
+                }).css({
+                    width: '100%',
+                    height: '100%',
+                    top: 0,
+                    left: 0,
+                    opacity: 0,
+                    cursor: 'pointer'
+                }).appendTo('#dropArea');
+                
+                // 重新初始化文件事件处理
+                initializeFileEvents();
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 改进的表单提交逻辑
+        $('#uploadForm').on('submit', function(e) {
+            // 防止直接提交
+            e.preventDefault();
+            
+            // 检查是否有图片选择
+            if ($('#imageInput').val()) {
+                // 显示等待动画
+                $('#loadingOverlay').css('display', 'flex');
+                $('#uploadBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>识别中...');
+                
+                console.log("表单提交中..."); // 调试输出
+                
+                // 手动提交表单
+                this.submit();
+            } else {
+                // 提示用户选择图片
+                alert('请先选择一张图片');
+            }
+        });
+        
+        // 文件拖放处理
+        $('#dropArea').on('dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).css('border-color', '#28a745');
+            $(this).css('background-color', '#e8f5e9');
+        });
+        
+        $('#dropArea').on('dragleave', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).css('border-color', '#ccc');
+            $(this).css('background-color', '#f8f9fa');
+        });
+        
+        $('#dropArea').on('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).css('border-color', '#ccc');
+            
+            if (e.originalEvent.dataTransfer && e.originalEvent.dataTransfer.files.length) {
+                const file = e.originalEvent.dataTransfer.files[0];
+                // 设置文件到输入元素，但不触发change事件
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                document.getElementById('imageInput').files = dt.files;
+                
+                // 直接处理文件
+                handleFileSelect(file);
+                console.log("已拖放图片:", file.name); // 调试输出
+            }
+        });
+        
+        // 相册选择功能
+        $('#galleryBtn').click(function() {
+            // 触发文件选择
+            $('#imageInput').click();
+        });
+        
+        // 相机功能
+        let video = document.getElementById('video');
+        let canvas = document.getElementById('canvas');
+        let stream = null;
+        
+        // 打开相机
+        $('#cameraBtn').click(function() {
+            $('.camera-container').removeClass('d-none');
+            
+            // 获取相机权限
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(s) {
+                    stream = s;
+                    video.srcObject = stream;
+                })
+                .catch(function(error) {
+                    console.log("相机错误: ", error);
+                    alert("无法访问相机，请检查权限设置。");
+                });
+            } else {
+                alert("您的浏览器不支持相机功能。");
+            }
+        });
+        
+        // 关闭相机
+        $('.closeCameraBtn').click(function() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            $('.camera-container').addClass('d-none');
+        });
+        
+        // 捕获照片
+        $('#captureBtn').click(function() {
+            if (!stream) return;
+            
+            let context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // 转换为文件对象
+            canvas.toBlob(function(blob) {
+                let formData = new FormData();
+                formData.append('image', blob, 'camera-capture.jpg');
+                formData.append('csrfmiddlewaretoken', $('input[name=csrfmiddlewaretoken]').val());
+                formData.append('model', $("#selected-model-input").val());
+                
+                // 显示加载状态
+                $('#captureBtn').prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+                $('#loadingOverlay').css('display', 'flex');
+                
+                // 上传图片
+                $.ajax({
+                    url: "{% url 'pest_recognition:upload' %}",
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        // 识别成功后处理响应
+                        if (response && response.redirect_url) {
+                            window.location.href = response.redirect_url;
+                        } else {
+                            window.location.href = "{% url 'pest_recognition:upload' %}";
+                        }
+                    },
+                    error: function(error) {
+                        console.log("识别错误: ", error);
+                        alert("识别失败，请重试。");
+                        $('#captureBtn').prop('disabled', false).html('<i class="fas fa-camera"></i>');
+                        $('#loadingOverlay').css('display', 'none');
+                    }
+                });
+                
+                // 关闭相机
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    stream = null;
+                }
+                $('.camera-container').addClass('d-none');
+            }, 'image/jpeg', 0.95);
+        });
+        
+        // 相册选择功能
+        $('#galleryBtn').click(function() {
+            // 触发文件选择
+            $('#imageInput').click();
+        });
+        
+        // 文件选择处理
+        $('#imageInput').on('change', function(e) {
+            const file = this.files[0];
+            if (file) {
+                // 预览并启用上传按钮
+                previewFile(file);
+                $('#uploadBtn').prop('disabled', false);
+            }
+        });
+        
+        // 拖放处理
+        const dropArea = document.getElementById('uploadArea');
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        // 处理文件拖放
+        dropArea.addEventListener('drop', handleFileDrop, false);
+        
+        // 高亮拖放区域
+        function highlight(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(dropArea).addClass('drag-over');
+        }
+        
+        // 移除高亮
+        function unhighlight(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(dropArea).removeClass('drag-over');
+        }
+        
+        // 处理拖放文件
+        function handleFileDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (e.dataTransfer.files.length) {
+                const file = e.dataTransfer.files[0];
+                // 验证是否为图片
+                if (file.type.startsWith('image/')) {
+                    // 更新输入元素的文件
+                    document.getElementById('imageInput').files = e.dataTransfer.files;
+                    // 预览并启用上传按钮
+                    previewFile(file);
+                    $('#uploadBtn').prop('disabled', false);
+                } else {
+                    alert('请上传图片文件 (JPG, PNG等)');
+                }
+            }
+        }
+        
+        // 预览所选文件
+        function previewFile(file) {
+            // 创建文件读取器
+            const reader = new FileReader();
+            
+            // 设置加载完成事件
+            reader.onload = function(e) {
+                // 隐藏上传指示
+                $('#uploadContent').hide();
+                
+                // 显示预览容器
+                $('#previewContainer').show();
+                
+                // 设置预览图像和文件名
+                $('#previewImage').attr('src', e.target.result);
+                $('#fileName').text(file.name);
+            };
+            
+            // 读取文件
+            reader.readAsDataURL(file);
+        }
+        
+        // 更换图片按钮
+        $('#changeImageBtn').on('click', function() {
+            // 重置图片输入
+            document.getElementById('imageInput').value = '';
+            
+            // 隐藏预览
+            $('#previewContainer').hide();
+            
+            // 显示上传内容
+            $('#uploadContent').show();
+            
+            // 禁用上传按钮
+            $('#uploadBtn').prop('disabled', true);
+        });
+        
+        // 表单提交处理
+        $('#uploadForm').on('submit', function(e) {
+            // 检查是否已选择图片
+            if (!$('#imageInput').val()) {
+                e.preventDefault();
+                alert('请先选择一张图片');
+                return false;
+            }
+            
+            // 显示加载动画
+            $('#loadingOverlay').css('display', 'flex');
+            $('#uploadBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>识别中...');
+            
+            // 正常提交
+            return true;
+        });
+        
+        // 相册按钮点击
+        $('#galleryBtn').on('click', function() {
+            $('#imageInput').click();
+        });
+        
+        // 相机功能
+        // ...existing code for camera...
+    });
+</script>
+{% endblock %}
+{% endblock %}
