@@ -18,9 +18,11 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from gannan_orange import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', views.HomePage.as_view(), name='home'),
     path('orange/', include('gannan_orange.urls')),
     path('user/', include('User.urls')),
     path('ckeditor/', include('ckeditor_uploader.urls')),
