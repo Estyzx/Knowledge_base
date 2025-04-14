@@ -35,7 +35,7 @@ def recognize_image(image_file, selected_model=None):
         return _mock_recognition()
     
     # 使用指定模型或默认模型
-    model = selected_model or API_CONFIG.get('model', 'qwen2.5-vl-32b-instruct')
+    model = selected_model or API_CONFIG.get('model', 'qwen2.5-vl-72b-instruct')
     
     try:
         # 简单地读取图像数据

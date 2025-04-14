@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}病虫害图像识别 - 甘南脐橙知识库{% endblock %}
+{% block title %}病虫害图像识别 - 农业知识平台{% endblock %}
 
 {% block head %}
     <link rel="stylesheet" href="{% static 'css/pest_recognition.css' %}">
@@ -171,7 +171,7 @@
                         <div class="col-md-12">
                             <div class="alert {% if api_enabled %}alert-info{% else %}alert-warning{% endif %}">
                                 <i class="fas fa-info-circle me-2"></i>
-                                拍摄或上传脐橙病虫害图片，系统将自动识别并提供防治建议
+                                拍摄或上传病虫害图片，系统将自动识别并提供防治建议
                                 {% if not api_enabled %}
                                 <span class="badge bg-warning text-dark ms-2">使用模拟数据</span>
                                 {% endif %}

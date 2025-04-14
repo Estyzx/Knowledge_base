@@ -12,10 +12,10 @@ API_CONFIG = {
     "api_url": "https://api.siliconflow.cn/v1/chat/completions",
     "enabled": False,  # 默认禁用，直到成功加载密钥
     "timeout": 30,
-    "model": "qwen2.5-vl-32b-instruct",
+    "model": "qwen2.5-vl-72b-instruct",
     "available_models": {  # 简化为仅使用Qwen模型
-        "qwen2.5-vl-32b-instruct": {
-            "name": "通义千问 2.5-VL-32B",
+        "qwen2.5-vl-72b-instruct": {
+            "name": "通义千问 2.5-VL-72B",
             "description": "大型多模态视觉-语言模型，专为图像识别和分析优化",
             "features": ["高精度视觉理解", "详细中文描述", "专业领域知识"],
             "recommended_for": ["所有场景"]
@@ -58,7 +58,7 @@ def load_recognition_model():
 MODEL_SELECTION_GUIDE = """
 # 通义千问视觉语言模型使用指南
 
-我们使用的是阿里巴巴达摩院开发的通义千问2.5-VL-32B-Instruct多模态大模型，这是一个强大的视觉-语言模型，专为图像理解和分析优化。
+我们使用的是阿里巴巴达摩院开发的通义千问2.5-VL-72B-Instruct多模态大模型，这是一个强大的视觉-语言模型，专为图像理解和分析优化。
 
 ## 模型特点
 
@@ -75,7 +75,7 @@ MODEL_SELECTION_GUIDE = """
 
 ## 识别效果
 
-通义千问2.5-VL拥有3200亿参数，是目前最先进的中文多模态模型之一，对中文农业领域的病虫害识别有特别优化，能够提供专业、准确的诊断结果。
+通义千问2.5-VL拥有7200亿参数，是目前最先进的中文多模态模型之一，对中文农业领域的病虫害识别有特别优化，能够提供专业、准确的诊断结果。
 """
 
 class ModelSelection(models.Model):
