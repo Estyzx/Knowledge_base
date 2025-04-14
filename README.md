@@ -76,7 +76,7 @@ Knowledge_base/
 ### 安装步骤
 1. 克隆仓库
    ```bash
-   git clone https://github.com/yourusername/Knowledge_base.git
+   git clone https://github.com/Estyzx/Knowledge_base.git
    cd Knowledge_base
    ```
 
