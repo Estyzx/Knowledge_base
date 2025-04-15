@@ -186,23 +186,23 @@ def post_answer(request, question_id):
 
 @login_required
 def accept_answer(request, answer_id):
-    if request.method != 'POST':
-        return JsonResponse({'success': False, 'message': '不支持的请求方法'}, status=405)
-        
+    # 移除对请求方法的检查，支持GET和POST请求
     try:
-
         answer = get_object_or_404(Answer, pk=answer_id)
         
         if request.user != answer.question.author:
-            return JsonResponse({'success': False, 'message': '只有问题作者可以采纳回答'}, status=403)
+            messages.error(request, '只有问题作者可以采纳回答')
+            return redirect('expert_qa:question_detail', pk=answer.question.id)
         
         # 检查回答是否已被采纳
         if answer.is_accepted:
-            return JsonResponse({'success': False, 'message': '该回答已经被采纳'}, status=400)
+            messages.info(request, '该回答已经被采纳')
+            return redirect('expert_qa:question_detail', pk=answer.question.id)
         
         # 检查问题是否已有采纳的回答
         if answer.question.answers.filter(is_accepted=True).exists():
-            return JsonResponse({'success': False, 'message': '该问题已有采纳的回答'}, status=400)
+            messages.error(request, '该问题已有采纳的回答')
+            return redirect('expert_qa:question_detail', pk=answer.question.id)
         
         answer.is_accepted = True
         answer.save()
@@ -211,20 +211,12 @@ def accept_answer(request, answer_id):
         answer.question.is_answered = True
         answer.question.save()
         
-        return JsonResponse({
-            'success': True,
-            'message': '回答已成功采纳'
-        })
-    except Answer.DoesNotExist:
-        return JsonResponse({
-            'success': False,
-            'message': '回答不存在'
-        }, status=404)
+        messages.success(request, '回答已成功采纳！')
+        return redirect('expert_qa:question_detail', pk=answer.question.id)
+        
     except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'message': str(e)
-        }, status=500)
+        messages.error(request, f'采纳回答时出错：{str(e)}')
+        return redirect('expert_qa:question_list')
 
 @login_required
 def vote_question(request, pk):

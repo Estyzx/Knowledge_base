@@ -410,7 +410,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const acceptButtons = document.querySelectorAll('.accept-answer');
     if (acceptButtons) {
         acceptButtons.forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
                 const answerId = this.getAttribute('data-answer-id');
                 if (answerId) {
                     if (confirm('确定要采纳这个回答吗？采纳后将不能更改。')) {
