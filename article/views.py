@@ -269,7 +269,7 @@ def get_similar_articles(article):
     # 计算相似度分数
     sim_scores = list(enumerate(cos_sim[article_index]))
     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
-    sim_scores = sim_scores[1:6]  # 排除目标文章本身
+    sim_scores = sim_scores[1:4]  # 排除目标文章本身
 
     article_indices = [i[0] for i in sim_scores]
     return [articles[i] for i in article_indices]
