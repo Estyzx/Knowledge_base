@@ -54,6 +54,11 @@ body {
     line-height: 1.6;
 }
 
+/* 内容加载状态样式 */
+body.content-loading {
+    visibility: visible !important;
+}
+
 /* 导航栏样式 */
 .navbar {
     box-shadow: var(--shadow-md);
@@ -395,6 +400,21 @@ body {
 
 .hover-shadow:hover {
     box-shadow: var(--shadow-lg);
+}
+
+/* 修复内容闪烁问题 */
+.no-js-hidden {
+    display: none;
+}
+
+.js-enabled .no-js-hidden {
+    display: block;
+}
+
+/* 修复后退导航问题 */
+.back-nav-fix {
+    opacity: 0;
+    animation: fadeIn 0.3s ease forwards;
 }
 
 /* 响应式调整 */

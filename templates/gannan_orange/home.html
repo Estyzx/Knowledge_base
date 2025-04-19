@@ -4,6 +4,11 @@
 {% block title %}农业智库 - 农业知识中心{% endblock %}
 
 {% block head %}
+<!-- 添加缓存控制元标签，确保浏览器正确缓存页面 -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
 <style>
     /* 基础样式和动画 */
     .placeholder {
@@ -387,23 +392,25 @@
                     {% else %}
                     <div class="row g-3">
                         <div class="col-12">
-                            <div class="nav-card bg-success-gradient" data-aos="fade-up">
-                                <a href="{% url 'user:login' %}" class="stretched-link"></a>
-                                <div class="card-body text-center">
-                                    <i class="fas fa-sign-in-alt fa-2x mb-2"></i>
-                                    <h6 class="mb-0">登录</h6>
+                            <a href="{% url 'user:login' %}" class="text-decoration-none">
+                                <div class="nav-card bg-success-gradient" data-aos="fade-up">
+                                    <div class="card-body text-center text-body">
+                                        <i class="fas fa-sign-in-alt fa-2x mb-2"></i>
+                                        <h6 class="mb-0" style="color: black;">登录</h6>
+                                    </div>
                                 </div>
-                            </div>
+                            </a>
                         </div>
 
                         <div class="col-12">
-                            <div class="nav-card bg-outline-success" data-aos="fade-up" data-aos-delay="100">
-                                <a href="{% url 'user:register' %}" class="stretched-link"></a>
-                                <div class="card-body text-center">
-                                    <i class="fas fa-user-plus fa-2x mb-2"></i>
-                                    <h6 class="mb-0">注册</h6>
+                            <a href="{% url 'user:register' %}" class="text-decoration-none">
+                                <div class="nav-card bg-outline-success" data-aos="fade-up" data-aos-delay="100">
+                                    <div class="card-body text-center text-body">
+                                        <i class="fas fa-user-plus fa-2x mb-2"></i>
+                                        <h6 class="mb-0" style="color: black;">注册</h6>
+                                    </div>
                                 </div>
-                            </div>
+                            </a>
                         </div>
                     </div>
                     {% endif %}
@@ -415,9 +422,23 @@
 
 <!-- 天气加载脚本 -->
 <script>
-    // 页面加载完成后执行
-    document.addEventListener('DOMContentLoaded', function () {
+    // 在页面加载和浏览器后退事件时都能正确执行的初始化函数
+    function initializePage() {
         loadWeatherData();
+        // 如果有其他需要初始化的内容，也可以在这里添加
+    }
+    
+    // 页面加载完成后执行
+    document.addEventListener('DOMContentLoaded', function() {
+        initializePage();
+        
+        // 处理浏览器后退按钮事件
+        window.addEventListener('pageshow', function(event) {
+            // 当页面从缓存中恢复时(例如后退按钮)，重新初始化页面
+            if (event.persisted) {
+                initializePage();
+            }
+        });
     });
 
     // 获取天气数据并处理缓存
@@ -525,5 +546,45 @@
             </div>
         `;
     }
+</script>
+
+<!-- 添加后退处理脚本 -->
+<script>
+    // 处理页面可见性变化，确保在页面恢复可见时内容正确加载
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
+            // 页面从隐藏状态变为可见状态，可能是从其他标签页返回或后退操作
+            const weatherContent = document.getElementById('weather-content');
+            // 检查内容是否为空或仅包含加载占位符
+            if (weatherContent && (weatherContent.innerHTML.trim() === '' || weatherContent.classList.contains('placeholder'))) {
+                loadWeatherData();
+            }
+        }
+    });
+    
+    // 在页面卸载前保存状态，有助于在后退时恢复
+    window.addEventListener('beforeunload', function() {
+        // 将当前状态存储到sessionStorage
+        if (document.getElementById('weather-content')) {
+            sessionStorage.setItem('weatherHtml', document.getElementById('weather-content').innerHTML);
+            sessionStorage.setItem('weatherTimestamp', new Date().getTime());
+        }
+    });
+    
+    // 如果有保存的状态且时间较新，尝试恢复
+    window.addEventListener('load', function() {
+        const weatherContent = document.getElementById('weather-content');
+        const savedHtml = sessionStorage.getItem('weatherHtml');
+        const timestamp = sessionStorage.getItem('weatherTimestamp');
+        
+        if (weatherContent && savedHtml && timestamp) {
+            // 检查保存的状态是否还在有效期内（5分钟）
+            const now = new Date().getTime();
+            if ((now - timestamp) < 5 * 60 * 1000) {
+                weatherContent.innerHTML = savedHtml;
+                weatherContent.classList.remove('placeholder');
+            }
+        }
+    });
 </script>
 {% endblock %}
