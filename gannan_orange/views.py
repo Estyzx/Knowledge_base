@@ -412,6 +412,7 @@ class PlantingTechDetail(DetailView):
             referer = reverse('orange:tech_list')
         context['referer'] = referer
         return context
+    
 
 class PlantingTechEdit(LoginRequiredMixin, UpdateView):
     model = PlantingTech
